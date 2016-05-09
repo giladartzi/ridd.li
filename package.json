@@ -1,0 +1,32 @@
+{
+  "name": "ridd.li",
+  "version": "1.0.0",
+  "description": "ridd.li trivia",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node src/server/start.js",
+    "syncDb": "node src/server/start.js syncDb",
+    "test": "node src/server/start.js tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/giladartzi/ridd.li.git"
+  },
+  "author": "Gilad Artzi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/giladartzi/ridd.li/issues"
+  },
+  "homepage": "https://github.com/giladartzi/ridd.li#readme",
+  "devDependencies": {
+    "babel-register": "^6.8.0"
+  },
+  "dependencies": {
+    "babel-plugin-transform-async-to-generator": "^6.8.0",
+    "babel-polyfill": "^6.8.0",
+    "babel-preset-es2015": "^6.6.0",
+    "babel-preset-stage-3": "^6.5.0",
+    "lodash": "^4.12.0",
+    "mongodb": "^2.1.18"
+  }
+}
