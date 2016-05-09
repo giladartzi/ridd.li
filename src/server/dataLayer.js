@@ -77,6 +77,9 @@ export async function find(collection, params = {}) {
         if (result.length === 1) {
             result = result[0];
         }
+        else if (result.length === 0) {
+            result = null;
+        }
     }
     catch (e) {
         console.error(e, e.stack.split("\n"));

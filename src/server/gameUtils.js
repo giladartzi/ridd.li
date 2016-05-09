@@ -1,6 +1,8 @@
 import { find, insert, findById, findOneAndReplace } from './dataLayer';
 import shuffle from 'lodash/shuffle';
 import first from 'lodash/first';
+import uniq from 'lodash/uniq';
+import cloneDeep from 'lodash/cloneDeep';
 
 export async function getRandomizeQuestions() {
     var questions = await find('questions', { excludeId: true });
@@ -30,22 +32,32 @@ export async function createGame(userIds) {
         }
     });
 
-    let result = await insert('games', game);
+    game = await insert('games', game);
 
-    return result._id;
+    return await advanceGame(game);
 }
 
 export async function getCurrentQuestion(game) {
     if (typeof game === 'string') {
-        game = await findById('games', gameId);
+        game = await findById('games', game);
     }
     
     return game.questions[game.currentQuestion] || null;
 }
 
-export async function advanceGame(gameId) {
-    let game = await findById('games', gameId);
+export async function advanceGame(game) {
+    if (typeof game === 'string') {
+        game = await findById('games', game);
+    }
+
+    let isSingleLength = uniq(game.gameMetaData.map(gmd => {
+        return gmd.progress.filter(p => p.isAnswered).length
+    })).length === 1;
     
+    if (!isSingleLength) {
+        return game;
+    }
+
     game.currentQuestion += 1;
     let question = await getCurrentQuestion(game);
     
@@ -62,7 +74,7 @@ export async function advanceGame(gameId) {
         game.state = 'INACTIVE';
     }
 
-    return await findOneAndReplace('games', gameId, game);
+    return await findOneAndReplace('games', game._id, game);
 }
 
 export async function addMove(game, userId, questionIndex, answerIndex) {
@@ -70,12 +82,23 @@ export async function addMove(game, userId, questionIndex, answerIndex) {
         game = await findById('games', game);
     }
 
-    var gmd = first(game.gameMetaData.filter(gmd => gmd.userId === userId));
+    var gmd = first(game.gameMetaData.filter(gmd => gmd.userId === +userId));
     var question = game.questions[questionIndex];
 
     gmd.progress[questionIndex].answerTiming = Date.now();
     gmd.progress[questionIndex].answerIndex = answerIndex;
     gmd.progress[questionIndex].isCorrect = question.answers[answerIndex].isCorrect;
+    gmd.progress[questionIndex].isAnswered = true;
 
     return await findOneAndReplace('games', game._id, game);    
+}
+
+export async function getGameByUserId(userId) {
+    return await find('games', { query: { 'gameMetaData.userId': +userId, state: 'ACTIVE' } });
+}
+
+export function sanitizeQuestion(question) {
+    var result = cloneDeep(question);
+    result.answers = result.answers.map(answer => answer.text);
+    return result;
 }

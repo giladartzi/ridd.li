@@ -17,34 +17,29 @@ async function addMoveForGame(game, userId, correct) {
 }
 
 async function test() {
-    let game;
-
-    let gameId = await createGame([1, 2]);
-    console.log(gameId);
-
-    game = await advanceGame(gameId);
-    console.log(game);
+    let game = await createGame([1, 2]);
+    console.log(game._id);
+    
     game = await addMoveForGame(game, 1, true);
     console.log(game);
     game = await addMoveForGame(game, 2, false);
     console.log(game);
 
-    game = await advanceGame(gameId);
+    game = await advanceGame(game);
+    console.log(game);
+    game = await addMoveForGame(game, 1, false);
+    console.log(game);
+    game = await addMoveForGame(game, 2, true);
+    console.log(game);
+    game = await advanceGame(game);
     console.log(game);
     game = await addMoveForGame(game, 1, false);
     console.log(game);
     game = await addMoveForGame(game, 2, true);
     console.log(game);
 
-    game = await advanceGame(gameId);
-    console.log(game);
-    game = await addMoveForGame(game, 1, false);
-    console.log(game);
-    game = await addMoveForGame(game, 2, true);
-    console.log(game);
-
-    game = await advanceGame(gameId);
-    console.log(game);
+    game = await advanceGame(game);
+    console.log('end', game);
 
     process.exit(0);
 }
