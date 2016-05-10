@@ -1,5 +1,4 @@
 import * as server from './server';
-import random from 'lodash/random';
 import uniq from 'lodash/uniq';
 import isEqual from 'lodash/isEqual';
 import first from 'lodash/first';
@@ -22,7 +21,7 @@ function getAnswerIndex(question, correct) {
     }
 }
 
-async function send(method, path, body) {
+async function send(method, path, token, body) {
     let url = 'http://localhost:8080' + path;
 
     let options = {
@@ -32,6 +31,10 @@ async function send(method, path, body) {
             'Content-Type': 'application/json'
         }
     };
+    
+    if (token) {
+        options.headers.token = token;
+    }
 
     if (body) {
         options.body = JSON.stringify(body);
@@ -45,12 +48,12 @@ async function send(method, path, body) {
     };
 }
 
-async function post(path, body) {
-    return await send('POST', path, body);
+async function post(path, body, token) {
+    return await send('POST', path, token, body);
 }
 
-async function get(path) {
-    return await send('GET', path);
+async function get(path, token) {
+    return await send('GET', path, token);
 }
 
 function assertEqual(a, b, msg) {
@@ -60,23 +63,6 @@ function assertEqual(a, b, msg) {
     }
 
     return true;
-}
-
-function assertNotEqual(a, b, msg) {
-    if (a === b) {
-        console.error(chalk.red('[   Fail]'), msg, a, b);
-        return false;
-    }
-
-    return true;
-}
-
-function assertTrue(a, msg) {
-    return assertEqual(a, true, msg);
-}
-
-function assertFalse(a, msg) {
-    return assertEqual(a, false, msg);
 }
 
 function verifyBatch(name, batch) {
@@ -96,12 +82,70 @@ function verifyBatch(name, batch) {
 }
 
 async function tests() {
-    var userId1 = random(1000000, 9999999);
-    var userId2 = random(1000000, 9999999);
-    let currentQuestion, gameId;
+    let currentQuestion, gameId, res, userId2, token1, token2;
 
-    // Creating a game with dummy userId's
-    let res = await post('/createGame', { userId1, userId2 });
+    res = await post('/authenticate', { username: 'gilad', password: '12345' });
+    verifyBatch('Authentication - non-existing username', [
+        assertEqual(res.status, 400, 'status is not 400!'),
+        assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
+        assertEqual(res.json.error, 'Invalid credentials', 'wrong error message!')
+    ]);
+
+    res = await post('/register', { username: 'gilad', password: '12345' });
+    verifyBatch('Register - correct process', [
+        assertEqual(res.status, 200, 'status is not 200!'),
+        assertEqual(typeof res.json.id, 'string', 'error is not a string!'),
+        assertEqual(typeof res.json.username, 'string', 'username is not a string!'),
+        assertEqual(res.json.username, 'gilad', 'username is gilad!'),
+        assertEqual(typeof res.json.token, 'string', 'token is not a string!')
+    ]);
+
+    res = await post('/register', { username: 'gilad', password: '12345' });
+    verifyBatch('Register - duplication username', [
+        assertEqual(res.status, 400, 'status is not 400!'),
+        assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
+        assertEqual(res.json.error, 'Username is taken', 'wrong error message!')
+    ]);
+
+    res = await post('/authenticate', { username: 'gilad', password: '123456' });
+    verifyBatch('Authentication - wrong password', [
+        assertEqual(res.status, 400, 'status is not 400!'),
+        assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
+        assertEqual(res.json.error, 'Invalid credentials', 'wrong error message!')
+    ]);
+
+    res = await post('/authenticate', { username: 'gilad', password: '12345' });
+    verifyBatch('Authentication - correct process', [
+        assertEqual(res.status, 200, 'status is not 200!'),
+        assertEqual(typeof res.json.id, 'string', 'error is not a string!'),
+        assertEqual(typeof res.json.username, 'string', 'username is not a string!'),
+        assertEqual(res.json.username, 'gilad', 'username is gilad!'),
+        assertEqual(typeof res.json.token, 'string', 'token is not a string!')
+    ]);
+    
+    token1 = res.json.token;
+
+    res = await post('/register', { username: 'userblat', password: '12345678' });
+    verifyBatch('Register - correct process', [
+        assertEqual(res.status, 200, 'status is not 200!'),
+        assertEqual(typeof res.json.id, 'string', 'error is not a string!'),
+        assertEqual(typeof res.json.username, 'string', 'username is not a string!'),
+        assertEqual(res.json.username, 'userblat', 'username is userblat!'),
+        assertEqual(typeof res.json.token, 'string', 'token is not a string!')
+    ]);
+
+    userId2 = res.json.id;
+    token2 = res.json.token;
+
+    res = await post('/createGame', { opponentId: "blablablabla" }, token1);
+
+    verifyBatch('Game initialization with bad opponentId', [
+        assertEqual(res.status, 400, 'status is not 400!'),
+        assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
+        assertEqual(res.json.error, 'One or more invalid user IDs', 'wrong error message!')
+    ]);
+
+    res = await post('/createGame', { opponentId: userId2 }, token1);
 
     verifyBatch('Game init', [
         assertEqual(res.status, 200, 'status is not 200!'),
@@ -116,16 +160,16 @@ async function tests() {
     currentQuestion = res.json.question;
     gameId = res.json.gameId;
 
-    res = await post('/createGame', { userId1, userId2 });
+    res = await post('/createGame', { opponentId: userId2 }, token1);
 
     verifyBatch('Duplication initialization', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
-        assertEqual(res.json.error, 'At least one of the users is busy', 'wrong error message!'),
+        assertEqual(res.json.error, 'At least one of the users is busy', 'wrong error message!')
     ]);
 
     // Get the game in the first user's perspective
-    res = await get('/game/' + userId1);
+    res = await get('/game', token1);
     verifyBatch('Stage 1 - First user perspective', [
         assertEqual(res.status, 200, 'status is not 200!'),
         assertEqual(res.json.state, 'ACTIVE', 'state is not ACTIVE!'),
@@ -139,7 +183,7 @@ async function tests() {
         assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!')
     ]);
 
-    res = await get('/game/' + userId2);
+    res = await get('/game', token2);
     verifyBatch('Stage 1 - Second user perspective', [
         assertEqual(res.status, 200, 'status is not 200!'),
         assertEqual(res.json.state, 'ACTIVE', 'state is not ACTIVE!'),
@@ -155,10 +199,9 @@ async function tests() {
 
     res = await post('/answer', {
         gameId,
-        userId: userId1,
         questionIndex: 0,
         answerIndex: getAnswerIndex(currentQuestion, true)
-    });
+    }, token1);
     verifyBatch('Stage 1 - First user answers correctly', [
         assertEqual(res.status, 200, 'status is not 200!'),
         assertEqual(res.json.state, 'ACTIVE', 'state is not ACTIVE!'),
@@ -175,10 +218,9 @@ async function tests() {
 
     res = await post('/answer', {
         gameId,
-        userId: userId2,
         questionIndex: 0,
         answerIndex: getAnswerIndex(currentQuestion, false)
-    });
+    }, token2);
     verifyBatch('Stage 1 - Second user answers incorrectly', [
         assertEqual(res.status, 200, 'status is not 200!'),
         assertEqual(res.json.state, 'ACTIVE', 'state is not ACTIVE!'),
@@ -196,10 +238,9 @@ async function tests() {
 
     res = await post('/answer', {
         gameId,
-        userId: userId1,
         questionIndex: 0,
         answerIndex: 0
-    });
+    }, token1);
     verifyBatch('Stage 1 - First user tries to re-answer the same question twice', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
@@ -208,10 +249,9 @@ async function tests() {
 
     res = await post('/answer', {
         gameId,
-        userId: userId1,
         questionIndex: 14,
         answerIndex: 0
-    });
+    }, token1);
     verifyBatch('Stage 1 - First user tries to answer a non-existing question', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
@@ -220,10 +260,9 @@ async function tests() {
 
     res = await post('/answer', {
         gameId,
-        userId: userId1,
         questionIndex: 1,
         answerIndex: getAnswerIndex(currentQuestion, true)
-    });
+    }, token1);
     verifyBatch('Stage 2 - First user answers correctly', [
         assertEqual(res.status, 200, 'status is not 200!'),
         assertEqual(res.json.state, 'ACTIVE', 'state is not ACTIVE!'),
@@ -240,10 +279,9 @@ async function tests() {
 
     res = await post('/answer', {
         gameId,
-        userId: userId2,
         questionIndex: 1,
         answerIndex: getAnswerIndex(currentQuestion, false)
-    });
+    }, token2);
     verifyBatch('Stage 2 - Second user answers incorrectly', [
         assertEqual(res.status, 200, 'status is not 200!'),
         assertEqual(res.json.state, 'ACTIVE', 'state is not ACTIVE!'),
@@ -261,10 +299,9 @@ async function tests() {
 
     res = await post('/answer', {
         gameId,
-        userId: userId1,
         questionIndex: 2,
         answerIndex: getAnswerIndex(currentQuestion, false)
-    });
+    }, token1);
     verifyBatch('Stage 3 - First user answers incorrectly', [
         assertEqual(res.status, 200, 'status is not 200!'),
         assertEqual(res.json.state, 'ACTIVE', 'state is not ACTIVE!'),
@@ -281,10 +318,9 @@ async function tests() {
 
     res = await post('/answer', {
         gameId,
-        userId: userId2,
         questionIndex: 2,
         answerIndex: getAnswerIndex(currentQuestion, true)
-    });
+    }, token2);
 
     verifyBatch('Stage 3 - Second user answers incorrectly', [
         assertEqual(res.status, 200, 'status is not 200!'),
@@ -295,22 +331,22 @@ async function tests() {
         assertEqual(res.json.progress.length, 3, 'progress is not in the length of 3!'),
         assertEqual(res.json.progress.filter(p => p.isAnswered).length, 3, 'answered is not in the length of 3!'),
         assertEqual(res.json.progress[2].isCorrect, true, 'Answer is not correct!'),
-        assertEqual(res.json.question, null, 'question is not null!'),
+        assertEqual(res.json.question, null, 'question is not null!')
     ]);
 
-    res = await get('/game/' + userId1);
+    res = await get('/game', token1);
     verifyBatch('Stage 4 - First user perspective', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
         assertEqual(res.json.error, 'Game not found', 'Incorrect error message!')
-    ]);
+    ], token1);
 
-    res = await get('/game/' + userId2);
+    res = await get('/game', token2);
     verifyBatch('Stage 4 - Second user perspective', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
         assertEqual(res.json.error, 'Game not found', 'Incorrect error message!')
-    ]);
+    ], token2);
 
     process.exit(0);
 }

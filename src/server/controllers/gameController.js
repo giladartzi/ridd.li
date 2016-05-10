@@ -1,4 +1,4 @@
-import * as gameUtils from '../gameUtils';
+import * as gameUtils from '../utils/gameUtils';
 import first from 'lodash/first';
 
 let gameJson = async (game, userId) => {
@@ -8,7 +8,7 @@ let gameJson = async (game, userId) => {
         question = gameUtils.sanitizeQuestion(question);
     }
 
-    let gmd = first(game.gameMetaData.filter(gmd => gmd.userId === +userId));
+    let gmd = first(game.gameMetaData.filter(gmd => gmd.userId === userId));
     let userIndex = game.gameMetaData.indexOf(gmd);
 
     return {

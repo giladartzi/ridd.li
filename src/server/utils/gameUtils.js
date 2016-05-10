@@ -1,8 +1,9 @@
-import { find, insert, findById, findOneAndReplace } from './dataLayer';
+import { find, insert, findById, findOneAndReplace } from '../dataLayer';
 import shuffle from 'lodash/shuffle';
 import first from 'lodash/first';
 import uniq from 'lodash/uniq';
 import cloneDeep from 'lodash/cloneDeep';
+import mongodb from 'mongodb';
 
 export async function getRandomizeQuestions() {
     var questions = await find('questions', { excludeId: true });
@@ -20,6 +21,12 @@ export async function createGame(userIds) {
     
     if (existing) {
         throw new Error('At least one of the users is busy');
+    }
+
+    let isValid = await validateUserIds(userIds);
+
+    if (!isValid) {
+        throw new Error('One or more invalid user IDs');
     }
     
     let questions = await getRandomizeQuestions();
@@ -88,7 +95,7 @@ export async function addMove(game, userId, questionIndex, answerIndex) {
         game = await findById('games', game);
     }
 
-    var gmd = first(game.gameMetaData.filter(gmd => gmd.userId === +userId));
+    var gmd = first(game.gameMetaData.filter(gmd => gmd.userId === userId));
     var question = game.questions[questionIndex];
 
     if (!gmd.progress[questionIndex]) {
@@ -108,7 +115,7 @@ export async function addMove(game, userId, questionIndex, answerIndex) {
 }
 
 export async function getGameByUserId(userId) {
-    return await find('games', { query: { 'gameMetaData.userId': +userId, state: 'ACTIVE' } });
+    return await find('games', { query: { 'gameMetaData.userId': userId, state: 'ACTIVE' } });
 }
 
 async function isExistingGame(userIds) {
@@ -128,4 +135,11 @@ export function sanitizeQuestion(question) {
     var result = cloneDeep(question);
     result.answers = result.answers.map(answer => answer.text);
     return result;
+}
+
+export async function validateUserIds(userIds) {
+    let objectIds = userIds.map(userId => new mongodb.ObjectID(userId));
+    var users = await find('users', { query: { _id: { $in: objectIds } } });
+    
+    return users.length === userIds.length;
 }

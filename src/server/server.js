@@ -3,18 +3,23 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import cors from 'cors';
 import http from 'http';
+import { jwtMiddleware } from './utils/userUtils';
 
 let app = express();
 
 app.use(compression());
 app.use(bodyParser.json());
 app.use(cors());
+app.use(function(err, req, res, next) {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
 
 import * as gameController from './controllers/gameController';
 
-app.post('/createGame', async (req, res) => {
+app.post('/createGame', jwtMiddleware, async (req, res) => {
     try {
-        let userIds = [req.body.userId1, req.body.userId2];
+        let userIds = [req.user.id, req.body.opponentId];
         res.json(await gameController.createGame(userIds));
     }
     catch (e) {
@@ -22,8 +27,8 @@ app.post('/createGame', async (req, res) => {
     }
 });
 
-app.get('/game/:userId', async (req, res) => {
-    let userId = req.params.userId;
+app.get('/game', jwtMiddleware, async (req, res) => {
+    let userId = req.user.id;
     
     try {
         res.json(await gameController.game(userId));
@@ -33,9 +38,9 @@ app.get('/game/:userId', async (req, res) => {
     }
 });
 
-app.post('/answer', async (req, res) => {
+app.post('/answer', jwtMiddleware, async (req, res) => {
     try {
-        let json = await gameController.answer(req.body.gameId, req.body.userId,
+        let json = await gameController.answer(req.body.gameId, req.user.id,
             req.body.questionIndex, req.body.answerIndex);
 
         res.json(json);
@@ -43,7 +48,27 @@ app.post('/answer', async (req, res) => {
     catch (e) {
         res.status(400).json({ error: e.message });
     }
+});
 
+import * as userController from './controllers/userController';
+app.post('/register', async (req, res) => {
+    try {
+        let user = await userController.register(req.body.username, req.body.password);
+        res.json(user);
+    }
+    catch (e) {
+        res.status(400).json({ error: e.message });
+    }
+});
+
+app.post('/authenticate', async (req, res) => {
+    try {
+        let user = await userController.authenticate(req.body.username, req.body.password);
+        res.json(user);
+    }
+    catch (e) {
+        res.status(400).json({ error: e.message });
+    }
 });
 
 var port = 8080;

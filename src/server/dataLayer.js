@@ -1,6 +1,5 @@
 var MongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectID;
-var utils = require('./utils');
 import isNumber from 'lodash/isNumber';
 
 let connection = null;
