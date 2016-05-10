@@ -2,8 +2,10 @@ import questions from './defaultQuestions';
 import * as dataLayer from './dataLayer';
 
 (async function () {
-    console.log(await dataLayer.drop('games'));
-    console.log(await dataLayer.drop('questions'));
-    console.log(await dataLayer.insert('questions', questions));
-    process.exit(0);
+    await dataLayer.insert('games', { a: 1 });
+    await dataLayer.drop('games');
+    await dataLayer.drop('questions');
+    await dataLayer.insert('questions', questions);
+
+    process.exit(0)
 })();

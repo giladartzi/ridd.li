@@ -13,8 +13,13 @@ app.use(cors());
 import * as gameController from './controllers/gameController';
 
 app.post('/createGame', async (req, res) => {
-    let userIds = [req.body.userId1, req.body.userId2];
-    res.json(await gameController.createGame(userIds));
+    try {
+        let userIds = [req.body.userId1, req.body.userId2];
+        res.json(await gameController.createGame(userIds));
+    }
+    catch (e) {
+        res.status(400).json({ error: e.message });
+    }
 });
 
 app.get('/game/:userId', async (req, res) => {
@@ -29,10 +34,16 @@ app.get('/game/:userId', async (req, res) => {
 });
 
 app.post('/answer', async (req, res) => {
-    let json = await gameController.answer(req.body.gameId, req.body.userId,
-        req.body.questionIndex, req.body.answerIndex);
+    try {
+        let json = await gameController.answer(req.body.gameId, req.body.userId,
+            req.body.questionIndex, req.body.answerIndex);
 
-    res.json(json);
+        res.json(json);
+    }
+    catch (e) {
+        res.status(400).json({ error: e.message });
+    }
+
 });
 
 var port = 8080;

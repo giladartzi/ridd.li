@@ -16,6 +16,12 @@ export async function getRandomizeQuestions() {
 }
 
 export async function createGame(userIds) {
+    let existing = await isExistingGame(userIds);
+    
+    if (existing) {
+        throw new Error('At least one of the users is busy');
+    }
+    
     let questions = await getRandomizeQuestions();
 
     let game = {
@@ -85,6 +91,14 @@ export async function addMove(game, userId, questionIndex, answerIndex) {
     var gmd = first(game.gameMetaData.filter(gmd => gmd.userId === +userId));
     var question = game.questions[questionIndex];
 
+    if (!gmd.progress[questionIndex]) {
+        throw new Error('Invalid question index!');
+    }
+
+    if (gmd.progress[questionIndex].isAnswered) {
+        throw new Error('Question is already answered!');
+    }
+
     gmd.progress[questionIndex].answerTiming = Date.now();
     gmd.progress[questionIndex].answerIndex = answerIndex;
     gmd.progress[questionIndex].isCorrect = question.answers[answerIndex].isCorrect;
@@ -95,6 +109,19 @@ export async function addMove(game, userId, questionIndex, answerIndex) {
 
 export async function getGameByUserId(userId) {
     return await find('games', { query: { 'gameMetaData.userId': +userId, state: 'ACTIVE' } });
+}
+
+async function isExistingGame(userIds) {
+    let i;
+
+    for (i = 0; i < userIds.length; i++) {
+        let boolean = !!(await getGameByUserId(userIds[i]));
+        if (boolean) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 export function sanitizeQuestion(question) {
