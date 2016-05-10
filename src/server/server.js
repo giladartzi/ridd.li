@@ -71,6 +71,27 @@ app.post('/authenticate', async (req, res) => {
     }
 });
 
+import * as loungeController from './controllers/loungeController';
+app.post('/lounge/availableUsers', jwtMiddleware, async (req, res) => {
+    try {
+        let users = await loungeController.availableUsers(req.user.id);
+        res.json(users);
+    }
+    catch (e) {
+        res.status(400).json({ error: e.message });
+    }
+});
+
+app.post('/lounge/enter', jwtMiddleware, async (req, res) => {
+    try {
+        let result = await loungeController.enter(req.user.id);
+        res.json(result);
+    }
+    catch (e) {
+        res.status(400).json({ error: e.message });
+    }
+});
+
 var port = 8080;
 var server = http.createServer(app);
 server.listen(port, function () { console.log('Listening on port', port); });

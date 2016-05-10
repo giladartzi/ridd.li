@@ -32,6 +32,21 @@ export async function findOneAndReplace(collection, id, data) {
     return result;
 }
 
+export async function findOneAndUpdate(collection, id, data) {
+    let db = await getConnection();
+    let result = null;
+
+    try {
+        result = (await db.collection(collection).findOneAndUpdate({ _id: ObjectId(id) },
+            data, { returnOriginal: false, returnNewDocument: true })).value;
+    }
+    catch (e) {
+        console.error(e, e.stack.split("\n"));
+    }
+
+    return result;
+}
+
 export async function insert(collection, data) {
     let db = await getConnection();
     let result = null;
@@ -73,10 +88,10 @@ export async function find(collection, params = {}) {
 
         result = await action;
 
-        if (result.length === 1) {
+        if (!params.list && result.length === 1) {
             result = result[0];
         }
-        else if (result.length === 0) {
+        else if (!params.list && result.length === 0) {
             result = null;
         }
     }

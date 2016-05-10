@@ -82,7 +82,7 @@ function verifyBatch(name, batch) {
 }
 
 async function tests() {
-    let currentQuestion, gameId, res, userId2, token1, token2;
+    let currentQuestion, gameId, res, userId1, userId2, token1, token2;
 
     res = await post('/authenticate', { username: 'gilad', password: '12345' });
     verifyBatch('Authentication - non-existing username', [
@@ -123,19 +123,45 @@ async function tests() {
         assertEqual(typeof res.json.token, 'string', 'token is not a string!')
     ]);
     
+    userId1 = res.json.id;
     token1 = res.json.token;
 
-    res = await post('/register', { username: 'userblat', password: '12345678' });
+    res = await post('/register', { username: 'gilad2', password: '12345678' });
     verifyBatch('Register - correct process', [
         assertEqual(res.status, 200, 'status is not 200!'),
         assertEqual(typeof res.json.id, 'string', 'error is not a string!'),
         assertEqual(typeof res.json.username, 'string', 'username is not a string!'),
-        assertEqual(res.json.username, 'userblat', 'username is userblat!'),
+        assertEqual(res.json.username, 'gilad2', 'username is gilad2!'),
         assertEqual(typeof res.json.token, 'string', 'token is not a string!')
     ]);
 
     userId2 = res.json.id;
     token2 = res.json.token;
+
+    res = await post('/lounge/enter', {}, token1);
+    verifyBatch('Lounge - enter (user 1)', [
+        assertEqual(res.status, 200, 'status is not 200!'),
+        assertEqual(Array.isArray(res.json), true, 'res.json is not an array!'),
+        assertEqual(res.json.length, 0, 'res.json is not in length of 0!')
+    ]);
+
+    res = await post('/lounge/enter', {}, token2);
+    verifyBatch('Lounge - enter (user 2)', [
+        assertEqual(res.status, 200, 'status is not 200!'),
+        assertEqual(Array.isArray(res.json), true, 'res.json is not an array!'),
+        assertEqual(res.json.length, 1, 'res.json is not in length of 1!'),
+        assertEqual(res.json[0].id, userId1, 'wrong userId!'),
+        assertEqual(res.json[0].username, 'gilad', 'wrong username!')
+    ]);
+
+    res = await post('/lounge/availableUsers', {}, token1);
+    verifyBatch('Lounge - Get available users', [
+        assertEqual(res.status, 200, 'status is not 200!'),
+        assertEqual(Array.isArray(res.json), true, 'res.json is not an array!'),
+        assertEqual(res.json.length, 1, 'res.json is not in length of 1!'),
+        assertEqual(res.json[0].id, userId2, 'wrong userId!'),
+        assertEqual(res.json[0].username, 'gilad2', 'wrong username!')
+    ]);
 
     res = await post('/createGame', { opponentId: "blablablabla" }, token1);
 
