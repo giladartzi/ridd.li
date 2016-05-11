@@ -133,3 +133,7 @@ export async function drop(collection) {
 
     return result;
 }
+
+export function objectId(string) {
+    return new ObjectId(string);
+}

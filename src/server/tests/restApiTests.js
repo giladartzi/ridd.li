@@ -8,11 +8,11 @@ async function tests() {
     try {
         let { tokens, userIds } = await userTests();
         await loungeTests(tokens, userIds);
-        await invitationTests(tokens, userIds);
-        //await gameTests(tokens, userIds);
+        let { gameId, currentQuestion } = await invitationTests(tokens, userIds);
+        await gameTests(tokens, userIds, gameId, currentQuestion);
     }
     catch (e) {
-        console.log(e);
+        console.log(e, e.stack.split('\n'));
     }
 
 

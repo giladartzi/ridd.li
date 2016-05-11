@@ -1,39 +1,8 @@
 import { verifyBatch, assertEqual, post, get, getAnswerIndex } from './testUtils';
 import isEqual from 'lodash/isEqual';
 
-export default async function gameTests(tokens, userIds) {
-    let res, gameId, currentQuestion;
-
-    res = await post('/createGame', { opponentId: "blablablabla" }, tokens[0]);
-
-    verifyBatch('Game initialization with bad opponentId', [
-        assertEqual(res.status, 400, 'status is not 400!'),
-        assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
-        assertEqual(res.json.error, 'One or more invalid user IDs', 'wrong error message!')
-    ]);
-
-    res = await post('/createGame', { opponentId: userIds[1] }, tokens[0]);
-
-    verifyBatch('Game init', [
-        assertEqual(res.status, 200, 'status is not 200!'),
-        assertEqual(res.json.state, 'ACTIVE', 'state is not ACTIVE!'),
-        assertEqual(typeof res.json.gameId, 'string', 'gameId is not a string!'),
-        assertEqual(Array.isArray(res.json.progress), true, 'progress is not an array!'),
-        assertEqual(res.json.progress.length, 1, 'progress is not in the length of 1!'),
-        assertEqual(typeof res.json.question.text, 'string', 'question.text is not a string!'),
-        assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!')
-    ]);
-
-    currentQuestion = res.json.question;
-    gameId = res.json.gameId;
-
-    res = await post('/createGame', { opponentId: userIds[1] }, tokens[0]);
-
-    verifyBatch('Duplication initialization', [
-        assertEqual(res.status, 400, 'status is not 400!'),
-        assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
-        assertEqual(res.json.error, 'At least one of the users is busy', 'wrong error message!')
-    ]);
+export default async function gameTests(tokens, userIds, gameId, currentQuestion) {
+    let res;
 
     // Get the game in the first user's perspective
     res = await get('/game', tokens[0]);

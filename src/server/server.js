@@ -17,16 +17,6 @@ app.use(function(err, req, res, next) {
 
 import * as gameController from './controllers/gameController';
 
-app.post('/createGame', jwtMiddleware, async (req, res) => {
-    try {
-        let userIds = [req.user.id, req.body.opponentId];
-        res.json(await gameController.createGame(userIds));
-    }
-    catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
-
 app.get('/game', jwtMiddleware, async (req, res) => {
     let userId = req.user.id;
     
@@ -116,6 +106,16 @@ app.post('/invitation/accept', jwtMiddleware, async (req, res) => {
 app.post('/invitation/reject', jwtMiddleware, async (req, res) => {
     try {
         let invitation = await invitationController.rejectInvitation(req.user.id);
+        res.json(invitation);
+    }
+    catch (e) {
+        res.status(400).json({ error: e.message });
+    }
+});
+
+app.post('/invitation/cancel', jwtMiddleware, async (req, res) => {
+    try {
+        let invitation = await invitationController.cancelInvitation(req.user.id);
         res.json(invitation);
     }
     catch (e) {
