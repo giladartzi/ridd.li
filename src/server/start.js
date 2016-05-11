@@ -16,7 +16,7 @@ if (process.argv[2] === 'tests') {
 }
 
 if (process.argv[2] === 'tests') {
-    toRequire = 'restApiTests';
+    toRequire = './tests/restApiTests';
 }
 
 require('./' + toRequire);

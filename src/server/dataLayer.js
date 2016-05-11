@@ -66,6 +66,20 @@ export async function insert(collection, data) {
     return result;
 }
 
+export async function update(collection, query, data) {
+    let db = await getConnection();
+    let result = null;
+
+    try {
+        result = (await db.collection(collection).update(query, data, { multi: true }));
+    }
+    catch (e) {
+        console.error(e, e.stack.split("\n"));
+    }
+
+    return result;
+}
+
 export async function find(collection, params = {}) {
     let db = await getConnection();
     let result = null;

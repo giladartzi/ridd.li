@@ -6,7 +6,7 @@ export async function availableUsers(exclude) {
         state: 'AVAILABLE',
         _id: { $ne: new mongodb.ObjectID(exclude) }
     }, list: true });
-    
+
     return users.map(user => {
         return {
             id: user._id,

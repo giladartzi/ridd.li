@@ -92,6 +92,47 @@ app.post('/lounge/enter', jwtMiddleware, async (req, res) => {
     }
 });
 
+import * as invitationController from './controllers/invitationController';
+app.post('/invitation/send', jwtMiddleware, async (req, res) => {
+    try {
+        let invitation = await invitationController.sendInvitation(req.user.id, req.body.opponentId);
+        res.json(invitation);
+    }
+    catch (e) {
+        res.status(400).json({ error: e.message });
+    }
+});
+
+app.post('/invitation/accept', jwtMiddleware, async (req, res) => {
+    try {
+        let invitation = await invitationController.acceptInvitation(req.user.id);
+        res.json(invitation);
+    }
+    catch (e) {
+        res.status(400).json({ error: e.message });
+    }
+});
+
+app.post('/invitation/reject', jwtMiddleware, async (req, res) => {
+    try {
+        let invitation = await invitationController.rejectInvitation(req.user.id);
+        res.json(invitation);
+    }
+    catch (e) {
+        res.status(400).json({ error: e.message });
+    }
+});
+
+app.get('/invitation', jwtMiddleware, async (req, res) => {
+    try {
+        let invitation = await invitationController.getInvitation(req.user.id);
+        res.json(invitation);
+    }
+    catch (e) {
+        res.status(400).json({ error: e.message });
+    }
+});
+
 var port = 8080;
 var server = http.createServer(app);
 server.listen(port, function () { console.log('Listening on port', port); });
