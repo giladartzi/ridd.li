@@ -21,12 +21,9 @@ export async function jwtMiddleware(req, res, next) {
 
     try {
         req.user = await pVerify(req.headers.token, 'secret', null);
+        next();
     }
     catch (e) {
-        console.error(e);
-    }
-    
-    if (req.user) {
-        next();
+        res.status(403).send({error: 'Unauthorized'});
     }
 }
