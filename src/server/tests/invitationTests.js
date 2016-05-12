@@ -1,4 +1,5 @@
-import { post, verifyBatch, assertEqual, get } from './testUtils';
+import { verifyBatch, assertEqual } from './testUtils';
+import { post, get } from '../../common/rest';
 
 export default async function invitationTests(tokens, userIds) {
     let res;

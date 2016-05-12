@@ -1,4 +1,5 @@
-import { verifyBatch, assertEqual, post, get, getAnswerIndex } from './testUtils';
+import { verifyBatch, assertEqual, getAnswerIndex } from './testUtils';
+import { post, get } from '../../common/rest';
 import isEqual from 'lodash/isEqual';
 
 export default async function gameTests(tokens, userIds, gameId, currentQuestion) {

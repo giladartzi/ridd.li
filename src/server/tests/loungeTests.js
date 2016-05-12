@@ -1,4 +1,5 @@
-import { verifyBatch, assertEqual, post } from './testUtils';
+import { verifyBatch, assertEqual } from './testUtils';
+import { post } from '../../common/rest';
 
 export default async function loungeTests(tokens, userIds) {
     let res; 
