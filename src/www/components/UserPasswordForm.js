@@ -1,9 +1,10 @@
 import React from 'react';
-import { post } from '../common/rest';
 
-export default class Form extends React.Component {
+export default class UserPasswordForm extends React.Component {
     constructor(params) {
         super(params);
+        
+        this.onSubmit = this.onSubmit.bind(this);
     }
 
     onUsernameChange(e) {
@@ -18,12 +19,10 @@ export default class Form extends React.Component {
         });
     }
 
-    async onSubmit(e) {
+    onSubmit(e) {
         e.preventDefault();
-        console.log(this.state);
-
-        let res = await post('/register', this.state, null);
-        console.log(res);
+        
+        this.props.onFormSubmit(this.state.username, this.state.password);
     }
 
     render() {
@@ -32,6 +31,7 @@ export default class Form extends React.Component {
                 <input type="text" name="username" placeholder="Username" onChange={this.onUsernameChange.bind(this)} />
                 <input type="password" name="password" placeholder="Password" onChange={this.onPasswordChange.bind(this)} />
                 <button type="submit">Submit</button>
+                { this.props.error ? <span>{this.props.error}</span> : null }
             </form>
         );
     }
