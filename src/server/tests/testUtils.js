@@ -37,7 +37,7 @@ export function verifyBatch(name, batch) {
         prefix = chalk.green('[Success]');
     }
     else {
-        prefix = chalk.red('[   Fail]');
+        prefix = chalk.red('[###Fail]');
     }
     console.log(prefix, name);
 

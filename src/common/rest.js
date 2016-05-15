@@ -8,6 +8,10 @@ export async function send(method, path, token, body) {
             'Content-Type': 'application/json'
         }
     };
+    
+    if (!token && typeof localStorage !== 'undefined') {
+        token = localStorage.token;
+    }
 
     if (token) {
         options.headers.token = token;

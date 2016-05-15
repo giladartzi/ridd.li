@@ -7,12 +7,14 @@ export async function availableUsers(exclude) {
         _id: { $ne: new mongodb.ObjectID(exclude) }
     }, list: true });
 
-    return users.map(user => {
-        return {
-            id: user._id,
-            username: user.username
-        }
-    });
+    return {
+        users: users.map(user => {
+            return {
+                id: user._id,
+                username: user.username
+            }
+        })
+    };
 }
 
 export async function enter(userId) {

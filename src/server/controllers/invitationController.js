@@ -10,7 +10,7 @@ function invitationJson(invitation) {
     }
 }
 
-export async function sendInvitation(userId, opponentId) {
+export async function sendInvitation(userId, username, opponentId) {
     // Verify user is available
     var opponent = await findById('users', opponentId);
 
@@ -34,8 +34,8 @@ export async function sendInvitation(userId, opponentId) {
     // create new invitation
     let invitation = await insert('invitations', {
         state: 'PENDING',
-        inviter: userId,
-        invitee: opponentId
+        inviter: { id: userId, username: username },
+        invitee: { id: opponentId, username: opponent.username }
     });
     
     return invitationJson(invitation);
@@ -44,7 +44,7 @@ export async function sendInvitation(userId, opponentId) {
 export async function acceptInvitation(userId) {
     // Verify invitation is pending
     let invitation = await find('invitations', { query: {
-        invitee: userId,
+        "invitee.id": userId,
         state: 'PENDING'
     }});
 
@@ -57,18 +57,18 @@ export async function acceptInvitation(userId) {
 
     // update both users state
     let userIds = [
-        objectId(invitation.inviter),
-        objectId(invitation.invitee)
+        objectId(invitation.inviter.id),
+        objectId(invitation.invitee.id)
     ];
     let users = await update('users', { _id: { $in: userIds } }, { $set: { state: 'IN_GAME' } });
 
-    return await createGame([invitation.inviter, invitation.invitee]);
+    return await createGame([invitation.inviter.id, invitation.invitee.id]);
 }
 
 export async function rejectInvitation(userId) {
     // Verify invitation is pending
     let invitation = await find('invitations', { query: {
-        invitee: userId,
+        "invitee.id": userId,
         state: 'PENDING'
     }});
 
@@ -81,8 +81,8 @@ export async function rejectInvitation(userId) {
     
     // update both users state
     let userIds = [
-        objectId(invitation.inviter),
-        objectId(invitation.invitee)
+        objectId(invitation.inviter.id),
+        objectId(invitation.invitee.id)
     ];
     let users = await update('users', { _id: { $in: userIds } }, { $set: { state: 'AVAILABLE' } });
     
@@ -92,7 +92,7 @@ export async function rejectInvitation(userId) {
 export async function cancelInvitation(userId) {
     // Verify invitation is pending
     let invitation = await find('invitations', { query: {
-        inviter: userId,
+        "inviter.id": userId,
         state: 'PENDING'
     }});
 
@@ -105,8 +105,8 @@ export async function cancelInvitation(userId) {
 
     // update both users state
     let userIds = [
-        objectId(invitation.inviter),
-        objectId(invitation.invitee)
+        objectId(invitation.inviter.id),
+        objectId(invitation.invitee.id)
     ];
     let users = await update('users', { _id: { $in: userIds } }, { $set: { state: 'AVAILABLE' } });
 
@@ -116,8 +116,8 @@ export async function cancelInvitation(userId) {
 export async function getInvitation(userId) {
     // find invitation if exists
     let invitation = await find('invitations', { query: { $or: [
-        { inviter: userId },
-        { invitee: userId }
+        { "inviter.id": userId },
+        { "invitee.id": userId }
     ], state: 'PENDING' }});
 
     if (!invitation) {

@@ -1,9 +1,25 @@
 import { get, post } from '../../common/rest';
 
+function dispatchSuccess(successType, res, onSuccess, dispatch, getState) {
+    if (res.json.error) {
+        throw new Error(res.json.error);
+    }
+
+    dispatch({ type: successType, payload: res.json });
+
+    if (typeof onSuccess === 'function') {
+        onSuccess(res, dispatch, getState);
+    }
+}
+
+function dispatchFailure(failureType, error, dispatch) {
+    dispatch({ type: failureType, error });
+}
+
 // Inspired by http://redux.js.org/docs/recipes/ReducingBoilerplate.html
 export function restApiMiddleware({ dispatch, getState }) {
     return next => async action => {
-        const { types, fetch } = action;
+        const { types, fetch, onSuccess } = action;
 
         if (!types) {
             // Normal action: pass it on
@@ -20,10 +36,11 @@ export function restApiMiddleware({ dispatch, getState }) {
 
         try {
             let res = await fetch(dispatch, getState);
-            dispatch({ type: successType, payload: res.json });
+            dispatchSuccess(successType, res, onSuccess, dispatch, getState);
+
         }
         catch (e) {
-            dispatch({ type: failureType, error: e.message });
+            dispatchFailure(failureType, e.message, dispatch);
         }
     }
 }
@@ -55,23 +72,23 @@ export function createApiReducer(types, initialState = {}) {
         [failureType](state, action) {
             return Object.assign({}, state, { pending: false, error: action.error });
         }
-    })
+    });
 }
 
-export function createApiActionPost(types, path, payload) {
-    return {
+export function createApiActionPost(types, path, payload, appendix) {
+    return Object.assign({}, {
         types,
         fetch: () => post(path, payload)
-    };
+    }, appendix);
 }
 
-export function createApiActionGet(types, path, payload) {
-    return {
+export function createApiActionGet(types, path, appendix) {
+    return Object.assign({}, {
         types,
-        fetch: () => get(path, payload)
-    };
+        fetch: () => get(path)
+    }, appendix);
 }
 
-export function createApiAction(types, path, payload) {
-    return createApiActionPost(types, path, payload);
+export function createApiAction(types, path, payload, appendix) {
+    return createApiActionPost(types, path, payload, appendix);
 }

@@ -22,8 +22,8 @@ export default async function invitationTests(tokens, userIds) {
         assertEqual(typeof res.json.id, 'string', 'id is not a string!'),
         assertEqual(typeof res.json.state, 'string', 'state is not a string!'),
         assertEqual(res.json.state, 'PENDING', 'state is not PENDING!'),
-        assertEqual(res.json.inviter, userIds[0], 'wrong inviter!'),
-        assertEqual(res.json.invitee, userIds[1], 'wrong inviter!')
+        assertEqual(res.json.inviter.id, userIds[0], 'wrong inviter!'),
+        assertEqual(res.json.invitee.id, userIds[1], 'wrong inviter!')
     ]);
 
     res = await post('/invitation/cancel', {}, tokens[0]);
@@ -32,8 +32,8 @@ export default async function invitationTests(tokens, userIds) {
         assertEqual(typeof res.json.id, 'string', 'id is not a string!'),
         assertEqual(typeof res.json.state, 'string', 'state is not a string!'),
         assertEqual(res.json.state, 'CANCELLED', 'state is not CANCELLED!'),
-        assertEqual(res.json.inviter, userIds[0], 'wrong inviter!'),
-        assertEqual(res.json.invitee, userIds[1], 'wrong inviter!')
+        assertEqual(res.json.inviter.id, userIds[0], 'wrong inviter!'),
+        assertEqual(res.json.invitee.id, userIds[1], 'wrong inviter!')
     ]);
 
     res = await post('/invitation/send', { opponentId: userIds[1] }, tokens[0]);
@@ -42,8 +42,8 @@ export default async function invitationTests(tokens, userIds) {
         assertEqual(typeof res.json.id, 'string', 'id is not a string!'),
         assertEqual(typeof res.json.state, 'string', 'state is not a string!'),
         assertEqual(res.json.state, 'PENDING', 'state is not PENDING!'),
-        assertEqual(res.json.inviter, userIds[0], 'wrong inviter!'),
-        assertEqual(res.json.invitee, userIds[1], 'wrong inviter!')
+        assertEqual(res.json.inviter.id, userIds[0], 'wrong inviter!'),
+        assertEqual(res.json.invitee.id, userIds[1], 'wrong inviter!')
     ]);
 
     res = await post('/invitation/send', { opponentId: userIds[1] }, tokens[0]);
@@ -64,8 +64,8 @@ export default async function invitationTests(tokens, userIds) {
         assertEqual(typeof res.json.id, 'string', 'id is not a string!'),
         assertEqual(typeof res.json.state, 'string', 'state is not a string!'),
         assertEqual(res.json.state, 'PENDING', 'state is not PENDING!'),
-        assertEqual(res.json.inviter, userIds[0], 'wrong inviter!'),
-        assertEqual(res.json.invitee, userIds[1], 'wrong inviter!')
+        assertEqual(res.json.inviter.id, userIds[0], 'wrong inviter!'),
+        assertEqual(res.json.invitee.id, userIds[1], 'wrong inviter!')
     ]);
 
     res = await get('/invitation', tokens[1]);
@@ -74,8 +74,8 @@ export default async function invitationTests(tokens, userIds) {
         assertEqual(typeof res.json.id, 'string', 'id is not a string!'),
         assertEqual(typeof res.json.state, 'string', 'state is not a string!'),
         assertEqual(res.json.state, 'PENDING', 'state is not PENDING!'),
-        assertEqual(res.json.inviter, userIds[0], 'wrong inviter!'),
-        assertEqual(res.json.invitee, userIds[1], 'wrong inviter!')
+        assertEqual(res.json.inviter.id, userIds[0], 'wrong inviter!'),
+        assertEqual(res.json.invitee.id, userIds[1], 'wrong inviter!')
     ]);
 
     res = await post('/invitation/reject', {}, tokens[0]);
@@ -90,8 +90,8 @@ export default async function invitationTests(tokens, userIds) {
         assertEqual(typeof res.json.id, 'string', 'id is not a string!'),
         assertEqual(typeof res.json.state, 'string', 'state is not a string!'),
         assertEqual(res.json.state, 'REJECTED', 'state is not PENDING!'),
-        assertEqual(res.json.inviter, userIds[0], 'wrong inviter!'),
-        assertEqual(res.json.invitee, userIds[1], 'wrong inviter!'),
+        assertEqual(res.json.inviter.id, userIds[0], 'wrong inviter!'),
+        assertEqual(res.json.invitee.id, userIds[1], 'wrong inviter!'),
         assertEqual(res.json.error, undefined, 'has error!')
     ]);
 
@@ -119,8 +119,8 @@ export default async function invitationTests(tokens, userIds) {
         assertEqual(typeof res.json.id, 'string', 'id is not a string!'),
         assertEqual(typeof res.json.state, 'string', 'state is not a string!'),
         assertEqual(res.json.state, 'PENDING', 'state is not PENDING!'),
-        assertEqual(res.json.inviter, userIds[0], 'wrong inviter!'),
-        assertEqual(res.json.invitee, userIds[1], 'wrong inviter!')
+        assertEqual(res.json.inviter.id, userIds[0], 'wrong inviter!'),
+        assertEqual(res.json.invitee.id, userIds[1], 'wrong inviter!')
     ]);
 
     res = await post('/invitation/accept', {}, tokens[1]);

@@ -85,7 +85,8 @@ app.post('/lounge/enter', jwtMiddleware, async (req, res) => {
 import * as invitationController from './controllers/invitationController';
 app.post('/invitation/send', jwtMiddleware, async (req, res) => {
     try {
-        let invitation = await invitationController.sendInvitation(req.user.id, req.body.opponentId);
+        let invitation = await invitationController.sendInvitation(req.user.id,
+            req.user.username, req.body.opponentId);
         res.json(invitation);
     }
     catch (e) {
