@@ -1,19 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { LOUNGE_ENTER_ACTIONS, INVITATION_SEND_ACTIONS, INVITATION_GET_ACTIONS } from '../../common/consts';
+import { LOUNGE_ENTER_ACTIONS, INVITATION_SEND_ACTIONS } from '../../common/consts';
 import { createApiAction, createApiActionGet } from '../utils/utils';
+import OutgoingInvitation from './OutgoingInvitation';
+import IncomingInvitation from './IncomingInvitation';
 
 class Lounge extends React.Component {
     componentWillMount() {
         this.props.dispatch(createApiAction(LOUNGE_ENTER_ACTIONS, '/lounge/enter'));
-
-        this.interval = setTimeout(() => {
-            this.props.dispatch(createApiActionGet(INVITATION_GET_ACTIONS, '/invitation'));
-        }, 1000);
-    }
-
-    componentWillUnmount() {
-        clearInterval(this.interval);
     }
 
     invite(opponentId) {
@@ -33,8 +27,8 @@ class Lounge extends React.Component {
             <div>
                 <h1>Lounge</h1>
                 {users}
-                {incomingInvitation ? <div>{`Incoming invitation from ${incomingInvitation}`}</div> : null}
-                {outgoingInvitation ? <div>{`Outgoing invitation to ${outgoingInvitation}`}</div> : null}
+                <IncomingInvitation invitation={this.props.invitation} />
+                <OutgoingInvitation invitation={this.props.invitation} />
             </div>
         );
     }
@@ -43,8 +37,7 @@ class Lounge extends React.Component {
 let mapStateToProps = (state) => {
     return {
         users: state.lounge.users || [],
-        incomingInvitation: (state.invitation.id && state.invitation.invitee.id === localStorage.userId) ? state.invitation.inviter.username : null,
-        outgoingInvitation: (state.invitation.id && state.invitation.inviter.id === localStorage.userId) ? state.invitation.invitee.username : null
+        invitation: state.invitation
     };
 };
 
