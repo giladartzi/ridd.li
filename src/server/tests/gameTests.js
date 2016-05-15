@@ -20,6 +20,21 @@ export default async function gameTests(tokens, userIds, gameId, currentQuestion
         assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!')
     ]);
 
+    res = await get('/sync', tokens[0]);
+    verifyBatch('Stage 1 - First user perspective (SYNC)', [
+        assertEqual(res.status, 200, 'status is not 200!'),
+        assertEqual(res.json.game.state, 'ACTIVE', 'state is not ACTIVE!'),
+        assertEqual(typeof res.json.game.gameId, 'string', 'gameId is not a string!'),
+        assertEqual(res.json.game.gameId, gameId, 'Incorrect gameId!'),
+        assertEqual(Array.isArray(res.json.game.progress), true, 'progress is not an array!'),
+        assertEqual(res.json.game.progress.length, 1, 'progress is not in the length of 1!'),
+        assertEqual(res.json.game.progress.filter(p => p.isAnswered).length, 0, 'answered is not in the length of 0!'),
+        assertEqual(typeof res.json.game.question.text, 'string', 'question.text is not a string!'),
+        assertEqual(Array.isArray(res.json.game.question.answers), true, 'question.answers is not an array!'),
+        assertEqual(isEqual(res.json.game.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
+        assertEqual(res.json.invitation, null, 'invitation is not null')
+    ]);
+
     res = await get('/game', tokens[1]);
     verifyBatch('Stage 1 - Second user perspective', [
         assertEqual(res.status, 200, 'status is not 200!'),
@@ -32,6 +47,21 @@ export default async function gameTests(tokens, userIds, gameId, currentQuestion
         assertEqual(typeof res.json.question.text, 'string', 'question.text is not a string!'),
         assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!'),
         assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!')
+    ]);
+
+    res = await get('/sync', tokens[1]);
+    verifyBatch('Stage 1 - Second user perspective (SYNC)', [
+        assertEqual(res.status, 200, 'status is not 200!'),
+        assertEqual(res.json.game.state, 'ACTIVE', 'state is not ACTIVE!'),
+        assertEqual(typeof res.json.game.gameId, 'string', 'gameId is not a string!'),
+        assertEqual(res.json.game.gameId, gameId, 'Incorrect gameId!'),
+        assertEqual(Array.isArray(res.json.game.progress), true, 'progress is not an array!'),
+        assertEqual(res.json.game.progress.length, 1, 'progress is not in the length of 1!'),
+        assertEqual(res.json.game.progress.filter(p => p.isAnswered).length, 0, 'answered is not in the length of 0!'),
+        assertEqual(typeof res.json.game.question.text, 'string', 'question.text is not a string!'),
+        assertEqual(Array.isArray(res.json.game.question.answers), true, 'question.answers is not an array!'),
+        assertEqual(isEqual(res.json.game.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
+        assertEqual(res.json.invitation, null, 'invitation is not null')
     ]);
 
     res = await post('/answer', {
@@ -178,12 +208,26 @@ export default async function gameTests(tokens, userIds, gameId, currentQuestion
         assertEqual(res.json.error, 'Game not found', 'Incorrect error message!')
     ], tokens[0]);
 
+    res = await get('/sync', tokens[0]);
+    verifyBatch('Stage 4 - First user perspective (SYNC)', [
+        assertEqual(res.status, 200, 'status is not 200!'),
+        assertEqual(res.json.invitation, null, 'invitation is not null!'),
+        assertEqual(res.json.game, null, 'game is not null!')
+    ]);
+
     res = await get('/game', tokens[1]);
     verifyBatch('Stage 4 - Second user perspective', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
         assertEqual(res.json.error, 'Game not found', 'Incorrect error message!')
     ], tokens[1]);
+
+    res = await get('/sync', tokens[1]);
+    verifyBatch('Stage 4 - Second user perspective (SYNC)', [
+        assertEqual(res.status, 200, 'status is not 200!'),
+        assertEqual(res.json.invitation, null, 'invitation is not null!'),
+        assertEqual(res.json.game, null, 'game is not null!')
+    ]);
     
     return gameId;
 }

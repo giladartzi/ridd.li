@@ -53,7 +53,7 @@ export async function acceptInvitation(userId) {
     }
 
     // update invitation status
-    await update('invitation', { _id: objectId(invitation._id) }, { $set: { state: 'ACCEPTED' } });
+    await update('invitations', { _id: objectId(invitation._id) }, { $set: { state: 'ACCEPTED' } });
 
     // update both users state
     let userIds = [

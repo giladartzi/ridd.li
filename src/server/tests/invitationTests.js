@@ -68,6 +68,17 @@ export default async function invitationTests(tokens, userIds) {
         assertEqual(res.json.invitee.id, userIds[1], 'wrong inviter!')
     ]);
 
+    res = await get('/sync', tokens[0]);
+    verifyBatch('Get invitation - user 1 (SYNC)', [
+        assertEqual(res.status, 200, 'status is not 200!'),
+        assertEqual(typeof res.json.invitation.id, 'string', 'id is not a string!'),
+        assertEqual(typeof res.json.invitation.state, 'string', 'state is not a string!'),
+        assertEqual(res.json.invitation.state, 'PENDING', 'state is not PENDING!'),
+        assertEqual(res.json.invitation.inviter.id, userIds[0], 'wrong inviter!'),
+        assertEqual(res.json.invitation.invitee.id, userIds[1], 'wrong inviter!'),
+        assertEqual(res.json.game, null, 'game is not null!')
+    ]);
+
     res = await get('/invitation', tokens[1]);
     verifyBatch('Get invitation - user 2', [
         assertEqual(res.status, 200, 'status is not 200!'),
@@ -76,6 +87,17 @@ export default async function invitationTests(tokens, userIds) {
         assertEqual(res.json.state, 'PENDING', 'state is not PENDING!'),
         assertEqual(res.json.inviter.id, userIds[0], 'wrong inviter!'),
         assertEqual(res.json.invitee.id, userIds[1], 'wrong inviter!')
+    ]);
+
+    res = await get('/sync', tokens[1]);
+    verifyBatch('Get invitation - user 2 (SYNC)', [
+        assertEqual(res.status, 200, 'status is not 200!'),
+        assertEqual(typeof res.json.invitation.id, 'string', 'id is not a string!'),
+        assertEqual(typeof res.json.invitation.state, 'string', 'state is not a string!'),
+        assertEqual(res.json.invitation.state, 'PENDING', 'state is not PENDING!'),
+        assertEqual(res.json.invitation.inviter.id, userIds[0], 'wrong inviter!'),
+        assertEqual(res.json.invitation.invitee.id, userIds[1], 'wrong inviter!'),
+        assertEqual(res.json.game, null, 'game is not null!')
     ]);
 
     res = await post('/invitation/reject', {}, tokens[0]);
@@ -101,10 +123,24 @@ export default async function invitationTests(tokens, userIds) {
         assertEqual(res.json.error, 'Invitation not found', 'wrong error message!')
     ]);
 
+    res = await get('/sync', tokens[0]);
+    verifyBatch('Get invitation - non existing (SYNC)', [
+        assertEqual(res.status, 200, 'status is not 200!'),
+        assertEqual(res.json.invitation, null, 'invitation is not null!'),
+        assertEqual(res.json.game, null, 'game is not null!')
+    ]);
+
     res = await get('/invitation', tokens[1]);
     verifyBatch('Get invitation - non existing', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(res.json.error, 'Invitation not found', 'wrong error message!')
+    ]);
+
+    res = await get('/sync', tokens[1]);
+    verifyBatch('Get invitation - non existing (SYNC)', [
+        assertEqual(res.status, 200, 'status is not 200!'),
+        assertEqual(res.json.invitation, null, 'invitation is not null!'),
+        assertEqual(res.json.game, null, 'game is not null!')
     ]);
 
     res = await post('/invitation/accept', {}, tokens[1]);

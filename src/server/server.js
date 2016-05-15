@@ -134,6 +134,16 @@ app.get('/invitation', jwtMiddleware, async (req, res) => {
     }
 });
 
+import * as syncController from './controllers/syncController';
+app.get('/sync', jwtMiddleware, async (req, res) => {
+    try {
+        res.json(await syncController.sync(req.user.id));
+    }
+    catch (e) {
+        res.status(400).json({ error: e.message });
+    }
+});
+
 var port = 8080;
 var server = http.createServer(app);
 server.listen(port, function () { console.log('Listening on port', port); });

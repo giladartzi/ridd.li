@@ -16,3 +16,16 @@ export const toPromise = (func, context) => {
         });
     }
 };
+
+export async function safeAwait(promise) {
+    let result;
+
+    try {
+        result = await promise;
+    }
+    catch (e) {
+        result = null;
+    }
+
+    return result;
+}
