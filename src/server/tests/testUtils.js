@@ -43,3 +43,11 @@ export function verifyBatch(name, batch) {
 
     return result;
 }
+
+export function wait(seconds) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, seconds * 1000);
+    })
+}

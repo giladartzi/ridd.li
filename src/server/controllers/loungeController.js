@@ -1,19 +1,33 @@
 import * as dataLayer from '../dataLayer';
-import mongodb from 'mongodb';
+import { broadcast } from '../wsManager';
+import without from 'lodash/without';
+import first from 'lodash/first';
+import { WS_USER_ENTERED_LOUNGE } from '../../common/consts';
+
+function userJson(user) {
+    return {
+        id: user._id,
+        username: user.username
+    }
+}
 
 export async function availableUsers(exclude) {
     let users = await dataLayer.find('users', { query: {
-        state: 'AVAILABLE',
-        _id: { $ne: new mongodb.ObjectID(exclude) }
+        state: 'AVAILABLE'
     }, list: true });
 
+    let userToExclude = first(users.filter(user => user._id.toString() === exclude));
+    users = users.filter(user => user._id.toString() !== exclude);
+
+    if (userToExclude) {
+        broadcast({
+            type: WS_USER_ENTERED_LOUNGE,
+            payload: userJson(userToExclude)
+        }, exclude);
+    }
+
     return {
-        users: users.map(user => {
-            return {
-                id: user._id,
-                username: user.username
-            }
-        })
+        users: users.map(user => userJson(user))
     };
 }
 

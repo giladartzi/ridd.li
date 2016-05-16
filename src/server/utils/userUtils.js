@@ -16,11 +16,14 @@ export async function sign(obj) {
     return await pSign(obj, 'secret', null);
 }
 
-export async function jwtMiddleware(req, res, next) {
+export async function jwtVerify(token) {
     let pVerify = toPromise(jwt.verify);
+    return await pVerify(token, 'secret', null);
+}
 
+export async function jwtMiddleware(req, res, next) {
     try {
-        req.user = await pVerify(req.headers.token, 'secret', null);
+        req.user = await jwtVerify(req.headers.token);
         next();
     }
     catch (e) {

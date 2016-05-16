@@ -6,8 +6,8 @@ import invitationTests from './invitationTests';
 
 async function tests() {
     try {
-        let { tokens, userIds } = await userTests();
-        await loungeTests(tokens, userIds);
+        let { tokens, userIds, wss } = await userTests();
+        await loungeTests(tokens, userIds, wss);
         let { gameId, currentQuestion } = await invitationTests(tokens, userIds);
         await gameTests(tokens, userIds, gameId, currentQuestion);
     }

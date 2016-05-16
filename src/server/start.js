@@ -12,11 +12,7 @@ if (process.argv[2] === 'syncDb') {
 }
 
 if (process.argv[2] === 'tests') {
-    toRequire = 'tests';
-}
-
-if (process.argv[2] === 'tests') {
-    toRequire = './tests/restApiTests';
+    toRequire = 'tests/tests';
 }
 
 require('./' + toRequire);

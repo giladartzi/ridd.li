@@ -1,5 +1,6 @@
 import { findById, update, insert, find, objectId, findOneAndUpdate } from '../dataLayer';
-import { createGame } from './gameController';
+import { createGame, gameJson } from './gameController';
+import { wsSend } from '../wsManager';
 
 function invitationJson(invitation) {
     return {
@@ -61,8 +62,12 @@ export async function acceptInvitation(userId) {
         objectId(invitation.invitee.id)
     ];
     let users = await update('users', { _id: { $in: userIds } }, { $set: { state: 'IN_GAME' } });
+    let game = await createGame([invitation.inviter.id, invitation.invitee.id]);
 
-    return await createGame([invitation.inviter.id, invitation.invitee.id]);
+    let inviterJson = await gameJson(game, invitation.inviter.id);
+    wsSend(invitation.inviter.id, inviterJson);
+    
+    return await gameJson(game, invitation.invitee.id);
 }
 
 export async function rejectInvitation(userId) {

@@ -1,7 +1,7 @@
 import * as gameUtils from '../utils/gameUtils';
 import first from 'lodash/first';
 
-let gameJson = async (game, userId) => {
+export async function gameJson(game, userId) {
     let question = await gameUtils.getCurrentQuestion(game);
 
     if (question) {
@@ -18,11 +18,10 @@ let gameJson = async (game, userId) => {
         state: game.state,
         questionIndex: game.currentQuestion
     };
-};
+}
 
 export async function createGame(userIds) {
-    let game = await gameUtils.createGame(userIds);
-    return await gameJson(game, userIds[0]);
+    return await gameUtils.createGame(userIds);
 }
 
 export async function game(userId) {

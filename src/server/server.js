@@ -3,7 +3,9 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import cors from 'cors';
 import http from 'http';
+import ws from 'ws';
 import { jwtMiddleware } from './utils/userUtils';
+import { initWebSocket } from './wsManager';
 
 let app = express();
 
@@ -147,3 +149,5 @@ app.get('/sync', jwtMiddleware, async (req, res) => {
 var port = 8080;
 var server = http.createServer(app);
 server.listen(port, function () { console.log('Listening on port', port); });
+var wsServer = new ws.Server({ server: server });
+wsServer.on('connection', initWebSocket);
