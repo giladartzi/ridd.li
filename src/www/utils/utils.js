@@ -92,3 +92,13 @@ export function createApiActionGet(types, path, appendix) {
 export function createApiAction(types, path, payload, appendix) {
     return createApiActionPost(types, path, payload, appendix);
 }
+
+export function composeReducers(...reducers) {
+    return function (state, action) {
+        let result = state;
+        reducers.forEach(reducer => {
+            result = reducer(result, action);
+        });
+        return result;
+    }
+}

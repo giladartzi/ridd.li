@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { Router, Route, browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import configureStore from './store/configureStore';
+import * as ws from './utils/ws';
 
 import Layout from './components/Layout';
 import RegisterForm from './components/RegisterForm';
@@ -21,6 +22,7 @@ function validateToken(nextState, replace) {
 (async function () {
     const store = await configureStore();
     const history = syncHistoryWithStore(browserHistory, store);
+    ws.init(store);
 
     const node = (
         <Provider store={store}>

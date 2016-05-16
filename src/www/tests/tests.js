@@ -55,13 +55,9 @@ module.exports = {
             .assert.visible('#lounge .user')
             .assert.containsText('#lounge .user', 'newUser1')
     },
-    'First user - refresh': function (client) {
-        client.switchWindow(windows[0])
-            .execute(function () { window.location.href = '/lounge'; })
-            .pause(1000);
-    },
     'Lounge - first user': function (client) {
         client
+            .switchWindow(windows[0])
             .assert.visible('#lounge .user')
             .assert.containsText('#lounge .user', 'newUser2')
             .click('#lounge .user')
@@ -70,7 +66,6 @@ module.exports = {
     },
     'Second user - refresh': function (client) {
         client.switchWindow(windows[1])
-            .execute(function () { window.location.href = '/lounge'; })
             .pause(1000)
             .assert.containsText('#incomingInvitation', 'Incoming invitation from newUser1')
             .click('#incomingInvitation')
@@ -128,6 +123,6 @@ module.exports = {
             .pause(500);
     },
     after: function(client) {
-        client.pause(50000).end();
+        client.pause(5000).end();
     }
 };
