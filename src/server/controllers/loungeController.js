@@ -17,7 +17,7 @@ export async function availableUsers(exclude) {
     }, list: true });
 
     let userToExclude = first(users.filter(user => user._id.toString() === exclude));
-    users = users.filter(user => user._id.toString() !== exclude);
+    users = without(users, userToExclude);
 
     if (userToExclude) {
         broadcast({
