@@ -11,6 +11,13 @@ export default async function userTests() {
         assertEqual(res.json.error, 'Invalid credentials', 'wrong error message!')
     ]);
 
+    res = await post('/register', { username: '', password: '' });
+    verifyBatch('Register - no username or password', [
+        assertEqual(res.status, 400, 'status is not 400!'),
+        assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
+        assertEqual(res.json.error, 'Please provide both Username and Password', 'wrong error message!')
+    ]);
+
     res = await post('/register', { username: 'gilad', password: '12345' });
     verifyBatch('Register - correct process', [
         assertEqual(res.status, 200, 'status is not 200!'),

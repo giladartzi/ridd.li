@@ -10,8 +10,9 @@ import Layout from './components/Layout';
 import RegisterForm from './components/RegisterForm';
 import AuthenticateForm from './components/AuthenticateForm';
 import Lounge from './components/Lounge';
+import Game from './components/Game';
 
-function onLoungeEnter(nextState, replace) {
+function validateToken(nextState, replace) {
     if (!localStorage.token) {
         replace('/');
     }
@@ -27,7 +28,8 @@ function onLoungeEnter(nextState, replace) {
                 <Route path="/" component={Layout}>
                     <Route path="/register" component={RegisterForm} />
                     <Route path="/login" component={AuthenticateForm} />
-                    <Route path="/lounge" component={Lounge} onEnter={onLoungeEnter} />
+                    <Route path="/lounge" component={Lounge} onEnter={validateToken} />
+                    <Route path="/game" component={Game} onEnter={validateToken} />
                 </Route>
             </Router>
         </Provider>

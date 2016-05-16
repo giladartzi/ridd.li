@@ -1,9 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { LOUNGE_ENTER_ACTIONS, INVITATION_SEND_ACTIONS } from '../../common/consts';
-import { createApiAction, createApiActionGet } from '../utils/utils';
+import { createApiAction } from '../utils/utils';
 import OutgoingInvitation from './OutgoingInvitation';
 import IncomingInvitation from './IncomingInvitation';
+import { Link } from 'react-router';
 
 class Lounge extends React.Component {
     componentWillMount() {
@@ -16,19 +17,21 @@ class Lounge extends React.Component {
 
     render() {
         let users = this.props.users.map(user => {
-            return <div key={user.id} onClick={() => this.invite(user.id)}>
+            return <div className="user" key={user.id} onClick={() => this.invite(user.id)}>
                 {user.username}
             </div>
         });
 
-        let { incomingInvitation, outgoingInvitation } = this.props;
+        let { invitation, game } = this.props;
 
         return (
-            <div>
+            <div id="lounge">
                 <h1>Lounge</h1>
+                <div id="welcome">Logged in as <span id="username">{localStorage.username}</span></div>
                 {users}
-                <IncomingInvitation invitation={this.props.invitation} />
-                <OutgoingInvitation invitation={this.props.invitation} />
+                <IncomingInvitation invitation={invitation} />
+                <OutgoingInvitation invitation={invitation} />
+                { game.gameId ? <Link id="gameLink" to="/game">Game</Link> : null }
             </div>
         );
     }
@@ -37,7 +40,8 @@ class Lounge extends React.Component {
 let mapStateToProps = (state) => {
     return {
         users: state.lounge.users || [],
-        invitation: state.invitation
+        invitation: state.invitation,
+        game: state.game
     };
 };
 

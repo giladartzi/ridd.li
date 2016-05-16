@@ -29,10 +29,10 @@ export default class UserPasswordForm extends React.Component {
         });
         
         return (
-            <form onSubmit={this.onSubmit}>
+            <form className={this.props.className} onSubmit={this.onSubmit}>
                 {inputs}
                 <button type="submit">Submit</button>
-                { this.props.error ? <span>{this.props.error}</span> : null }
+                { this.props.error ? <span className="error">{this.props.error}</span> : null }
             </form>
         );
     }

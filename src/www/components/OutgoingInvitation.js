@@ -6,7 +6,7 @@ let OutgoingInvitation = ({invitation}) => {
     
     if (isOutgoing) {
         invitee = invitation.invitee.username;
-        return <div>{`Outgoing invitation to ${invitee}`}</div>;
+        return <div id="outgoingInvitation">{`Outgoing invitation to ${invitee}`}</div>;
     }
 
     return null;

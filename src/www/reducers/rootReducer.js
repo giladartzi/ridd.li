@@ -12,6 +12,7 @@ const invitationGet = createApiReducer(consts.INVITATION_GET_ACTIONS);
 const invitationSend = createApiReducer(consts.INVITATION_SEND_ACTIONS);
 const gameGet = createApiReducer(consts.GAME_GET_ACTIONS);
 const invitationAccept = createApiReducer(consts.INVITATION_ACCEPT_ACTIONS);
+const answer = createApiReducer(consts.ANSWER_ACTIONS);
 
 const invitation = (state, action) => {
     let halfway = invitationGet(state, action);
@@ -20,7 +21,8 @@ const invitation = (state, action) => {
 
 const game = (state, action) => {
     let halfway = gameGet(state, action);
-    return invitationAccept(halfway, action);
+    halfway = invitationAccept(halfway, action);
+    return answer(halfway, action);
 };
 
 const reducer = combineReducers({

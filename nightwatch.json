@@ -1,0 +1,12 @@
+{
+  "custom_commands_path": "",
+  "test_settings": {
+    "default": {
+      "desiredCapabilities": {
+        "browserName": "firefox",
+        "javascriptEnabled": true,
+        "acceptSslCerts": true
+      }
+    }
+  }
+}

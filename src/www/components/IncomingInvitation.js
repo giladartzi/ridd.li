@@ -10,7 +10,7 @@ let IncomingInvitation = ({invitation, acceptInvitation}) => {
     if (isIncoming) {
         inviter = invitation.inviter;
         return (
-            <div onClick={() => acceptInvitation()}>
+            <div id="incomingInvitation" onClick={() => acceptInvitation()}>
                 {`Incoming invitation from ${inviter.username}`}
             </div>
         );

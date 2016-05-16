@@ -3,5 +3,6 @@ public/bundle.js.map
 public/vendor.bundle.js
 public/vendor.bundle.js.map
 public/index.html
+tests_output/
 node_modules
 .idea

@@ -12,6 +12,10 @@ export async function register(username, password) {
     if (exists) {
         throw new Error('Username is taken');
     }
+
+    if (!username || !password) {
+        throw new Error('Please provide both Username and Password');
+    }
     
     // encode password
     let salt = await genSalt();

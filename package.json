@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node src/server/start.js",
     "syncDb": "node src/server/start.js syncDb",
-    "test": "npm run syncDb && node src/server/start.js tests"
+    "test": "npm run syncDb && node src/server/start.js tests",
+    "testwww": "npm run syncDb && nightwatch -t src/www/tests/tests.js"
   },
   "repository": {
     "type": "git",

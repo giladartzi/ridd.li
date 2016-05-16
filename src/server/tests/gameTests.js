@@ -17,7 +17,8 @@ export default async function gameTests(tokens, userIds, gameId, currentQuestion
         assertEqual(res.json.progress.filter(p => p.isAnswered).length, 0, 'answered is not in the length of 0!'),
         assertEqual(typeof res.json.question.text, 'string', 'question.text is not a string!'),
         assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!')
+        assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
+        assertEqual(res.json.questionIndex, 0, 'questionIndex is not 0')
     ]);
 
     res = await get('/sync', tokens[0]);
@@ -32,7 +33,8 @@ export default async function gameTests(tokens, userIds, gameId, currentQuestion
         assertEqual(typeof res.json.game.question.text, 'string', 'question.text is not a string!'),
         assertEqual(Array.isArray(res.json.game.question.answers), true, 'question.answers is not an array!'),
         assertEqual(isEqual(res.json.game.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
-        assertEqual(res.json.invitation, null, 'invitation is not null')
+        assertEqual(res.json.invitation, null, 'invitation is not null'),
+        assertEqual(res.json.game.questionIndex, 0, 'questionIndex is not 0')
     ]);
 
     res = await get('/game', tokens[1]);
@@ -46,7 +48,8 @@ export default async function gameTests(tokens, userIds, gameId, currentQuestion
         assertEqual(res.json.progress.filter(p => p.isAnswered).length, 0, 'answered is not in the length of 0!'),
         assertEqual(typeof res.json.question.text, 'string', 'question.text is not a string!'),
         assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!')
+        assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
+        assertEqual(res.json.questionIndex, 0, 'questionIndex is not 0')
     ]);
 
     res = await get('/sync', tokens[1]);
@@ -61,7 +64,8 @@ export default async function gameTests(tokens, userIds, gameId, currentQuestion
         assertEqual(typeof res.json.game.question.text, 'string', 'question.text is not a string!'),
         assertEqual(Array.isArray(res.json.game.question.answers), true, 'question.answers is not an array!'),
         assertEqual(isEqual(res.json.game.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
-        assertEqual(res.json.invitation, null, 'invitation is not null')
+        assertEqual(res.json.invitation, null, 'invitation is not null'),
+        assertEqual(res.json.game.questionIndex, 0, 'questionIndex is not 0')
     ]);
 
     res = await post('/answer', {
@@ -80,7 +84,8 @@ export default async function gameTests(tokens, userIds, gameId, currentQuestion
         assertEqual(res.json.progress[0].isCorrect, true, 'Answer is not correct!'),
         assertEqual(typeof res.json.question.text, 'string', 'question.text is not a string!'),
         assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!')
+        assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
+        assertEqual(res.json.questionIndex, 0, 'questionIndex is not 0')
     ]);
 
     res = await post('/answer', {
@@ -99,7 +104,8 @@ export default async function gameTests(tokens, userIds, gameId, currentQuestion
         assertEqual(res.json.progress[0].isCorrect, false, 'Answer is correct!'),
         assertEqual(typeof res.json.question.text, 'string', 'question.text is not a string!'),
         assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.json.question, currentQuestion), false, 'question EQUAL to currentQuestion!')
+        assertEqual(isEqual(res.json.question, currentQuestion), false, 'question EQUAL to currentQuestion!'),
+        assertEqual(res.json.questionIndex, 1, 'questionIndex is not 1')
     ]);
     currentQuestion = res.json.question;
 
@@ -141,7 +147,8 @@ export default async function gameTests(tokens, userIds, gameId, currentQuestion
         assertEqual(res.json.progress[1].isCorrect, true, 'Answer is not correct!'),
         assertEqual(typeof res.json.question.text, 'string', 'question.text is not a string!'),
         assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!')
+        assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
+        assertEqual(res.json.questionIndex, 1, 'questionIndex is not 1')
     ]);
 
     res = await post('/answer', {
@@ -160,7 +167,8 @@ export default async function gameTests(tokens, userIds, gameId, currentQuestion
         assertEqual(res.json.progress[1].isCorrect, false, 'Answer is correct!'),
         assertEqual(typeof res.json.question.text, 'string', 'question.text is not a string!'),
         assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.json.question, currentQuestion), false, 'question EQUAL to currentQuestion!')
+        assertEqual(isEqual(res.json.question, currentQuestion), false, 'question EQUAL to currentQuestion!'),
+        assertEqual(res.json.questionIndex, 2, 'questionIndex is not 2')
     ]);
     currentQuestion = res.json.question;
 
@@ -180,7 +188,8 @@ export default async function gameTests(tokens, userIds, gameId, currentQuestion
         assertEqual(res.json.progress[2].isCorrect, false, 'Answer is correct!'),
         assertEqual(typeof res.json.question.text, 'string', 'question.text is not a string!'),
         assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!')
+        assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
+        assertEqual(res.json.questionIndex, 2, 'questionIndex is not 2')
     ]);
 
     res = await post('/answer', {

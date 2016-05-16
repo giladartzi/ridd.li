@@ -15,7 +15,8 @@ let gameJson = async (game, userId) => {
         gameId: game._id,
         progress: game.gameMetaData[userIndex].progress,
         question: question,
-        state: game.state
+        state: game.state,
+        questionIndex: game.currentQuestion
     };
 };
 
