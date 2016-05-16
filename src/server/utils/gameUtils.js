@@ -143,3 +143,13 @@ export async function validateUserIds(userIds) {
     
     return users.length === userIds.length;
 }
+
+export function otherUserId(game, userId) {
+    let result = game.gameMetaData[0].userId;
+    
+    if (result === userId) {
+        result = game.gameMetaData[1].userId;
+    }
+    
+    return result;
+}

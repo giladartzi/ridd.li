@@ -1,5 +1,7 @@
 import * as gameUtils from '../utils/gameUtils';
 import first from 'lodash/first';
+import { wsSend } from '../wsManager';
+import { WS_ADVANCE_GAME } from '../../common/consts';
 
 export async function gameJson(game, userId) {
     let question = await gameUtils.getCurrentQuestion(game);
@@ -38,5 +40,13 @@ export async function game(userId) {
 export async function answer(gameId, userId, questionIndex, answerIndex) {
     let game = await gameUtils.addMove(gameId, userId, questionIndex, answerIndex);
     game = await gameUtils.advanceGame(game);
+
+    let otherUserId = gameUtils.otherUserId(game, userId);
+
+    wsSend(otherUserId, {
+        type: WS_ADVANCE_GAME,
+        payload: await gameJson(game, otherUserId)
+    });
+
     return await gameJson(game, userId);
 }

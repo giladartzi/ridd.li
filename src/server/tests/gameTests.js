@@ -1,8 +1,9 @@
-import { verifyBatch, assertEqual, getAnswerIndex } from './testUtils';
+import { verifyBatch, assertEqual, getAnswerIndex, wait } from './testUtils';
 import { post, get } from '../../common/rest';
 import isEqual from 'lodash/isEqual';
+import { WS_ADVANCE_GAME } from '../../common/consts';
 
-export default async function gameTests(tokens, userIds, gameId, currentQuestion) {
+export default async function gameTests(tokens, userIds, wss, gameId, currentQuestion) {
     let res;
 
     // Get the game in the first user's perspective
@@ -109,6 +110,21 @@ export default async function gameTests(tokens, userIds, gameId, currentQuestion
     ]);
     currentQuestion = res.json.question;
 
+    await wait(0.2);
+    res = wss[0].messages.pop();
+    verifyBatch('User 1 - Game advance - Push', [
+        assertEqual(res.type, WS_ADVANCE_GAME, 'ws type is incorrect!'),
+        assertEqual(res.payload.state, 'ACTIVE', 'state is not ACTIVE!'),
+        assertEqual(typeof res.payload.gameId, 'string', 'gameId is not a string!'),
+        assertEqual(res.payload.gameId, gameId, 'Incorrect gameId!'),
+        assertEqual(Array.isArray(res.payload.progress), true, 'progress is not an array!'),
+        assertEqual(res.payload.progress.length, 2, 'progress is not in the length of 2!'),
+        assertEqual(typeof res.payload.question.text, 'string', 'question.text is not a string!'),
+        assertEqual(Array.isArray(res.payload.question.answers), true, 'question.answers is not an array!'),
+        assertEqual(isEqual(res.payload.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
+        assertEqual(res.payload.questionIndex, 1, 'questionIndex is not 1')
+    ]);
+
     res = await post('/answer', {
         gameId,
         questionIndex: 0,
@@ -172,6 +188,21 @@ export default async function gameTests(tokens, userIds, gameId, currentQuestion
     ]);
     currentQuestion = res.json.question;
 
+    await wait(0.2);
+    res = wss[0].messages.pop();
+    verifyBatch('Stage 2 - Push notification', [
+        assertEqual(res.type, WS_ADVANCE_GAME, 'ws type is incorrect'),
+        assertEqual(res.payload.state, 'ACTIVE', 'state is not ACTIVE!'),
+        assertEqual(typeof res.payload.gameId, 'string', 'gameId is not a string!'),
+        assertEqual(res.payload.gameId, gameId, 'Incorrect gameId!'),
+        assertEqual(Array.isArray(res.payload.progress), true, 'progress is not an array!'),
+        assertEqual(res.payload.progress.length, 3, 'progress is not in the length of 3!'),
+        assertEqual(typeof res.payload.question.text, 'string', 'question.text is not a string!'),
+        assertEqual(Array.isArray(res.payload.question.answers), true, 'question.answers is not an array!'),
+        assertEqual(isEqual(res.payload.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
+        assertEqual(res.payload.questionIndex, 2, 'questionIndex is not 2')
+    ]);
+
     res = await post('/answer', {
         gameId,
         questionIndex: 2,
@@ -208,6 +239,17 @@ export default async function gameTests(tokens, userIds, gameId, currentQuestion
         assertEqual(res.json.progress.filter(p => p.isAnswered).length, 3, 'answered is not in the length of 3!'),
         assertEqual(res.json.progress[2].isCorrect, true, 'Answer is not correct!'),
         assertEqual(res.json.question, null, 'question is not null!')
+    ]);
+
+    await wait(0.2);
+    res = wss[0].messages.pop();
+    verifyBatch('Stage 3 - Push notification', [
+        assertEqual(res.type, WS_ADVANCE_GAME, 'ws type is incorrect!'),
+        assertEqual(res.payload.state, 'INACTIVE', 'state is not INACTIVE!'),
+        assertEqual(typeof res.payload.gameId, 'string', 'gameId is not a string!'),
+        assertEqual(res.payload.gameId, gameId, 'Incorrect gameId!'),
+        assertEqual(Array.isArray(res.payload.progress), true, 'progress is not an array!'),
+        assertEqual(res.payload.question, null, 'question is not null!')
     ]);
 
     res = await get('/game', tokens[0]);

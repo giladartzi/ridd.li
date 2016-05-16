@@ -95,7 +95,6 @@ function send(userIds, message) {
 
     userIds.forEach(userId => {
         userIdToWebSockets[userId].forEach(ws => sendMessage(ws, message));
-        console.log('send to', userId, 'msg', message)
     })
 }
 
