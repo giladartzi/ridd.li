@@ -1,6 +1,7 @@
 import { findById, update, insert, find, objectId, findOneAndUpdate } from '../dataLayer';
 import { createGame, gameJson } from './gameController';
 import { wsSend } from '../wsManager';
+import { WS_INVITATION_RECEIVED, WS_INVITATION_CANCELLED, WS_INVITATION_ACCEPTED } from '../../common/consts';
 
 function invitationJson(invitation) {
     return {
@@ -38,8 +39,15 @@ export async function sendInvitation(userId, username, opponentId) {
         inviter: { id: userId, username: username },
         invitee: { id: opponentId, username: opponent.username }
     });
-    
-    return invitationJson(invitation);
+
+    let json = invitationJson(invitation);
+
+    wsSend(opponentId, {
+        type: WS_INVITATION_RECEIVED,
+        payload: json
+    });
+
+    return json;
 }
 
 export async function acceptInvitation(userId) {
@@ -65,8 +73,12 @@ export async function acceptInvitation(userId) {
     let game = await createGame([invitation.inviter.id, invitation.invitee.id]);
 
     let inviterJson = await gameJson(game, invitation.inviter.id);
-    wsSend(invitation.inviter.id, inviterJson);
-    
+
+    wsSend(invitation.inviter.id.toString(), {
+        type: WS_INVITATION_ACCEPTED,
+        payload: inviterJson
+    });
+
     return await gameJson(game, invitation.invitee.id);
 }
 
@@ -114,6 +126,10 @@ export async function cancelInvitation(userId) {
         objectId(invitation.invitee.id)
     ];
     let users = await update('users', { _id: { $in: userIds } }, { $set: { state: 'AVAILABLE' } });
+
+    wsSend(invitation.invitee.id, {
+        type: WS_INVITATION_CANCELLED
+    });
 
     return invitationJson(invitation);
 }

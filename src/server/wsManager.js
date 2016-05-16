@@ -28,7 +28,13 @@ function removeWebSocket(ws) {
 
 function sendMessage(ws, message) {
     if (typeof message !== 'string') {
-        message = JSON.stringify(message);
+        try {
+            message = JSON.stringify(message);
+        }
+        catch (e) {
+            console.log('stringity', e)
+        }
+
     }
 
     try {
@@ -89,6 +95,7 @@ function send(userIds, message) {
 
     userIds.forEach(userId => {
         userIdToWebSockets[userId].forEach(ws => sendMessage(ws, message));
+        console.log('send to', userId, 'msg', message)
     })
 }
 

@@ -1,7 +1,8 @@
-import { verifyBatch, assertEqual } from './testUtils';
+import { verifyBatch, assertEqual, wait } from './testUtils';
 import { post, get } from '../../common/rest';
+import { WS_INVITATION_RECEIVED, WS_INVITATION_CANCELLED, WS_INVITATION_ACCEPTED } from '../../common/consts';
 
-export default async function invitationTests(tokens, userIds) {
+export default async function invitationTests(tokens, userIds, wss) {
     let res;
 
     res = await get('/invitation', tokens[0]);
@@ -26,6 +27,17 @@ export default async function invitationTests(tokens, userIds) {
         assertEqual(res.json.invitee.id, userIds[1], 'wrong inviter!')
     ]);
 
+    await wait(0.2);
+    res = wss[1].messages.pop();
+    verifyBatch('User 2 invitation push', [
+        assertEqual(res.type, WS_INVITATION_RECEIVED, 'wrong ws type!'),
+        assertEqual(typeof res.payload.id, 'string', 'id is not a string!'),
+        assertEqual(typeof res.payload.state, 'string', 'state is not a string!'),
+        assertEqual(res.payload.state, 'PENDING', 'state is not PENDING!'),
+        assertEqual(res.payload.inviter.id, userIds[0], 'wrong inviter!'),
+        assertEqual(res.payload.invitee.id, userIds[1], 'wrong inviter!')
+    ]);
+
     res = await post('/invitation/cancel', {}, tokens[0]);
     verifyBatch('Cancel invitation', [
         assertEqual(res.status, 200, 'status is not 200!'),
@@ -36,6 +48,12 @@ export default async function invitationTests(tokens, userIds) {
         assertEqual(res.json.invitee.id, userIds[1], 'wrong inviter!')
     ]);
 
+    await wait(0.2);
+    res = wss[1].messages.pop();
+    verifyBatch('User 2 invitation cancelled push', [
+        assertEqual(res.type, WS_INVITATION_CANCELLED)
+    ]);
+
     res = await post('/invitation/send', { opponentId: userIds[1] }, tokens[0]);
     verifyBatch('Send invitation', [
         assertEqual(res.status, 200, 'status is not 200!'),
@@ -44,6 +62,17 @@ export default async function invitationTests(tokens, userIds) {
         assertEqual(res.json.state, 'PENDING', 'state is not PENDING!'),
         assertEqual(res.json.inviter.id, userIds[0], 'wrong inviter!'),
         assertEqual(res.json.invitee.id, userIds[1], 'wrong inviter!')
+    ]);
+
+    await wait(0.2);
+    res = wss[1].messages.pop();
+    verifyBatch('User 2 invitation push', [
+        assertEqual(res.type, WS_INVITATION_RECEIVED, 'wrong ws type!'),
+        assertEqual(typeof res.payload.id, 'string', 'id is not a string!'),
+        assertEqual(typeof res.payload.state, 'string', 'state is not a string!'),
+        assertEqual(res.payload.state, 'PENDING', 'state is not PENDING!'),
+        assertEqual(res.payload.inviter.id, userIds[0], 'wrong inviter!'),
+        assertEqual(res.payload.invitee.id, userIds[1], 'wrong inviter!')
     ]);
 
     res = await post('/invitation/send', { opponentId: userIds[1] }, tokens[0]);
@@ -170,8 +199,20 @@ export default async function invitationTests(tokens, userIds) {
         assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!')
     ]);
 
+    await wait(0.2);
+    res = wss[0].messages.pop();
+    verifyBatch('Accept invitation', [
+        assertEqual(res.type, WS_INVITATION_ACCEPTED, 'wrong ws type!'),
+        assertEqual(res.payload.state, 'ACTIVE', 'state is not ACTIVE!'),
+        assertEqual(typeof res.payload.gameId, 'string', 'gameId is not a string!'),
+        assertEqual(Array.isArray(res.payload.progress), true, 'progress is not an array!'),
+        assertEqual(res.payload.progress.length, 1, 'progress is not in the length of 1!'),
+        assertEqual(typeof res.payload.question.text, 'string', 'question.text is not a string!'),
+        assertEqual(Array.isArray(res.payload.question.answers), true, 'question.answers is not an array!')
+    ]);
+
     return {
-        gameId: res.json.gameId,
-        currentQuestion: res.json.question
+        gameId: res.payload.gameId,
+        currentQuestion: res.payload.question
     }
 }
