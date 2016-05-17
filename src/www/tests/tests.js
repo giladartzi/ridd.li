@@ -79,8 +79,6 @@ module.exports = {
     },
     'User #1 - Game link': function (client) {
         client.switchWindow(windows[0])
-            .execute(function () { window.location.href = '/lounge'; })
-            .pause(1000)
             .assert.containsText('#gameLink', 'Game')
             .click('#gameLink')
             .pause(500)
@@ -93,8 +91,6 @@ module.exports = {
     },
     'User #2 - Answer question 1': function (client) {
         client.switchWindow(windows[1])
-            .execute(function () { window.location.href = '/game'; })
-            .pause(1000)
             .click('#answer1')
             .pause(500);
     },
@@ -105,8 +101,6 @@ module.exports = {
     },
     'User #1 - Answer question 2': function (client) {
         client.switchWindow(windows[0])
-            .execute(function () { window.location.href = '/game'; })
-            .pause(1000)
             .click('#answer1')
             .pause(500);
     },
@@ -117,8 +111,6 @@ module.exports = {
     },
     'User #2 - Answer question 3': function (client) {
         client.switchWindow(windows[1])
-            .execute(function () { window.location.href = '/game'; })
-            .pause(1000)
             .click('#answer1')
             .pause(500);
     },

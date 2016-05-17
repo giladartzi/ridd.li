@@ -6,14 +6,10 @@ import { routerReducer } from 'react-router-redux';
 import user from './userReducer';
 import lounge from './loungeReducer';
 import invitation from './invitationReducer';
+import game from './gameReducer';
 
 const register = createApiReducer(consts.REGISTER_ACTIONS);
 const authenticate = createApiReducer(consts.AUTHENTICATE_ACTIONS);
-const gameGet = createApiReducer(consts.GAME_GET_ACTIONS);
-const invitationAccept = createApiReducer(consts.INVITATION_ACCEPT_ACTIONS);
-const answer = createApiReducer(consts.ANSWER_ACTIONS);
-
-const game = composeReducers(gameGet, invitationAccept, answer);
 
 const reducer = combineReducers({
     register,
