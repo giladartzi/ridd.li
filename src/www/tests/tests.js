@@ -4,7 +4,9 @@ module.exports = {
     tags: ['123'],
     'Register without username and password': function (client) {
         client
-            .url('http://localhost:3000/register')
+            .url('http://localhost:3000/')
+            .execute(function () { localStorage.clear() })
+            .url('http://localhost:3000/')
             .waitForElementVisible('body', 1000)
             .assert.visible('.genericForm.register .username input')
             .assert.visible('.genericForm.register .password input')
@@ -39,7 +41,9 @@ module.exports = {
     },
     'Register - second user': function (client) {
         client
-            .url('http://127.0.0.1:3000/register')
+            .url('http://127.0.0.1:3000/')
+            .execute(function () { localStorage.clear() })
+            .url('http://127.0.0.1:3000/')
             .setValue('.genericForm.register .username input', 'newUser2')
             .setValue('.genericForm.register .password input', 'newUser2Pass')
             .waitForElementVisible('.genericForm.register button[type=submit]', 1000)
