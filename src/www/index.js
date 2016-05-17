@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import babelPolyfill from 'babel-polyfill';
 import { Provider } from 'react-redux';
-import { Router, Route, browserHistory } from 'react-router';
+import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import configureStore from './store/configureStore';
 import * as ws from './utils/ws';
@@ -19,6 +19,12 @@ function validateToken(nextState, replace) {
     }
 }
 
+function validateNonToken(nextState, replace) {
+    if (localStorage.token) {
+        replace('/lounge');
+    }
+}
+
 (async function () {
     const store = await configureStore();
     const history = syncHistoryWithStore(browserHistory, store);
@@ -28,8 +34,8 @@ function validateToken(nextState, replace) {
         <Provider store={store}>
             <Router history={history}>
                 <Route path="/" component={Layout}>
-                    <Route path="/register" component={RegisterForm} />
-                    <Route path="/login" component={AuthenticateForm} />
+                    <IndexRoute component={RegisterForm} onEnter={validateNonToken} />
+                    <Route path="/login" component={AuthenticateForm} onEnter={validateNonToken} />
                     <Route path="/lounge" component={Lounge} onEnter={validateToken} />
                     <Route path="/game" component={Game} onEnter={validateToken} />
                 </Route>
