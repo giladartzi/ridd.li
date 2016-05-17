@@ -4,12 +4,12 @@ import { INVITATION_SEND_ACTIONS } from '../../common/consts';
 import { createApiAction } from '../utils/utils';
 
 import {List, ListItem} from 'material-ui/List';
-import ActionAccountBox from 'material-ui/svg-icons/action/account-box';
+import ActionFace from 'material-ui/svg-icons/action/face';
 
 let LoungeUserList = ({ users, invite }) => {
     let listItems = users.map(user => {
         return <ListItem className="user" key={user.id} primaryText={user.username}
-            onClick={() => invite(user.id)} leftIcon={<ActionAccountBox />} />;
+            onClick={() => invite(user.id)} leftIcon={<ActionFace />} />;
     });
 
     return (

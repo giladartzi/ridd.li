@@ -2,19 +2,27 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { createApiAction } from '../utils/utils';
 import { ANSWER_ACTIONS } from '../../common/consts';
+import GameProgress from './GameProgress';
+import {List, ListItem} from 'material-ui/List';
+import ActionInfo from 'material-ui/svg-icons/action/info';
 
 let Game = ({game, sendAnswer}) => {
     let answers = game.question.answers.map((answer, index) => {
-        return <li id={`answer${index}`} key={index} onClick={() => sendAnswer(game.gameId, game.questionIndex, index)}>{answer}</li>
+        return (
+            <ListItem id={`answer${index}`} key={index} primaryText={answer} leftIcon={<ActionInfo />}
+                      onClick={() => sendAnswer(game.gameId, game.questionIndex, index)} />
+        );
+
     });
     
     return (
         <div>
             <h1 id="gameHeader">Game</h1>
+            <GameProgress />
             <div id="question">{ game.question.text }</div>
-            <ul>
+            <List>
                 {answers}
-            </ul>
+            </List>
         </div>
     );
 };
