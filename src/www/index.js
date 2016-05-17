@@ -7,7 +7,6 @@ import { syncHistoryWithStore } from 'react-router-redux';
 import configureStore from './store/configureStore';
 import * as ws from './utils/ws';
 import injectTapEventPlugin from 'react-tap-event-plugin';
-import {deepOrange500} from 'material-ui/styles/colors';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
@@ -37,11 +36,9 @@ function validateNonToken(nextState, replace) {
     ws.init(store);
     injectTapEventPlugin();
 
-    const muiTheme = getMuiTheme({
-        palette: {
-            accent1Color: deepOrange500
-        }
-    });
+    const muiTheme = getMuiTheme();
+
+    console.log(muiTheme);
 
     const node = (
         <Provider store={store}>

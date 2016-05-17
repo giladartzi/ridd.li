@@ -1,6 +1,7 @@
 import { verifyBatch, assertEqual, wait } from './testUtils';
 import { post, get } from '../../common/rest';
-import { WS_INVITATION_RECEIVED, WS_INVITATION_CANCELLED, WS_INVITATION_ACCEPTED } from '../../common/consts';
+import { WS_INVITATION_RECEIVED, WS_INVITATION_CANCELLED,
+    WS_INVITATION_ACCEPTED, WS_INVITATION_REJECTED } from '../../common/consts';
 
 export default async function invitationTests(tokens, userIds, wss) {
     let res;
@@ -51,7 +52,9 @@ export default async function invitationTests(tokens, userIds, wss) {
     await wait(0.2);
     res = wss[1].messages.pop();
     verifyBatch('User 2 invitation cancelled push', [
-        assertEqual(res.type, WS_INVITATION_CANCELLED)
+        assertEqual(res.type, WS_INVITATION_CANCELLED),
+        assertEqual(typeof res.payload.state, 'string', 'state is not a string!'),
+        assertEqual(res.payload.state, 'CANCELLED', 'state is not CANCELLED!')
     ]);
 
     res = await post('/invitation/send', { opponentId: userIds[1] }, tokens[0]);
@@ -144,6 +147,14 @@ export default async function invitationTests(tokens, userIds, wss) {
         assertEqual(res.json.inviter.id, userIds[0], 'wrong inviter!'),
         assertEqual(res.json.invitee.id, userIds[1], 'wrong inviter!'),
         assertEqual(res.json.error, undefined, 'has error!')
+    ]);
+    
+    await wait(0.2);
+    res = wss[0].messages.pop();
+    verifyBatch('Reject invitation - push to inviter', [
+        assertEqual(res.type, WS_INVITATION_REJECTED),
+        assertEqual(typeof res.payload.state, 'string', 'state is not a string!'),
+        assertEqual(res.payload.state, 'REJECTED', 'state is not CANCELLED!')
     ]);
 
     res = await get('/invitation', tokens[0]);

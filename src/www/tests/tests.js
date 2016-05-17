@@ -22,10 +22,10 @@ module.exports = {
             .click('.genericForm.register button[type=submit]')
             .pause(1000)
     },
-    'Verify username': function (client) {
-        client.waitForElementVisible('#welcome #username', 1000)
-            .assert.containsText('#welcome #username', 'newUser1')
-    },
+    // 'Verify username': function (client) {
+    //     client.waitForElementVisible('#welcome #username', 1000)
+    //         .assert.containsText('#welcome #username', 'newUser1')
+    // },
     'Open new window': function (client) {
         client
             .execute(function (url, name) {
@@ -50,29 +50,29 @@ module.exports = {
             .click('.genericForm.register button[type=submit]')
             .pause(1000)
     },
-    'Verify username - second user': function (client) {
-        client.waitForElementVisible('#welcome #username', 1000)
-            .assert.containsText('#welcome #username', 'newUser2')
-    },
+    // 'Verify username - second user': function (client) {
+    //     client.waitForElementVisible('#welcome #username', 1000)
+    //         .assert.containsText('#welcome #username', 'newUser2')
+    // },
     'Lounge - second user': function (client) {
         client
-            .assert.visible('#lounge .user')
-            .assert.containsText('#lounge .user', 'newUser1')
+            .assert.visible('.user div div div')
+            .assert.containsText('.user div div div', 'newUser1')
     },
     'Lounge - first user': function (client) {
         client
             .switchWindow(windows[0])
-            .assert.visible('#lounge .user')
-            .assert.containsText('#lounge .user', 'newUser2')
-            .click('#lounge .user')
+            .assert.visible('.user div div div')
+            .assert.containsText('.user div div div', 'newUser2')
+            .click('.user div div div')
             .pause(500)
-            .assert.containsText('#outgoingInvitation', 'Outgoing invitation to newUser2')
+            .assert.containsText('#outgoingInvitation', 'Invitation sent to newUser2, waiting for reply.')
     },
     'Second user - refresh': function (client) {
         client.switchWindow(windows[1])
             .pause(1000)
-            .assert.containsText('#incomingInvitation', 'Incoming invitation from newUser1')
-            .click('#incomingInvitation')
+            .assert.containsText('#incomingInvitation', 'Incoming invitation received from newUser1.')
+            .click('#incomingInvitationAccept')
             .pause(1000);
     },
     'User #2 - Game link': function (client) {
