@@ -13,10 +13,7 @@ let RegisterForm = ({onFormSubmit, error}) => {
     ];
 
     return (
-        <div>
-            <h2>Register</h2>
-            <GenericForm className="register" fields={fields} onFormSubmit={onFormSubmit} error={error} />
-        </div>
+        <GenericForm header="Register" className="register" fields={fields} onFormSubmit={onFormSubmit} error={error} />
     );
 };
 

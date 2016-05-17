@@ -6,18 +6,18 @@ module.exports = {
         client
             .url('http://localhost:3000/register')
             .waitForElementVisible('body', 1000)
-            .assert.visible('input[name=username]')
-            .assert.visible('input[name=password]')
-            .click('button[type=submit]')
+            .assert.visible('.genericForm.register .username input')
+            .assert.visible('.genericForm.register .password input')
+            .click('.genericForm.register button[type=submit]')
             .pause(500)
-            .assert.containsText('form.register .error', 'Please provide both Username and Password')
+            .assert.containsText('.genericForm.register .error', 'Please provide both Username and Password')
     },
     'Register': function (client) {
         client
-            .setValue('input[name=username]', 'newUser1')
-            .setValue('input[name=password]', 'newUser1Pass')
-            .waitForElementVisible('button[type=submit]', 1000)
-            .click('button[type=submit]')
+            .setValue('.genericForm.register .username input', 'newUser1')
+            .setValue('.genericForm.register .password input', 'newUser1Pass')
+            .waitForElementVisible('.genericForm.register button[type=submit]', 1000)
+            .click('.genericForm.register button[type=submit]')
             .pause(1000)
     },
     'Verify username': function (client) {
@@ -40,10 +40,10 @@ module.exports = {
     'Register - second user': function (client) {
         client
             .url('http://127.0.0.1:3000/register')
-            .setValue('input[name=username]', 'newUser2')
-            .setValue('input[name=password]', 'newUser2Pass')
-            .waitForElementVisible('button[type=submit]', 1000)
-            .click('button[type=submit]')
+            .setValue('.genericForm.register .username input', 'newUser2')
+            .setValue('.genericForm.register .password input', 'newUser2Pass')
+            .waitForElementVisible('.genericForm.register button[type=submit]', 1000)
+            .click('.genericForm.register button[type=submit]')
             .pause(1000)
     },
     'Verify username - second user': function (client) {

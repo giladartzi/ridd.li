@@ -1,12 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import AppBar from 'material-ui/AppBar';
 
 let Layout = ({children}) => {
     return (
         <div>
-            <h1>Header</h1>
+            <AppBar title="ridd.li" />
             {children}
-            <footer>Footer</footer>
         </div>
     );
 };

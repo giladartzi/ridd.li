@@ -12,10 +12,7 @@ let AuthenticateForm = ({onFormSubmit, error}) => {
     ];
 
     return (
-        <div>
-            <h3>Login</h3>
-            <GenericForm fields={fields} onFormSubmit={onFormSubmit} error={error} />
-        </div>
+        <GenericForm header="Login" fields={fields} onFormSubmit={onFormSubmit} error={error} />
     );
 };
 

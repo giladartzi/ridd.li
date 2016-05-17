@@ -1,5 +1,9 @@
 import React from 'react';
 import capitalize from 'lodash/capitalize';
+import Paper from 'material-ui/Paper';
+import TextField from 'material-ui/TextField';
+import RaisedButton from 'material-ui/RaisedButton';
+import Subheader from 'material-ui/Subheader';
 
 export default class UserPasswordForm extends React.Component {
     constructor(params) {
@@ -13,7 +17,9 @@ export default class UserPasswordForm extends React.Component {
         placeholder = placeholder || capitalize(name);
 
         return (
-            <input key={name} type={type} name={name} onChange={onChange} placeholder={placeholder} />
+            <div key={name} className={name}>
+                <TextField type={type} onChange={onChange} hintText={placeholder} />
+            </div>
         );
     }
 
@@ -27,13 +33,28 @@ export default class UserPasswordForm extends React.Component {
         let inputs = this.props.fields.map(field => {
             return this.generateInput(field)
         });
+
+        let style = {
+            display: 'inline-block',
+            padding: '20px',
+            margin: '20px auto'
+        };
+
+        let buttonStyle = {
+            margin: '10px'
+        };
         
         return (
-            <form className={this.props.className} onSubmit={this.onSubmit}>
-                {inputs}
-                <button type="submit">Submit</button>
-                { this.props.error ? <span className="error">{this.props.error}</span> : null }
-            </form>
+            <div style={{textAlign: 'center'}} className={'genericForm' + ' ' + this.props.header.toLowerCase()}>
+                <Paper style={style} zDepth={2}>
+                    <Subheader className="header">{this.props.header}</Subheader>
+                    <form className={this.props.className} onSubmit={this.onSubmit}>
+                        {inputs}
+                        <RaisedButton style={buttonStyle} type="submit" label={this.props.header} />
+                        { this.props.error ? <div className="error">{this.props.error}</div> : null }
+                    </form>
+                </Paper>
+            </div>
         );
     }
 }
