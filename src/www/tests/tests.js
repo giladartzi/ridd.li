@@ -30,10 +30,13 @@ module.exports = {
             .click('.genericForm.register button[type=submit]')
             .pause(1000)
     },
-    // 'Verify username': function (client) {
-    //     client.waitForElementVisible('#welcome #username', 1000)
-    //         .assert.containsText('#welcome #username', 'newUser1')
-    // },
+    'Verify username': function (client) {
+        client.waitForElementVisible('.barMenu', 1000)
+            .click('.barMenu')
+            .waitForElementVisible('#barMenuUsername', 500)
+            .assert.containsText('#barMenuUsername', 'newUser1')
+            .click('#barMenuUsername');
+    },
     'Empty lounge': function (client) {
         client
             .assert.visible('#emptyLoungeUserList')
@@ -96,10 +99,24 @@ module.exports = {
             .click('.genericForm.login button[type=submit]')
             .pause(1000)
     },
-    // 'Verify username - second user': function (client) {
-    //     client.waitForElementVisible('#welcome #username', 1000)
-    //         .assert.containsText('#welcome #username', 'newUser2')
-    // },
+    'Logout - second user + verify username': function (client) {
+        client.waitForElementVisible('.barMenu', 1000)
+            .click('.barMenu')
+            .waitForElementVisible('#barMenuUsername', 500)
+            .waitForElementVisible('#barMenuLogout', 500)
+            .assert.containsText('#barMenuUsername', 'newUser2')
+            .click('#barMenuLogout');
+    },
+    'Login - second user - once again': function (client) {
+        client
+            .waitForElementVisible('#signInButton', 1000)
+            .click('#signInButton')
+            .setValue('.genericForm.login .username input', 'newUser2')
+            .setValue('.genericForm.login .password input', 'newUser2Pass')
+            .waitForElementVisible('.genericForm.login button[type=submit]', 1000)
+            .click('.genericForm.login button[type=submit]')
+            .pause(1000)
+    },
     'Lounge - second user': function (client) {
         client
             .assert.visible('.user div div div')
@@ -155,6 +172,6 @@ module.exports = {
     'User #1 - Answer question 10': answer(0, false),
     'User #2 - Answer question 10': answer(1, true),
     after: function(client) {
-        client.pause(9995000).end();
+        client.pause(1000).end();
     }
 };
