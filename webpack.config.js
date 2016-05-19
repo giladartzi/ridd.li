@@ -3,7 +3,8 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 var plugins = [
     new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.bundle.js"),
-    new HtmlWebpackPlugin({ template: './src/www/index.ejs', inject: 'body' })
+    new HtmlWebpackPlugin({ template: './src/www/index.ejs', inject: 'body' }),
+    new webpack.DefinePlugin({ PORT: process.env.NODE_ENV === 'production' ? 80 : 8080 })
 ];
 
 if (process.env.NODE_ENV === 'production') {

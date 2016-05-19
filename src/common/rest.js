@@ -1,5 +1,5 @@
 export async function send(method, path, token, body) {
-    let url = 'http://localhost:8080' + path;
+    let url = `http://${window.location.origin}:${PORT}` + path;
 
     let options = {
         method: method,

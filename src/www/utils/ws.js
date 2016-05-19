@@ -2,7 +2,7 @@ var store;
 var reconnectTimeout;
 
 function initWebSocket() {
-    let ws = new WebSocket('ws://localhost:8080');
+    let ws = new WebSocket(`ws://${window.location.host}:${PORT}`);
     ws.onopen = () => sendInitFrame(ws);
     ws.onclose = reconnect;
     ws.onerror = reconnect;
