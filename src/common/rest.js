@@ -1,6 +1,6 @@
 export async function send(method, path, token, body) {
     let port = PORT === 80 ? '' : PORT;
-    let url = `http://${window.location.href}:${port}` + path;
+    let url = `http://${window.location.host}:${port}` + path;
 
     let options = {
         method: method,
