@@ -1,283 +1,183 @@
 import { verifyBatch, assertEqual, getAnswerIndex, wait } from './testUtils';
 import { post, get } from '../../common/rest';
 import isEqual from 'lodash/isEqual';
-import { WS_ADVANCE_GAME } from '../../common/consts';
+import last from 'lodash/last';
+import { WS_ADVANCE_GAME, NUM_OF_QUESTIONS } from '../../common/consts';
+
+let globalGameId;
+let globalCurrentQuestion;
+let globalTokens;
+let globalWss;
+
+async function wholeStage(stage, isCorrect1, isCorrect2) {
+    let httpRes, wsRes;
+
+    httpRes = await answer(stage - 1, globalCurrentQuestion, isCorrect1, globalTokens[0]);
+    verifyBatch(`Stage ${stage} - User 1, correct ${isCorrect1}`,
+        httpGameAsserts(httpRes, 0, stage, isCorrect1, globalCurrentQuestion));
+
+    httpRes = await answer(stage - 1, globalCurrentQuestion, isCorrect2, globalTokens[1]);
+    verifyBatch(`Stage ${stage} - User 2, correct ${isCorrect2}`,
+        httpGameAsserts(httpRes, 1, stage, isCorrect2, globalCurrentQuestion));
+
+    wsRes = await wsPop(globalWss[0]);
+    verifyBatch(`Stage ${stage} User 1 - Game advance - Push`,
+        wsGameAsserts(wsRes, stage - 1, stage, isCorrect1, globalCurrentQuestion));
+
+    globalCurrentQuestion = httpRes.json.question;
+}
+
+async function answer(questionIndex, currentQuestion, isCorrect, token) {
+    return await post('/answer', {
+        gameId: globalGameId,
+        questionIndex,
+        answerIndex: getAnswerIndex(currentQuestion, isCorrect)
+    }, token);
+}
+
+async function wsPop(ws) {
+    await wait(0.2);
+    return ws.messages.pop();
+}
+
+function httpGameAsserts(res, userIndex, stage, isCorrect, currentQuestion, answers) {
+    let payload = res.json.game || res.json;
+    let stageEnded = userIndex !== 0;
+
+    return [
+        assertEqual(res.status, 200, 'status is not 200!'),
+        ...gameAsserts(payload, stage, isCorrect, currentQuestion, answers, stageEnded)
+    ];
+}
+
+function wsGameAsserts(res, userIndex, stage, isCorrect, currentQuestion, answers) {
+    return [
+        assertEqual(res.type, WS_ADVANCE_GAME, 'ws type is incorrect!'),
+        ...gameAsserts(res.payload, stage, isCorrect, currentQuestion, answers, true)
+    ];
+}
+
+function gameAsserts(payload, stage, isCorrect, currentQuestion, answers, stageEnded) {
+    let progressLength = answers === 0 ? 1 : stageEnded ? stage + 1 : stage;
+    let questionIndex = answers === 0 ? 0 : stageEnded ? stage : stage - 1;
+    let answeredLength = typeof answers === 'number' ? answers : stage;
+    let state = 'ACTIVE';
+
+    let answered = payload.progress.filter(p => p.isAnswered);
+    let lastAnswered = last(answered) || {};
+    let currentQuestionEquality = !stageEnded || answers === 0;
+
+    let questionAsserts;
+
+    if (questionIndex === NUM_OF_QUESTIONS) {
+        state = 'INACTIVE';
+        progressLength = NUM_OF_QUESTIONS;
+        questionAsserts = [
+            assertEqual(payload.question, null, 'wrong currentQuestion!')
+        ];
+    }
+    else {
+        questionAsserts = [
+            assertEqual(typeof payload.question.text, 'string', 'question.text is not a string!'),
+            assertEqual(Array.isArray(payload.question.answers), true, 'question.answers is not an array!'),
+            assertEqual(isEqual(payload.question, currentQuestion), currentQuestionEquality, 'wrong currentQuestion!')
+        ];
+    }
+
+    return [
+        assertEqual(payload.state, state, `state is not ${state}!`),
+        assertEqual(typeof payload.gameId, 'string', 'gameId is not a string!'),
+        assertEqual(payload.gameId, globalGameId, 'Incorrect gameId!'),
+        assertEqual(Array.isArray(payload.progress), true, 'progress is not an array!'),
+        assertEqual(payload.progress.length, progressLength, `progress is not in the length of ${progressLength}`),
+        assertEqual(answered.length, answeredLength, 'wrong answered length!'),
+        assertEqual(lastAnswered.isCorrect, isCorrect, 'Answer correctness issue!'),
+        assertEqual(payload.questionIndex, questionIndex, 'questionIndex is not 0'),
+        ...questionAsserts
+    ];
+}
 
 export default async function gameTests(tokens, userIds, wss, gameId, currentQuestion) {
-    let res;
+    let httpRes, wsRes;
+
+    globalGameId = gameId;
+    globalCurrentQuestion = currentQuestion;
+    globalTokens = tokens;
+    globalWss = wss;
 
     // Get the game in the first user's perspective
-    res = await get('/game', tokens[0]);
-    verifyBatch('Stage 1 - First user perspective', [
-        assertEqual(res.status, 200, 'status is not 200!'),
-        assertEqual(res.json.state, 'ACTIVE', 'state is not ACTIVE!'),
-        assertEqual(typeof res.json.gameId, 'string', 'gameId is not a string!'),
-        assertEqual(res.json.gameId, gameId, 'Incorrect gameId!'),
-        assertEqual(Array.isArray(res.json.progress), true, 'progress is not an array!'),
-        assertEqual(res.json.progress.length, 1, 'progress is not in the length of 1!'),
-        assertEqual(res.json.progress.filter(p => p.isAnswered).length, 0, 'answered is not in the length of 0!'),
-        assertEqual(typeof res.json.question.text, 'string', 'question.text is not a string!'),
-        assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
-        assertEqual(res.json.questionIndex, 0, 'questionIndex is not 0')
-    ]);
+    httpRes = await get('/game', tokens[0]);
+    verifyBatch('Stage 1 - First user perspective', httpGameAsserts(httpRes, 0, 1, undefined, currentQuestion, 0));
 
-    res = await get('/sync', tokens[0]);
-    verifyBatch('Stage 1 - First user perspective (SYNC)', [
-        assertEqual(res.status, 200, 'status is not 200!'),
-        assertEqual(res.json.game.state, 'ACTIVE', 'state is not ACTIVE!'),
-        assertEqual(typeof res.json.game.gameId, 'string', 'gameId is not a string!'),
-        assertEqual(res.json.game.gameId, gameId, 'Incorrect gameId!'),
-        assertEqual(Array.isArray(res.json.game.progress), true, 'progress is not an array!'),
-        assertEqual(res.json.game.progress.length, 1, 'progress is not in the length of 1!'),
-        assertEqual(res.json.game.progress.filter(p => p.isAnswered).length, 0, 'answered is not in the length of 0!'),
-        assertEqual(typeof res.json.game.question.text, 'string', 'question.text is not a string!'),
-        assertEqual(Array.isArray(res.json.game.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.json.game.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
-        assertEqual(res.json.invitation, null, 'invitation is not null'),
-        assertEqual(res.json.game.questionIndex, 0, 'questionIndex is not 0')
-    ]);
+    httpRes = await get('/sync', tokens[0]);
+    verifyBatch('Stage 1 - First user perspective (SYNC)', httpGameAsserts(httpRes, 0, 1, undefined, currentQuestion, 0));
 
-    res = await get('/game', tokens[1]);
-    verifyBatch('Stage 1 - Second user perspective', [
-        assertEqual(res.status, 200, 'status is not 200!'),
-        assertEqual(res.json.state, 'ACTIVE', 'state is not ACTIVE!'),
-        assertEqual(typeof res.json.gameId, 'string', 'gameId is not a string!'),
-        assertEqual(res.json.gameId, gameId, 'Incorrect gameId!'),
-        assertEqual(Array.isArray(res.json.progress), true, 'progress is not an array!'),
-        assertEqual(res.json.progress.length, 1, 'progress is not in the length of 1!'),
-        assertEqual(res.json.progress.filter(p => p.isAnswered).length, 0, 'answered is not in the length of 0!'),
-        assertEqual(typeof res.json.question.text, 'string', 'question.text is not a string!'),
-        assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
-        assertEqual(res.json.questionIndex, 0, 'questionIndex is not 0')
-    ]);
+    httpRes = await get('/game', tokens[1]);
+    verifyBatch('Stage 1 - Second user perspective', httpGameAsserts(httpRes, 1, 1, undefined, currentQuestion, 0));
 
-    res = await get('/sync', tokens[1]);
-    verifyBatch('Stage 1 - Second user perspective (SYNC)', [
-        assertEqual(res.status, 200, 'status is not 200!'),
-        assertEqual(res.json.game.state, 'ACTIVE', 'state is not ACTIVE!'),
-        assertEqual(typeof res.json.game.gameId, 'string', 'gameId is not a string!'),
-        assertEqual(res.json.game.gameId, gameId, 'Incorrect gameId!'),
-        assertEqual(Array.isArray(res.json.game.progress), true, 'progress is not an array!'),
-        assertEqual(res.json.game.progress.length, 1, 'progress is not in the length of 1!'),
-        assertEqual(res.json.game.progress.filter(p => p.isAnswered).length, 0, 'answered is not in the length of 0!'),
-        assertEqual(typeof res.json.game.question.text, 'string', 'question.text is not a string!'),
-        assertEqual(Array.isArray(res.json.game.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.json.game.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
-        assertEqual(res.json.invitation, null, 'invitation is not null'),
-        assertEqual(res.json.game.questionIndex, 0, 'questionIndex is not 0')
-    ]);
+    httpRes = await get('/sync', tokens[1]);
+    verifyBatch('Stage 1 - Second user perspective (SYNC)', httpGameAsserts(httpRes, 1, 1, undefined, currentQuestion, 0));
 
-    res = await post('/answer', {
-        gameId,
-        questionIndex: 0,
-        answerIndex: getAnswerIndex(currentQuestion, true)
-    }, tokens[0]);
-    verifyBatch('Stage 1 - First user answers correctly', [
-        assertEqual(res.status, 200, 'status is not 200!'),
-        assertEqual(res.json.state, 'ACTIVE', 'state is not ACTIVE!'),
-        assertEqual(typeof res.json.gameId, 'string', 'gameId is not a string!'),
-        assertEqual(res.json.gameId, gameId, 'Incorrect gameId!'),
-        assertEqual(Array.isArray(res.json.progress), true, 'progress is not an array!'),
-        assertEqual(res.json.progress.length, 1, 'progress is not in the length of 1!'),
-        assertEqual(res.json.progress.filter(p => p.isAnswered).length, 1, 'answered is not in the length of 1!'),
-        assertEqual(res.json.progress[0].isCorrect, true, 'Answer is not correct!'),
-        assertEqual(typeof res.json.question.text, 'string', 'question.text is not a string!'),
-        assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
-        assertEqual(res.json.questionIndex, 0, 'questionIndex is not 0')
-    ]);
+    await wholeStage(1, true, false);
 
-    res = await post('/answer', {
-        gameId,
-        questionIndex: 0,
-        answerIndex: getAnswerIndex(currentQuestion, false)
-    }, tokens[1]);
-    verifyBatch('Stage 1 - Second user answers incorrectly', [
-        assertEqual(res.status, 200, 'status is not 200!'),
-        assertEqual(res.json.state, 'ACTIVE', 'state is not ACTIVE!'),
-        assertEqual(typeof res.json.gameId, 'string', 'gameId is not a string!'),
-        assertEqual(res.json.gameId, gameId, 'Incorrect gameId!'),
-        assertEqual(Array.isArray(res.json.progress), true, 'progress is not an array!'),
-        assertEqual(res.json.progress.length, 2, 'progress is not in the length of 2!'),
-        assertEqual(res.json.progress.filter(p => p.isAnswered).length, 1, 'answered is not in the length of 1!'),
-        assertEqual(res.json.progress[0].isCorrect, false, 'Answer is correct!'),
-        assertEqual(typeof res.json.question.text, 'string', 'question.text is not a string!'),
-        assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.json.question, currentQuestion), false, 'question EQUAL to currentQuestion!'),
-        assertEqual(res.json.questionIndex, 1, 'questionIndex is not 1')
-    ]);
-    currentQuestion = res.json.question;
-
-    await wait(0.2);
-    res = wss[0].messages.pop();
-    verifyBatch('User 1 - Game advance - Push', [
-        assertEqual(res.type, WS_ADVANCE_GAME, 'ws type is incorrect!'),
-        assertEqual(res.payload.state, 'ACTIVE', 'state is not ACTIVE!'),
-        assertEqual(typeof res.payload.gameId, 'string', 'gameId is not a string!'),
-        assertEqual(res.payload.gameId, gameId, 'Incorrect gameId!'),
-        assertEqual(Array.isArray(res.payload.progress), true, 'progress is not an array!'),
-        assertEqual(res.payload.progress.length, 2, 'progress is not in the length of 2!'),
-        assertEqual(typeof res.payload.question.text, 'string', 'question.text is not a string!'),
-        assertEqual(Array.isArray(res.payload.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.payload.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
-        assertEqual(res.payload.questionIndex, 1, 'questionIndex is not 1')
-    ]);
-
-    res = await post('/answer', {
+    httpRes = await post('/answer', {
         gameId,
         questionIndex: 0,
         answerIndex: 0
     }, tokens[0]);
     verifyBatch('Stage 1 - First user tries to re-answer the same question twice', [
-        assertEqual(res.status, 400, 'status is not 400!'),
-        assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
-        assertEqual(res.json.error, 'Question is already answered!', 'wrong error!')
+        assertEqual(httpRes.status, 400, 'status is not 400!'),
+        assertEqual(typeof httpRes.json.error, 'string', 'error is not a string!'),
+        assertEqual(httpRes.json.error, 'Question is already answered!', 'wrong error!')
     ]);
 
-    res = await post('/answer', {
+    httpRes = await post('/answer', {
         gameId,
         questionIndex: 14,
         answerIndex: 0
     }, tokens[0]);
     verifyBatch('Stage 1 - First user tries to answer a non-existing question', [
-        assertEqual(res.status, 400, 'status is not 400!'),
-        assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
-        assertEqual(res.json.error, 'Invalid question index!', 'wrong error!')
+        assertEqual(httpRes.status, 400, 'status is not 400!'),
+        assertEqual(typeof httpRes.json.error, 'string', 'error is not a string!'),
+        assertEqual(httpRes.json.error, 'Invalid question index!', 'wrong error!')
     ]);
 
-    res = await post('/answer', {
-        gameId,
-        questionIndex: 1,
-        answerIndex: getAnswerIndex(currentQuestion, true)
-    }, tokens[0]);
-    verifyBatch('Stage 2 - First user answers correctly', [
-        assertEqual(res.status, 200, 'status is not 200!'),
-        assertEqual(res.json.state, 'ACTIVE', 'state is not ACTIVE!'),
-        assertEqual(typeof res.json.gameId, 'string', 'gameId is not a string!'),
-        assertEqual(res.json.gameId, gameId, 'Incorrect gameId!'),
-        assertEqual(Array.isArray(res.json.progress), true, 'progress is not an array!'),
-        assertEqual(res.json.progress.length, 2, 'progress is not in the length of 2!'),
-        assertEqual(res.json.progress.filter(p => p.isAnswered).length, 2, 'answered is not in the length of 2!'),
-        assertEqual(res.json.progress[1].isCorrect, true, 'Answer is not correct!'),
-        assertEqual(typeof res.json.question.text, 'string', 'question.text is not a string!'),
-        assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
-        assertEqual(res.json.questionIndex, 1, 'questionIndex is not 1')
-    ]);
+    await wholeStage(2, true, false);
+    await wholeStage(3, true, true);
+    await wholeStage(4, false, true);
+    await wholeStage(5, false, false);
+    await wholeStage(6, true, false);
+    await wholeStage(7, false, true);
+    await wholeStage(8, true, false);
+    await wholeStage(9, true, false);
+    await wholeStage(10, true, false);
 
-    res = await post('/answer', {
-        gameId,
-        questionIndex: 1,
-        answerIndex: getAnswerIndex(currentQuestion, false)
-    }, tokens[1]);
-    verifyBatch('Stage 2 - Second user answers incorrectly', [
-        assertEqual(res.status, 200, 'status is not 200!'),
-        assertEqual(res.json.state, 'ACTIVE', 'state is not ACTIVE!'),
-        assertEqual(typeof res.json.gameId, 'string', 'gameId is not a string!'),
-        assertEqual(res.json.gameId, gameId, 'Incorrect gameId!'),
-        assertEqual(Array.isArray(res.json.progress), true, 'progress is not an array!'),
-        assertEqual(res.json.progress.length, 3, 'progress is not in the length of 3!'),
-        assertEqual(res.json.progress.filter(p => p.isAnswered).length, 2, 'answered is not in the length of 2!'),
-        assertEqual(res.json.progress[1].isCorrect, false, 'Answer is correct!'),
-        assertEqual(typeof res.json.question.text, 'string', 'question.text is not a string!'),
-        assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.json.question, currentQuestion), false, 'question EQUAL to currentQuestion!'),
-        assertEqual(res.json.questionIndex, 2, 'questionIndex is not 2')
-    ]);
-    currentQuestion = res.json.question;
-
-    await wait(0.2);
-    res = wss[0].messages.pop();
-    verifyBatch('Stage 2 - Push notification', [
-        assertEqual(res.type, WS_ADVANCE_GAME, 'ws type is incorrect'),
-        assertEqual(res.payload.state, 'ACTIVE', 'state is not ACTIVE!'),
-        assertEqual(typeof res.payload.gameId, 'string', 'gameId is not a string!'),
-        assertEqual(res.payload.gameId, gameId, 'Incorrect gameId!'),
-        assertEqual(Array.isArray(res.payload.progress), true, 'progress is not an array!'),
-        assertEqual(res.payload.progress.length, 3, 'progress is not in the length of 3!'),
-        assertEqual(typeof res.payload.question.text, 'string', 'question.text is not a string!'),
-        assertEqual(Array.isArray(res.payload.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.payload.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
-        assertEqual(res.payload.questionIndex, 2, 'questionIndex is not 2')
-    ]);
-
-    res = await post('/answer', {
-        gameId,
-        questionIndex: 2,
-        answerIndex: getAnswerIndex(currentQuestion, false)
-    }, tokens[0]);
-    verifyBatch('Stage 3 - First user answers incorrectly', [
-        assertEqual(res.status, 200, 'status is not 200!'),
-        assertEqual(res.json.state, 'ACTIVE', 'state is not ACTIVE!'),
-        assertEqual(typeof res.json.gameId, 'string', 'gameId is not a string!'),
-        assertEqual(res.json.gameId, gameId, 'Incorrect gameId!'),
-        assertEqual(Array.isArray(res.json.progress), true, 'progress is not an array!'),
-        assertEqual(res.json.progress.length, 3, 'progress is not in the length of 3!'),
-        assertEqual(res.json.progress.filter(p => p.isAnswered).length, 3, 'answered is not in the length of 3!'),
-        assertEqual(res.json.progress[2].isCorrect, false, 'Answer is correct!'),
-        assertEqual(typeof res.json.question.text, 'string', 'question.text is not a string!'),
-        assertEqual(Array.isArray(res.json.question.answers), true, 'question.answers is not an array!'),
-        assertEqual(isEqual(res.json.question, currentQuestion), true, 'question is not equal to currentQuestion!'),
-        assertEqual(res.json.questionIndex, 2, 'questionIndex is not 2')
-    ]);
-
-    res = await post('/answer', {
-        gameId,
-        questionIndex: 2,
-        answerIndex: getAnswerIndex(currentQuestion, true)
-    }, tokens[1]);
-
-    verifyBatch('Stage 3 - Second user answers incorrectly', [
-        assertEqual(res.status, 200, 'status is not 200!'),
-        assertEqual(res.json.state, 'INACTIVE', 'state is not INACTIVE!'),
-        assertEqual(typeof res.json.gameId, 'string', 'gameId is not a string!'),
-        assertEqual(res.json.gameId, gameId, 'Incorrect gameId!'),
-        assertEqual(Array.isArray(res.json.progress), true, 'progress is not an array!'),
-        assertEqual(res.json.progress.length, 3, 'progress is not in the length of 3!'),
-        assertEqual(res.json.progress.filter(p => p.isAnswered).length, 3, 'answered is not in the length of 3!'),
-        assertEqual(res.json.progress[2].isCorrect, true, 'Answer is not correct!'),
-        assertEqual(res.json.question, null, 'question is not null!')
-    ]);
-
-    await wait(0.2);
-    res = wss[0].messages.pop();
-    verifyBatch('Stage 3 - Push notification', [
-        assertEqual(res.type, WS_ADVANCE_GAME, 'ws type is incorrect!'),
-        assertEqual(res.payload.state, 'INACTIVE', 'state is not INACTIVE!'),
-        assertEqual(typeof res.payload.gameId, 'string', 'gameId is not a string!'),
-        assertEqual(res.payload.gameId, gameId, 'Incorrect gameId!'),
-        assertEqual(Array.isArray(res.payload.progress), true, 'progress is not an array!'),
-        assertEqual(res.payload.question, null, 'question is not null!')
-    ]);
-
-    res = await get('/game', tokens[0]);
-    verifyBatch('Stage 4 - First user perspective', [
-        assertEqual(res.status, 400, 'status is not 400!'),
-        assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
-        assertEqual(res.json.error, 'Game not found', 'Incorrect error message!')
+    httpRes = await get('/game', tokens[0]);
+    verifyBatch('Game ended - First user perspective', [
+        assertEqual(httpRes.status, 400, 'status is not 400!'),
+        assertEqual(typeof httpRes.json.error, 'string', 'error is not a string!'),
+        assertEqual(httpRes.json.error, 'Game not found', 'Incorrect error message!')
     ], tokens[0]);
 
-    res = await get('/sync', tokens[0]);
-    verifyBatch('Stage 4 - First user perspective (SYNC)', [
-        assertEqual(res.status, 200, 'status is not 200!'),
-        assertEqual(res.json.invitation, null, 'invitation is not null!'),
-        assertEqual(res.json.game, null, 'game is not null!')
+    httpRes = await get('/sync', tokens[0]);
+    verifyBatch('Game ended - First user perspective (SYNC)', [
+        assertEqual(httpRes.status, 200, 'status is not 200!'),
+        assertEqual(httpRes.json.invitation, null, 'invitation is not null!'),
+        assertEqual(httpRes.json.game, null, 'game is not null!')
     ]);
 
-    res = await get('/game', tokens[1]);
-    verifyBatch('Stage 4 - Second user perspective', [
-        assertEqual(res.status, 400, 'status is not 400!'),
-        assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
-        assertEqual(res.json.error, 'Game not found', 'Incorrect error message!')
+    httpRes = await get('/game', tokens[1]);
+    verifyBatch('Game ended - Second user perspective', [
+        assertEqual(httpRes.status, 400, 'status is not 400!'),
+        assertEqual(typeof httpRes.json.error, 'string', 'error is not a string!'),
+        assertEqual(httpRes.json.error, 'Game not found', 'Incorrect error message!')
     ], tokens[1]);
 
-    res = await get('/sync', tokens[1]);
-    verifyBatch('Stage 4 - Second user perspective (SYNC)', [
-        assertEqual(res.status, 200, 'status is not 200!'),
-        assertEqual(res.json.invitation, null, 'invitation is not null!'),
-        assertEqual(res.json.game, null, 'game is not null!')
+    httpRes = await get('/sync', tokens[1]);
+    verifyBatch('Game ended - Second user perspective (SYNC)', [
+        assertEqual(httpRes.status, 200, 'status is not 200!'),
+        assertEqual(httpRes.json.invitation, null, 'invitation is not null!'),
+        assertEqual(httpRes.json.game, null, 'game is not null!')
     ]);
     
     return gameId;

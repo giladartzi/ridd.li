@@ -13,7 +13,7 @@ export async function getRandomizeQuestions() {
         return question;
     });
     
-    return shuffle(questions);
+    return shuffle(questions).slice(0, 10);
 }
 
 export async function createGame(userIds) {
