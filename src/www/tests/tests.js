@@ -34,6 +34,11 @@ module.exports = {
     //     client.waitForElementVisible('#welcome #username', 1000)
     //         .assert.containsText('#welcome #username', 'newUser1')
     // },
+    'Empty lounge': function (client) {
+        client
+            .assert.visible('#emptyLoungeUserList')
+            .assert.containsText('#emptyLoungeUserList', 'Waiting for opponents to log in...');
+    },
     'Open new window': function (client) {
         client
             .execute(function (url, name) {

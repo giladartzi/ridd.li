@@ -12,10 +12,12 @@ let LoungeUserList = ({ users, invite }) => {
             onClick={() => invite(user.id)} leftIcon={<ActionFace />} />;
     });
 
+    let empty = (<div id="emptyLoungeUserList" style={{ textAlign: 'center', fontSize: '20px', padding: '20px' }}>
+        Waiting for opponents to log in...
+    </div>);
+
     return (
-        <List>
-            {listItems}
-        </List>
+        listItems.length ? <List>{listItems}</List> : empty
     );
 };
 
