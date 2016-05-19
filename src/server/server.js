@@ -146,7 +146,16 @@ app.get('/sync', jwtMiddleware, async (req, res) => {
     }
 });
 
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static('public'));
+}
+
 var port = 8080;
+
+if (process.env.NODE_ENV === 'production') {
+    port = 80;
+}
+
 var server = http.createServer(app);
 server.listen(port, function () { console.log('Listening on port', port); });
 var wsServer = new ws.Server({ server: server });
