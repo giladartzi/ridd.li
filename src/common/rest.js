@@ -1,6 +1,16 @@
 export async function send(method, path, token, body) {
-    let port = PORT === 80 ? '' : PORT;
-    let url = `http://${window.location.host}:${port}` + path;
+    let port = 8080;
+    let hostname = 'localhost';
+
+    if (typeof PORT !== 'undefined') {
+        port = PORT === 80 ? '' : PORT
+    }
+
+    if (typeof window !== 'undefined') {
+        hostname = window.location.hostname;
+    }
+
+    let url = `http://${hostname}:${port}` + path;
 
     let options = {
         method: method,

@@ -3,7 +3,9 @@ import flatten from 'lodash/flatten';
 import without from 'lodash/without';
 import pickBy from 'lodash/pickBy';
 import isArray from 'lodash/isArray';
-import { jwtVerify } from './utils/userUtils'
+import keys from 'lodash/keys';
+import { jwtVerify } from './utils/userUtils';
+import { offline } from './controllers/loungeController';
 
 var userIdToWebSockets = {};
 var wsIdToUserId = {};
@@ -24,6 +26,10 @@ function removeWebSocket(ws) {
     var userId = wsIdToUserId[ws.webSocketId];
     userIdToWebSockets[userId] = without(userIdToWebSockets[userId], ws);
     delete wsIdToUserId[ws.webSocketId];
+
+    if (keys(userIdToWebSockets[userId]).length === 0) {
+        offline(userId);
+    }
 }
 
 function sendMessage(ws, message) {

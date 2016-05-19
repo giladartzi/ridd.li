@@ -63,6 +63,39 @@ module.exports = {
             .click('.genericForm.register button[type=submit]')
             .pause(1000)
     },
+    'Second user - Close browser': function (client) {
+        client
+            .execute(function () { localStorage.clear() })
+            .closeWindow();
+
+    },
+    'Reopen window': function (client) {
+        client
+            .switchWindow(windows[0])
+            .assert.visible('#emptyLoungeUserList')
+            .assert.containsText('#emptyLoungeUserList', 'Waiting for opponents to log in...')
+            .execute(function (url, name) {
+                window.open(url, name, "");
+            }, ['', 'window3']);
+    },
+    'Register windows and switch': function (client) {
+        client.window_handles(function(result) {
+            windows = result.value;
+            var handle = result.value[1];
+            client.switchWindow(handle);
+        });
+    },
+    'Login - second user': function (client) {
+        client
+            .url('http://127.0.0.1:3000/')
+            .execute(function () { localStorage.clear() })
+            .url('http://127.0.0.1:3000/login')
+            .setValue('.genericForm.login .username input', 'newUser2')
+            .setValue('.genericForm.login .password input', 'newUser2Pass')
+            .waitForElementVisible('.genericForm.login button[type=submit]', 1000)
+            .click('.genericForm.login button[type=submit]')
+            .pause(1000)
+    },
     // 'Verify username - second user': function (client) {
     //     client.waitForElementVisible('#welcome #username', 1000)
     //         .assert.containsText('#welcome #username', 'newUser2')
