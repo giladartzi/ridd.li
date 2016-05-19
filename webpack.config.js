@@ -8,7 +8,7 @@ var plugins = [
     new AppCachePlugin(),
     new webpack.DefinePlugin({
         PORT: process.env.NODE_ENV === 'production' ? 80 : 8080,
-        'process.env.NODE_ENV': process.env.NODE_ENV
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
     })
 ];
 

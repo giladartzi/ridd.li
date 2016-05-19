@@ -8,7 +8,7 @@
     "syncDb": "node src/server/start.js syncDb",
     "test": "npm run syncDb && node src/server/start.js tests",
     "testwww": "npm run syncDb && nightwatch -t src/www/tests/tests.js",
-    "prod": "NODE_ENV=production webpack && forever NODE_ENV=production node src/server/start.js"
+    "prod": "NODE_ENV=production webpack && forever stopall && NODE_ENV=production forever start src/server/start.js"
   },
   "repository": {
     "type": "git",
