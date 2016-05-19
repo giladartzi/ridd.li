@@ -122,6 +122,6 @@ module.exports = {
     'User #1 - Answer question 10': answer(0, false),
     'User #2 - Answer question 10': answer(1, true),
     after: function(client) {
-        client.pause(5000).end();
+        client.pause(9995000).end();
     }
 };

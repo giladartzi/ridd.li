@@ -1,28 +1,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { createApiAction } from '../utils/utils';
-import { ANSWER_ACTIONS } from '../../common/consts';
 import GameProgress from './GameProgress';
-import {List, ListItem} from 'material-ui/List';
-import ActionInfo from 'material-ui/svg-icons/action/info';
+import Question from './Question';
 
-let Game = ({game, sendAnswer}) => {
-    let answers = game.question.answers.map((answer, index) => {
-        return (
-            <ListItem id={`answer${index}`} key={index} primaryText={answer} leftIcon={<ActionInfo />}
-                      onClick={() => sendAnswer(game.gameId, game.questionIndex, index)} />
-        );
-
-    });
-    
+let Game = ({ game }) => {
     return (
         <div>
             <h1 id="gameHeader">Game</h1>
             <GameProgress />
-            <div id="question">{ game.question.text }</div>
-            <List>
-                {answers}
-            </List>
+            {game.question ? <Question game={game} /> : <div>Game has ended!</div>}
+
         </div>
     );
 };
@@ -33,13 +20,7 @@ let mapStateToProps = (state) => {
     };
 };
 
-let mapDispatchToProps = (dispatch) => {
-    return {
-        sendAnswer: (gameId, questionIndex, answerIndex) => {
-            dispatch(createApiAction(ANSWER_ACTIONS, '/answer', { gameId, questionIndex, answerIndex }));
-        }
-    };
-};
+let mapDispatchToProps = null;
 
 Game = connect(mapStateToProps, mapDispatchToProps)(Game);
 
