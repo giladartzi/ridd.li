@@ -42,6 +42,14 @@ export async function register(email, username, password) {
 }
 
 export async function authenticate(username, password) {
+    if (!username) {
+        throw new Error('Please enter your username');
+    }
+
+    if (!password) {
+        throw new Error('Please enter your password');
+    }
+
     let user = await dataLayer.find('users', { query: { username } });
     let hashed = await hash(password, user && user.salt);
 

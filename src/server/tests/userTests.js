@@ -56,6 +56,27 @@ export default async function userTests() {
         assertEqual(res.json.error, 'Invalid credentials', 'wrong error message!')
     ]);
 
+    res = await post('/authenticate', { username: 'gilad', password: '' });
+    verifyBatch('Authentication - wrong password', [
+        assertEqual(res.status, 400, 'status is not 400!'),
+        assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
+        assertEqual(res.json.error, 'Please enter your password', 'wrong error message!')
+    ]);
+
+    res = await post('/authenticate', { username: '', password: '12345' });
+    verifyBatch('Authentication - wrong password', [
+        assertEqual(res.status, 400, 'status is not 400!'),
+        assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
+        assertEqual(res.json.error, 'Please enter your username', 'wrong error message!')
+    ]);
+
+    res = await post('/authenticate', { username: '', password: '' });
+    verifyBatch('Authentication - wrong password', [
+        assertEqual(res.status, 400, 'status is not 400!'),
+        assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
+        assertEqual(res.json.error, 'Please enter your username', 'wrong error message!')
+    ]);
+
     res = await post('/authenticate', { username: 'gilad', password: '12345' });
     verifyBatch('Authentication - correct process', [
         assertEqual(res.status, 200, 'status is not 200!'),

@@ -43,9 +43,11 @@ export default class UserPasswordForm extends React.Component {
         let buttonStyle = {
             margin: '10px'
         };
+
+        let cls = `genericForm ${this.props.className || this.props.header.toLowerCase().replace(/\s/g, '')}`;
         
         return (
-            <div style={{textAlign: 'center'}} className={'genericForm' + ' ' + this.props.header.toLowerCase()}>
+            <div style={{textAlign: 'center'}} className={cls}>
                 <Paper style={style} zDepth={2}>
                     <Subheader className="header">{this.props.header}</Subheader>
                     <form className={this.props.className} onSubmit={this.onSubmit}>

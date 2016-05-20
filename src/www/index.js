@@ -13,8 +13,8 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import fetch from 'isomorphic-fetch';
 
 import Layout from './components/Layout';
-import RegisterForm from './components/RegisterForm';
-import AuthenticateForm from './components/AuthenticateForm';
+import SingUpForm from './components/SingUpForm';
+import LogInForm from './components/LogInForm';
 import Lounge from './components/Lounge';
 import Game from './components/Game';
 
@@ -40,15 +40,13 @@ function validateNonToken(nextState, replace) {
 
     const muiTheme = getMuiTheme();
 
-    console.log(muiTheme);
-
     const node = (
         <Provider store={store}>
             <MuiThemeProvider muiTheme={muiTheme}>
                 <Router history={history}>
                     <Route path="/" component={Layout}>
-                        <IndexRoute component={RegisterForm} onEnter={validateNonToken} />
-                        <Route path="/login" component={AuthenticateForm} onEnter={validateNonToken} />
+                        <IndexRoute component={LogInForm} onEnter={validateNonToken} />
+                        <Route path="/signup" component={SingUpForm} onEnter={validateNonToken} />
                         <Route path="/lounge" component={Lounge} onEnter={validateToken} />
                         <Route path="/game" component={Game} onEnter={validateToken} />
                     </Route>

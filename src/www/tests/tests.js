@@ -18,24 +18,24 @@ module.exports = {
     tags: ['123'],
     'Register without username and password': function (client) {
         client
-            .url('http://localhost:3000/')
+            .url('http://localhost:3000/signup')
             .execute(function () { localStorage.clear() })
-            .url('http://localhost:3000/')
+            .url('http://localhost:3000/signup')
             .waitForElementVisible('body', 1000)
-            .assert.visible('.genericForm.register .email input')
-            .assert.visible('.genericForm.register .username input')
-            .assert.visible('.genericForm.register .password input')
-            .click('.genericForm.register button[type=submit]')
+            .assert.visible('.genericForm.signUp .email input')
+            .assert.visible('.genericForm.signUp .username input')
+            .assert.visible('.genericForm.signUp .password input')
+            .click('.genericForm.signUp button[type=submit]')
             .pause(500)
-            .assert.containsText('.genericForm.register .error', 'Please fill all requested fields')
+            .assert.containsText('.genericForm.signUp .error', 'Please fill all requested fields')
     },
     'Register': function (client) {
         client
-            .setValue('.genericForm.register .email input', 'newUser1@domain.com')
-            .setValue('.genericForm.register .username input', 'newUser1')
-            .setValue('.genericForm.register .password input', 'newUser1Pass')
-            .waitForElementVisible('.genericForm.register button[type=submit]', 1000)
-            .click('.genericForm.register button[type=submit]')
+            .setValue('.genericForm.signUp .email input', 'newUser1@domain.com')
+            .setValue('.genericForm.signUp .username input', 'newUser1')
+            .setValue('.genericForm.signUp .password input', 'newUser1Pass')
+            .waitForElementVisible('.genericForm.signUp button[type=submit]', 1000)
+            .click('.genericForm.signUp button[type=submit]')
             .pause(1000)
     },
     'Verify username': function (client) {
@@ -65,14 +65,14 @@ module.exports = {
     },
     'Register - second user': function (client) {
         client
-            .url('http://127.0.0.1:3000/')
+            .url('http://127.0.0.1:3000/signup')
             .execute(function () { localStorage.clear() })
-            .url('http://127.0.0.1:3000/')
-            .setValue('.genericForm.register .email input', 'newUser2@domain.com')
-            .setValue('.genericForm.register .username input', 'newUser2')
-            .setValue('.genericForm.register .password input', 'newUser2Pass')
-            .waitForElementVisible('.genericForm.register button[type=submit]', 1000)
-            .click('.genericForm.register button[type=submit]')
+            .url('http://127.0.0.1:3000/signup')
+            .setValue('.genericForm.signUp .email input', 'newUser2@domain.com')
+            .setValue('.genericForm.signUp .username input', 'newUser2')
+            .setValue('.genericForm.signUp .password input', 'newUser2Pass')
+            .waitForElementVisible('.genericForm.signUp button[type=submit]', 1000)
+            .click('.genericForm.signUp button[type=submit]')
             .pause(1000)
     },
     'Second user - Close browser': function (client) {
@@ -101,7 +101,7 @@ module.exports = {
         client
             .url('http://127.0.0.1:3000/')
             .execute(function () { localStorage.clear() })
-            .url('http://127.0.0.1:3000/login')
+            .url('http://127.0.0.1:3000/')
             .setValue('.genericForm.login .username input', 'newUser2')
             .setValue('.genericForm.login .password input', 'newUser2Pass')
             .waitForElementVisible('.genericForm.login button[type=submit]', 1000)
@@ -114,12 +114,40 @@ module.exports = {
             .waitForElementVisible('#barMenuUsername', 500)
             .waitForElementVisible('#barMenuLogout', 500)
             .assert.containsText('#barMenuUsername', 'newUser2')
-            .click('#barMenuLogout');
+            .click('#barMenuLogout')
+            .pause(1000);
     },
-    'Login - second user - once again': function (client) {
+    'Login - second user - once again - missing username': function (client) {
+        client
+            .setValue('.genericForm.login .username input', '')
+            .setValue('.genericForm.login .password input', 'newUser2Pass')
+            .waitForElementVisible('.genericForm.login button[type=submit]', 1000)
+            .click('.genericForm.login button[type=submit]')
+            .pause(1000)
+            .waitForElementVisible('.genericForm.login .error', 1000)
+            .assert.containsText('.genericForm.login .error', 'Please enter your username')
+            .pause(1000)
+    },
+    'Login - second user - once again - missing password': function (client) {
+        client
+            .refresh()
+            .pause(1000)
+            .setValue('.genericForm.login .username input', 'newUser2')
+            .waitForElementVisible('.genericForm.login button[type=submit]', 1000)
+            .click('.genericForm.login button[type=submit]')
+            .pause(1000)
+            .waitForElementVisible('.genericForm.login .error', 1000)
+            .assert.containsText('.genericForm.login .error', 'Please enter your password')
+            .pause(1000)
+            .refresh()
+            .pause(1000)
+
+    },
+    'Login - second user - once again - correctly': function (client) {
         client
             .waitForElementVisible('#signInButton', 1000)
             .click('#signInButton')
+            .pause(5000)
             .setValue('.genericForm.login .username input', 'newUser2')
             .setValue('.genericForm.login .password input', 'newUser2Pass')
             .waitForElementVisible('.genericForm.login button[type=submit]', 1000)
