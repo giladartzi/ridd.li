@@ -4,6 +4,7 @@ import compression from 'compression';
 import cors from 'cors';
 import http from 'http';
 import ws from 'ws';
+import path from 'path';
 import { jwtMiddleware } from './utils/userUtils';
 import { initWebSocket } from './wsManager';
 
