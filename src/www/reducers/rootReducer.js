@@ -1,5 +1,5 @@
 import * as consts from '../../common/consts';
-import { createApiReducer, composeReducers } from '../utils/utils';
+import { createApiReducer } from '../utils/utils';
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
 
@@ -10,6 +10,7 @@ import game from './gameReducer';
 
 const register = createApiReducer(consts.REGISTER_ACTIONS);
 const authenticate = createApiReducer(consts.AUTHENTICATE_ACTIONS);
+const answer = createApiReducer(consts.ANSWER_ACTIONS);
 
 const reducer = combineReducers({
     register,
@@ -18,6 +19,7 @@ const reducer = combineReducers({
     invitation,
     user,
     game,
+    answer,
     routing: routerReducer
 });
 

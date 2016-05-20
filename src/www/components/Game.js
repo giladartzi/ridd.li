@@ -1,22 +1,26 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import last from 'lodash/last';
 import GameProgress from './GameProgress';
 import Question from './Question';
 
-let Game = ({ game }) => {
+let Game = ({ game, answerPending }) => {
+    let disabled = answerPending || last(game.progress).isAnswered;
+
     return (
         <div>
             <h1 id="gameHeader">Game</h1>
             <GameProgress />
-            {game.question ? <Question game={game} /> : <div>Game has ended!</div>}
-
+            {game.question ? <Question disabled={disabled} game={game} /> : <div>Game has ended!</div>}
+            {disabled ? <div id="waitingForOpponent">Question answered, waiting for opponent</div> : null}
         </div>
     );
 };
 
 let mapStateToProps = (state) => {
     return {
-        game: state.game
+        game: state.game,
+        answerPending: state.answer.pending
     };
 };
 

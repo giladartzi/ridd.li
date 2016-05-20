@@ -11,7 +11,7 @@ let GameProgress = ({progress}) => {
     }
 
     let badges = padded.map((p, index) => {
-        return <GameProgressBadge isCurrent={index === progress.length-1} index={index+1} {...p} />;
+        return <GameProgressBadge key={index} isCurrent={index === progress.length-1} index={index+1} {...p} />;
     });
 
     return (

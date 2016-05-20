@@ -5,11 +5,11 @@ import { createApiAction } from '../utils/utils';
 import { ANSWER_ACTIONS } from '../../common/consts';
 import ActionInfo from 'material-ui/svg-icons/action/info';
 
-let Question = ({ game, sendAnswer }) => {
+let Question = ({ disabled, game, sendAnswer }) => {
     let answers = game.question.answers.map((answer, index) => {
         return (
             <ListItem id={`answer${index}`} key={index} primaryText={answer} leftIcon={<ActionInfo />}
-                      onClick={() => sendAnswer(game.gameId, game.questionIndex, index)} />
+                      onTouchTap={() => sendAnswer(game.gameId, game.questionIndex, index)} disabled={disabled} />
         );
 
     });

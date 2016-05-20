@@ -1,10 +1,16 @@
 var windows;
 
-function answer(userIndex, isCorrect) {
+function answer(userIndex, isCorrect, isFirst) {
     return function (client) {
         client.switchWindow(windows[userIndex])
             .click('#answer1')
             .pause(500);
+
+        if (isFirst) {
+            client
+                .assert.visible('#waitingForOpponent')
+                .assert.containsText('#waitingForOpponent', 'Question answered, waiting for opponent')
+        }
     }
 }
 
@@ -154,26 +160,26 @@ module.exports = {
             .pause(500)
             .assert.containsText('#gameHeader', 'Game');
     },
-    'User #1 - Answer question 1': answer(0, false),
-    'User #2 - Answer question 1': answer(1, true),
-    'User #1 - Answer question 2': answer(0, false),
-    'User #2 - Answer question 2': answer(1, true),
-    'User #1 - Answer question 3': answer(0, false),
-    'User #2 - Answer question 3': answer(1, true),
-    'User #1 - Answer question 4': answer(0, false),
-    'User #2 - Answer question 4': answer(1, true),
-    'User #1 - Answer question 5': answer(0, false),
-    'User #2 - Answer question 5': answer(1, true),
-    'User #1 - Answer question 6': answer(0, false),
-    'User #2 - Answer question 6': answer(1, true),
-    'User #1 - Answer question 7': answer(0, false),
-    'User #2 - Answer question 7': answer(1, true),
-    'User #1 - Answer question 8': answer(0, false),
-    'User #2 - Answer question 8': answer(1, true),
-    'User #1 - Answer question 9': answer(0, false),
-    'User #2 - Answer question 9': answer(1, true),
-    'User #1 - Answer question 10': answer(0, false),
-    'User #2 - Answer question 10': answer(1, true),
+    'User #1 - Answer question 1': answer(0, false, true),
+    'User #2 - Answer question 1': answer(1, true , false),
+    'User #1 - Answer question 2': answer(0, false, true),
+    'User #2 - Answer question 2': answer(1, true , false),
+    'User #1 - Answer question 3': answer(0, false, true),
+    'User #2 - Answer question 3': answer(1, true , false),
+    'User #1 - Answer question 4': answer(0, false, true),
+    'User #2 - Answer question 4': answer(1, true , false),
+    'User #1 - Answer question 5': answer(0, false, true),
+    'User #2 - Answer question 5': answer(1, true , false),
+    'User #1 - Answer question 6': answer(0, false, true),
+    'User #2 - Answer question 6': answer(1, true , false),
+    'User #1 - Answer question 7': answer(0, false, true),
+    'User #2 - Answer question 7': answer(1, true , false),
+    'User #1 - Answer question 8': answer(0, false, true),
+    'User #2 - Answer question 8': answer(1, true , false),
+    'User #1 - Answer question 9': answer(0, false, true),
+    'User #2 - Answer question 9': answer(1, true , false),
+    'User #1 - Answer question 10': answer(0, true, true),
+    'User #2 - Answer question 10': answer(1, true, false),
     after: function(client) {
         client.pause(1000).end();
     }
