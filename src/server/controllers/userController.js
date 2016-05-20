@@ -1,22 +1,28 @@
 import * as dataLayer from '../dataLayer';
-import { hash, genSalt, sign } from '../utils/userUtils';
+import { hash, genSalt, sign, isValidEmail } from '../utils/userUtils';
 
 function userJson(id, username, token) {
     return { id, username, token };
 }
 
-export async function register(username, password) {
+export async function register(email, username, password) {
     // check that username is available
-    let exists = !!(await dataLayer.find('users', { query: { username } }));
+    let exists = !!(await dataLayer.find('users', {
+        query: { $or: [{ username }, { email }] }
+    }));
     
     if (exists) {
-        throw new Error('Username is taken');
+        throw new Error('Username is taken or email address in use');
     }
 
-    if (!username || !password) {
-        throw new Error('Please provide both Username and Password');
+    if (!username || !password || !email) {
+        throw new Error('Please fill all requested fields');
     }
-    
+
+    if (!isValidEmail(email)) {
+        throw new Error('Invalid email address');
+    }
+
     // encode password
     let salt = await genSalt();
     let hashed = await hash(password, salt);
@@ -24,6 +30,7 @@ export async function register(username, password) {
     // save to db
     let user = await dataLayer.insert('users', {
         username,
+        email,
         salt,
         hashed
     });

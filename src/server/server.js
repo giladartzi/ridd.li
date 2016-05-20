@@ -45,7 +45,7 @@ app.post('/answer', jwtMiddleware, async (req, res) => {
 import * as userController from './controllers/userController';
 app.post('/register', async (req, res) => {
     try {
-        let user = await userController.register(req.body.username, req.body.password);
+        let user = await userController.register(req.body.email, req.body.username, req.body.password);
         res.json(user);
     }
     catch (e) {

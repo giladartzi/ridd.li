@@ -16,14 +16,16 @@ module.exports = {
             .execute(function () { localStorage.clear() })
             .url('http://localhost:3000/')
             .waitForElementVisible('body', 1000)
+            .assert.visible('.genericForm.register .email input')
             .assert.visible('.genericForm.register .username input')
             .assert.visible('.genericForm.register .password input')
             .click('.genericForm.register button[type=submit]')
             .pause(500)
-            .assert.containsText('.genericForm.register .error', 'Please provide both Username and Password')
+            .assert.containsText('.genericForm.register .error', 'Please fill all requested fields')
     },
     'Register': function (client) {
         client
+            .setValue('.genericForm.register .email input', 'newUser1@domain.com')
             .setValue('.genericForm.register .username input', 'newUser1')
             .setValue('.genericForm.register .password input', 'newUser1Pass')
             .waitForElementVisible('.genericForm.register button[type=submit]', 1000)
@@ -60,6 +62,7 @@ module.exports = {
             .url('http://127.0.0.1:3000/')
             .execute(function () { localStorage.clear() })
             .url('http://127.0.0.1:3000/')
+            .setValue('.genericForm.register .email input', 'newUser2@domain.com')
             .setValue('.genericForm.register .username input', 'newUser2')
             .setValue('.genericForm.register .password input', 'newUser2Pass')
             .waitForElementVisible('.genericForm.register button[type=submit]', 1000)
