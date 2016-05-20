@@ -5,7 +5,9 @@ import Bar from './Bar';
 let Layout = ({children}) => {
     return (
         <div>
-            <Bar />
+            { localStorage.token ? <Bar /> : null }
+            { localStorage.token ? null : <h1 id="mainHeader">ridd.li</h1> }
+
             {children}
         </div>
     );

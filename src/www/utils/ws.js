@@ -20,7 +20,7 @@ function reconnect() {
     reconnectTimeout = setTimeout(initWebSocket, 1000);
 }
 
-function userIsAuthenticated(store) {
+function userIsLoggedIn(store) {
     var token = localStorage.getItem('token');
 
     if (token) {
@@ -50,7 +50,7 @@ export async function init(_store) {
     var token = localStorage.getItem('token');
     store = _store;
 
-    await userIsAuthenticated(store);
+    await userIsLoggedIn(store);
 
     initWebSocket();
 }

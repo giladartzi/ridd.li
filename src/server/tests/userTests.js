@@ -5,29 +5,29 @@ import wsConnect from './ws'
 export default async function userTests() {
     let res, userId1, userId2, token1, token2, ws1, ws2;
 
-    res = await post('/authenticate', { username: 'gilad', password: '12345' });
-    verifyBatch('Authentication - non-existing username', [
+    res = await post('/login', { username: 'gilad', password: '12345' });
+    verifyBatch('Log in - non-existing username', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
         assertEqual(res.json.error, 'Invalid credentials', 'wrong error message!')
     ]);
 
-    res = await post('/register', { username: '', password: '' });
-    verifyBatch('Register - no username or password', [
+    res = await post('/signup', { username: '', password: '' });
+    verifyBatch('Sign Up - no username or password', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
         assertEqual(res.json.error, 'Please fill all requested fields', 'wrong error message!')
     ]);
 
-    res = await post('/register', { username: 'gilad', password: '12345', email: 'gilad' });
-    verifyBatch('Register - Invalid email', [
+    res = await post('/signup', { username: 'gilad', password: '12345', email: 'gilad' });
+    verifyBatch('Sign Up - Invalid email', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
         assertEqual(res.json.error, 'Invalid email address', 'wrong error message!')
     ]);
 
-    res = await post('/register', { username: 'gilad', password: '12345', email: 'gilad@1.com' });
-    verifyBatch('Register - correct process', [
+    res = await post('/signup', { username: 'gilad', password: '12345', email: 'gilad@1.com' });
+    verifyBatch('Sign Up - correct process', [
         assertEqual(res.status, 200, 'status is not 200!'),
         assertEqual(typeof res.json.id, 'string', 'error is not a string!'),
         assertEqual(typeof res.json.username, 'string', 'username is not a string!'),
@@ -35,50 +35,50 @@ export default async function userTests() {
         assertEqual(typeof res.json.token, 'string', 'token is not a string!')
     ]);
 
-    res = await post('/register', { username: 'gilad', password: '12345', email: 'gilad@2.com' });
-    verifyBatch('Register - duplication username', [
+    res = await post('/signup', { username: 'gilad', password: '12345', email: 'gilad@2.com' });
+    verifyBatch('Sign Up - duplication username', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
         assertEqual(res.json.error, 'Username is taken or email address in use', 'wrong error message!')
     ]);
 
-    res = await post('/register', { username: 'gilad777', password: '12345', email: 'gilad@1.com' });
-    verifyBatch('Register - duplication email', [
+    res = await post('/signup', { username: 'gilad777', password: '12345', email: 'gilad@1.com' });
+    verifyBatch('Sign Up - duplication email', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
         assertEqual(res.json.error, 'Username is taken or email address in use', 'wrong error message!')
     ]);
 
-    res = await post('/authenticate', { username: 'gilad', password: '123456' });
-    verifyBatch('Authentication - wrong password', [
+    res = await post('/login', { username: 'gilad', password: '123456' });
+    verifyBatch('Log in - wrong password', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
         assertEqual(res.json.error, 'Invalid credentials', 'wrong error message!')
     ]);
 
-    res = await post('/authenticate', { username: 'gilad', password: '' });
-    verifyBatch('Authentication - wrong password', [
+    res = await post('/login', { username: 'gilad', password: '' });
+    verifyBatch('Log in - wrong password', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
         assertEqual(res.json.error, 'Please enter your password', 'wrong error message!')
     ]);
 
-    res = await post('/authenticate', { username: '', password: '12345' });
-    verifyBatch('Authentication - wrong password', [
+    res = await post('/login', { username: '', password: '12345' });
+    verifyBatch('Log in - wrong password', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
         assertEqual(res.json.error, 'Please enter your username', 'wrong error message!')
     ]);
 
-    res = await post('/authenticate', { username: '', password: '' });
-    verifyBatch('Authentication - wrong password', [
+    res = await post('/login', { username: '', password: '' });
+    verifyBatch('Log in - wrong password', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
         assertEqual(res.json.error, 'Please enter your username', 'wrong error message!')
     ]);
 
-    res = await post('/authenticate', { username: 'gilad', password: '12345' });
-    verifyBatch('Authentication - correct process', [
+    res = await post('/login', { username: 'gilad', password: '12345' });
+    verifyBatch('Log in - correct process', [
         assertEqual(res.status, 200, 'status is not 200!'),
         assertEqual(typeof res.json.id, 'string', 'error is not a string!'),
         assertEqual(typeof res.json.username, 'string', 'username is not a string!'),
@@ -97,8 +97,8 @@ export default async function userTests() {
         assertEqual(res.success, true, 'ws connection is not successful!')
     ]);
 
-    res = await post('/register', { username: 'gilad2', password: '12345678', email: 'gilad2@1.com' });
-    verifyBatch('Register - correct process', [
+    res = await post('/signup', { username: 'gilad2', password: '12345678', email: 'gilad2@1.com' });
+    verifyBatch('Sign Up - correct process', [
         assertEqual(res.status, 200, 'status is not 200!'),
         assertEqual(typeof res.json.id, 'string', 'error is not a string!'),
         assertEqual(typeof res.json.username, 'string', 'username is not a string!'),

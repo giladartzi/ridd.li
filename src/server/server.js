@@ -43,9 +43,9 @@ app.post('/answer', jwtMiddleware, async (req, res) => {
 });
 
 import * as userController from './controllers/userController';
-app.post('/register', async (req, res) => {
+app.post('/signup', async (req, res) => {
     try {
-        let user = await userController.register(req.body.email, req.body.username, req.body.password);
+        let user = await userController.signUp(req.body.email, req.body.username, req.body.password);
         res.json(user);
     }
     catch (e) {
@@ -53,9 +53,9 @@ app.post('/register', async (req, res) => {
     }
 });
 
-app.post('/authenticate', async (req, res) => {
+app.post('/login', async (req, res) => {
     try {
-        let user = await userController.authenticate(req.body.username, req.body.password);
+        let user = await userController.login(req.body.username, req.body.password);
         res.json(user);
     }
     catch (e) {

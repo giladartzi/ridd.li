@@ -16,7 +16,7 @@ function answer(userIndex, isCorrect, isFirst) {
 
 module.exports = {
     tags: ['123'],
-    'Register without username and password': function (client) {
+    'Sign Up without username and password': function (client) {
         client
             .url('http://localhost:3000/signup')
             .execute(function () { localStorage.clear() })
@@ -29,7 +29,7 @@ module.exports = {
             .pause(500)
             .assert.containsText('.genericForm.signUp .error', 'Please fill all requested fields')
     },
-    'Register': function (client) {
+    'Sign Up': function (client) {
         client
             .setValue('.genericForm.signUp .email input', 'newUser1@domain.com')
             .setValue('.genericForm.signUp .username input', 'newUser1')
@@ -63,7 +63,7 @@ module.exports = {
             client.switchWindow(handle);
         });
     },
-    'Register - second user': function (client) {
+    'Sign Up - second user': function (client) {
         client
             .url('http://127.0.0.1:3000/signup')
             .execute(function () { localStorage.clear() })
@@ -90,7 +90,7 @@ module.exports = {
                 window.open(url, name, "");
             }, ['', 'window3']);
     },
-    'Register windows and switch': function (client) {
+    'Sign Up windows and switch': function (client) {
         client.window_handles(function(result) {
             windows = result.value;
             var handle = result.value[1];
@@ -145,9 +145,6 @@ module.exports = {
     },
     'Login - second user - once again - correctly': function (client) {
         client
-            .waitForElementVisible('#signInButton', 1000)
-            .click('#signInButton')
-            .pause(5000)
             .setValue('.genericForm.login .username input', 'newUser2')
             .setValue('.genericForm.login .password input', 'newUser2Pass')
             .waitForElementVisible('.genericForm.login button[type=submit]', 1000)

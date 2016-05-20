@@ -3,7 +3,7 @@ import capitalize from 'lodash/capitalize';
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
-import Subheader from 'material-ui/Subheader';
+import AppBar from 'material-ui/AppBar';
 
 export default class UserPasswordForm extends React.Component {
     constructor(params) {
@@ -18,7 +18,7 @@ export default class UserPasswordForm extends React.Component {
 
         return (
             <div key={name} className={name}>
-                <TextField type={type} onChange={onChange} hintText={placeholder} />
+                <TextField fullWidth={true} type={type} onChange={onChange} hintText={placeholder} />
             </div>
         );
     }
@@ -34,27 +34,24 @@ export default class UserPasswordForm extends React.Component {
             return this.generateInput(field)
         });
 
-        let style = {
-            display: 'inline-block',
-            padding: '20px',
-            margin: '20px auto'
-        };
-
         let buttonStyle = {
             margin: '10px'
         };
 
         let cls = `genericForm ${this.props.className || this.props.header.toLowerCase().replace(/\s/g, '')}`;
-        
+
         return (
-            <div style={{textAlign: 'center'}} className={cls}>
-                <Paper style={style} zDepth={2}>
-                    <Subheader className="header">{this.props.header}</Subheader>
-                    <form className={this.props.className} onSubmit={this.onSubmit}>
-                        {inputs}
-                        <RaisedButton style={buttonStyle} type="submit" label={this.props.header} />
-                        { this.props.error ? <div className="error">{this.props.error}</div> : null }
-                    </form>
+            <div className={cls}>
+                <Paper zDepth={2}>
+                    <AppBar className="header" title={this.props.header} iconElementLeft={<div />} />
+                    <div style={{padding: '20px'}}>
+                        <form className={this.props.className} onSubmit={this.onSubmit}>
+                            {inputs}
+                            <RaisedButton style={buttonStyle} primary={true} type="submit" label={this.props.header} />
+                            { this.props.error ? <div className="error">{this.props.error}</div> : null }
+                            { this.props.appendix }
+                        </form>
+                    </div>
                 </Paper>
             </div>
         );

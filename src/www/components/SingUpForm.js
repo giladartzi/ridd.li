@@ -2,25 +2,30 @@ import React from 'react';
 import { connect } from 'react-redux';
 import GenericForm from './GenericForm';
 import { createApiAction } from '../utils/utils';
-import { REGISTER_ACTIONS } from '../../common/consts';
+import { SIGN_UP_ACTIONS } from '../../common/consts';
 import { push } from 'react-router-redux';
+import { Link } from 'react-router';
 
-let RegisterForm = ({onFormSubmit, error}) => {
+let SignUpForm = ({onFormSubmit, error}) => {
     const fields = [
         { type: 'email', name: 'email' },
         { type: 'text', name: 'username' },
         { type: 'password', name: 'password' }
     ];
 
+    const appendix = (
+        <div>Already have an account? <Link id="logInLink" to="/">Log in</Link></div>
+    );
+
     return (
-        <GenericForm header="Sign up" className="signUp"
+        <GenericForm header="Sign up" className="signUp" appendix={appendix}
             fields={fields} onFormSubmit={onFormSubmit} error={error} />
     );
 };
 
 let mapStateToProps = (state) => {
     return {
-        error: state.register.error
+        error: state.signUp.error
     };
 };
 
@@ -34,7 +39,7 @@ let actionCreator = (payload) => {
         }
     };
 
-    return createApiAction(REGISTER_ACTIONS, '/register', payload, appendix);
+    return createApiAction(SIGN_UP_ACTIONS, '/signup', payload, appendix);
 };
 
 let mapDispatchToProps = (dispatch) => {
@@ -45,6 +50,6 @@ let mapDispatchToProps = (dispatch) => {
     };
 };
 
-RegisterForm = connect(mapStateToProps, mapDispatchToProps)(RegisterForm);
+SignUpForm = connect(mapStateToProps, mapDispatchToProps)(SignUpForm);
 
-export default RegisterForm;
+export default SignUpForm;

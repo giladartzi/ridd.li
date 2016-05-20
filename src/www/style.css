@@ -8,6 +8,24 @@ body {
     margin: 0;
 }
 
+a {
+    color: black;
+}
+
 input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0 1000px white inset;
+}
+
+.genericForm {
+    width: 80%;
+    max-width: 500px;
+    margin: 0 auto;
+    display: block;
+    text-align: center;
+}
+
+#mainHeader {
+    text-align: center;
+    font-weight: normal;
+    margin: 50px 0;
 }

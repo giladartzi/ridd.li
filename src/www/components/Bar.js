@@ -10,10 +10,7 @@ import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import NavigationClose from 'material-ui/svg-icons/navigation/close';
 import { Link } from 'react-router';
 
-let Bar = ({ pathname, push, logout }) => {
-    let elementRight;
-    let signInButton = <FlatButton id="signInButton" onClick={() => push('/login')} label="Sign in" />;
-    let registerButton = <FlatButton id="registerButton" onClick={() => push('/')} label="Register" />;
+let Bar = ({ logout }) => {
     let menu = (
         <IconMenu
             iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
@@ -25,20 +22,8 @@ let Bar = ({ pathname, push, logout }) => {
             <MenuItem id="barMenuLogout" primaryText="Log out" onClick={() => logout()} />
         </IconMenu>
     );
-
-    switch (pathname) {
-        case '/':
-            elementRight = signInButton;
-            break;
-        case '/login':
-            elementRight = registerButton;
-            break;
-        default:
-            elementRight = menu;
-            break;
-    }
     
-    return <AppBar title="ridd.li" iconElementRight={ elementRight } />;
+    return <AppBar title="ridd.li" showMenuIconButton={false} iconElementRight={ menu } />;
 };
 
 let mapStateToProps = (state) => {
@@ -49,7 +34,6 @@ let mapStateToProps = (state) => {
 
 let mapDispatchToProps = (dispatch) => {
     return {
-        push: path => dispatch(push(path)),
         logout: function () {
             localStorage.clear();
             window.location.href = '/';

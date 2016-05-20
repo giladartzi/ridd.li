@@ -5,7 +5,7 @@ function userJson(id, username, token) {
     return { id, username, token };
 }
 
-export async function register(email, username, password) {
+export async function signUp(email, username, password) {
     // check that username is available
     let exists = !!(await dataLayer.find('users', {
         query: { $or: [{ username }, { email }] }
@@ -35,13 +35,13 @@ export async function register(email, username, password) {
         hashed
     });
     
-    // authenticate
-    let authenticated = await authenticate(username, password);
+    // login
+    let loggedIn = await login(username, password);
 
-    return userJson(user._id, user.username, authenticated.token);
+    return userJson(user._id, user.username, loggedIn.token);
 }
 
-export async function authenticate(username, password) {
+export async function login(username, password) {
     if (!username) {
         throw new Error('Please enter your username');
     }

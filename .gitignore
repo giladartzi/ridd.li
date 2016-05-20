@@ -6,3 +6,5 @@ public/index.html
 tests_output/
 node_modules
 .idea
+selenium-debug.log
+npm-debug.log
