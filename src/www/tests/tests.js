@@ -1,3 +1,5 @@
+var errors = require('../../common/errors');
+
 var windows;
 
 function answer(userIndex, isCorrect, isFirst) {
@@ -27,7 +29,7 @@ module.exports = {
             .assert.visible('.genericForm.signUp .password input')
             .click('.genericForm.signUp button[type=submit]')
             .pause(500)
-            .assert.containsText('.genericForm.signUp .error', 'Please fill all requested fields')
+            .assert.containsText('.genericForm.signUp .error', errors.PLEASE_FILL_ALL_REQUESTED_FIELDS)
     },
     'Sign Up': function (client) {
         client
@@ -125,7 +127,7 @@ module.exports = {
             .click('.genericForm.login button[type=submit]')
             .pause(1000)
             .waitForElementVisible('.genericForm.login .error', 1000)
-            .assert.containsText('.genericForm.login .error', 'Please enter your username')
+            .assert.containsText('.genericForm.login .error', errors.PLEASE_ENTER_YOUR_USERNAME)
             .pause(1000)
     },
     'Login - second user - once again - missing password': function (client) {
@@ -137,7 +139,7 @@ module.exports = {
             .click('.genericForm.login button[type=submit]')
             .pause(1000)
             .waitForElementVisible('.genericForm.login .error', 1000)
-            .assert.containsText('.genericForm.login .error', 'Please enter your password')
+            .assert.containsText('.genericForm.login .error', errors.PLEASE_ENTER_YOUR_PASSWORD)
             .pause(1000)
             .refresh()
             .pause(1000)

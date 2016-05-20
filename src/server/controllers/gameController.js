@@ -2,6 +2,7 @@ import * as gameUtils from '../utils/gameUtils';
 import first from 'lodash/first';
 import { wsSend } from '../wsManager';
 import { WS_ADVANCE_GAME } from '../../common/consts';
+import { GAME_NOT_FOUND } from '../../common/errors';
 
 export async function gameJson(game, userId) {
     let question = await gameUtils.getCurrentQuestion(game);
@@ -33,7 +34,7 @@ export async function game(userId) {
         return await gameJson(game, userId);
     }
     else {
-        throw new Error('Game not found');
+        throw new Error(GAME_NOT_FOUND);
     }
 }
 

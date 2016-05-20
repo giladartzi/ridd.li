@@ -3,6 +3,7 @@ import { createGame, gameJson } from './gameController';
 import { wsSend } from '../wsManager';
 import { WS_INVITATION_RECEIVED, WS_INVITATION_CANCELLED,
     WS_INVITATION_ACCEPTED, WS_INVITATION_REJECTED } from '../../common/consts';
+import * as errors from '../../common/errors';
 
 function invitationJson(invitation) {
     return {
@@ -19,12 +20,12 @@ export async function sendInvitation(userId, username, opponentId) {
 
     // Verify opponent exists
     if (!opponent) {
-        throw new Error('Opponent not found');
+        throw new Error(errors.OPPONENT_NOT_FOUND);
     }
 
     // And is available
     if (opponent.state !== 'AVAILABLE') {
-        throw new Error('Opponent is not available');
+        throw new Error(errors.OPPONENT_IS_NOT_AVAILABLE);
     }
     
     // update both users state
@@ -59,7 +60,7 @@ export async function acceptInvitation(userId) {
     }});
 
     if (!invitation) {
-        throw new Error('Pending invitation not found');
+        throw new Error(errors.PENDING_INVITATION_NOT_FOUND);
     }
 
     // update invitation status
@@ -91,7 +92,7 @@ export async function rejectInvitation(userId) {
     }});
 
     if (!invitation) {
-        throw new Error('Pending invitation not found');
+        throw new Error(errors.PENDING_INVITATION_NOT_FOUND);
     }
 
     // update invitation status
@@ -122,7 +123,7 @@ export async function cancelInvitation(userId) {
     }});
 
     if (!invitation) {
-        throw new Error('Pending invitation not found');
+        throw new Error(errors.PENDING_INVITATION_NOT_FOUND);
     }
 
     // update invitation status
@@ -151,7 +152,7 @@ export async function getInvitation(userId) {
     ], state: 'PENDING' }});
 
     if (!invitation) {
-        throw new Error('Invitation not found');
+        throw new Error(errors.INVITATION_NOT_FOUND);
     }
 
     return invitationJson(invitation);

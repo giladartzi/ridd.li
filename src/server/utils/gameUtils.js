@@ -4,6 +4,7 @@ import first from 'lodash/first';
 import uniq from 'lodash/uniq';
 import cloneDeep from 'lodash/cloneDeep';
 import mongodb from 'mongodb';
+import * as errors from '../../common/errors';
 
 export async function getRandomizeQuestions() {
     var questions = await find('questions', { excludeId: true });
@@ -20,13 +21,13 @@ export async function createGame(userIds) {
     let existing = await isExistingGame(userIds);
     
     if (existing) {
-        throw new Error('At least one of the users is busy');
+        throw new Error(errors.AT_LEAST_ONE_OF_THE_USERS_IS_BUSY);
     }
 
     let isValid = await validateUserIds(userIds);
 
     if (!isValid) {
-        throw new Error('One or more invalid user IDs');
+        throw new Error(errors.ONE_OR_MORE_INVALID_USER_IDS);
     }
     
     let questions = await getRandomizeQuestions();
@@ -99,11 +100,11 @@ export async function addMove(game, userId, questionIndex, answerIndex) {
     var question = game.questions[questionIndex];
 
     if (!gmd.progress[questionIndex]) {
-        throw new Error('Invalid question index!');
+        throw new Error(errors.INVALID_QUESTION_INDEX);
     }
 
     if (gmd.progress[questionIndex].isAnswered) {
-        throw new Error('Question is already answered!');
+        throw new Error(errors.QUESTION_IS_ALREADY_ANSWERED);
     }
 
     gmd.progress[questionIndex].answerTiming = Date.now();

@@ -1,6 +1,7 @@
 import { assertEqual, verifyBatch, wait } from './testUtils';
 import { post } from '../../common/rest';
 import wsConnect from './ws'
+import * as errors from '../../common/errors';
 
 export default async function userTests() {
     let res, userId1, userId2, token1, token2, ws1, ws2;
@@ -9,21 +10,21 @@ export default async function userTests() {
     verifyBatch('Log in - non-existing username', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
-        assertEqual(res.json.error, 'Invalid credentials', 'wrong error message!')
+        assertEqual(res.json.error, errors.INVALID_CREDENTIALS, 'wrong error message!')
     ]);
 
     res = await post('/signup', { username: '', password: '' });
     verifyBatch('Sign Up - no username or password', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
-        assertEqual(res.json.error, 'Please fill all requested fields', 'wrong error message!')
+        assertEqual(res.json.error, errors.PLEASE_FILL_ALL_REQUESTED_FIELDS, 'wrong error message!')
     ]);
 
     res = await post('/signup', { username: 'gilad', password: '12345', email: 'gilad' });
     verifyBatch('Sign Up - Invalid email', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
-        assertEqual(res.json.error, 'Invalid email address', 'wrong error message!')
+        assertEqual(res.json.error, errors.INVALID_EMAIL_ADDRESS, 'wrong error message!')
     ]);
 
     res = await post('/signup', { username: 'gilad', password: '12345', email: 'gilad@1.com' });
@@ -39,42 +40,42 @@ export default async function userTests() {
     verifyBatch('Sign Up - duplication username', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
-        assertEqual(res.json.error, 'Username is taken or email address in use', 'wrong error message!')
+        assertEqual(res.json.error, errors.USERNAME_IS_TAKEN_OR_EMAIL_ADDRESS_IN_USE, 'wrong error message!')
     ]);
 
     res = await post('/signup', { username: 'gilad777', password: '12345', email: 'gilad@1.com' });
     verifyBatch('Sign Up - duplication email', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
-        assertEqual(res.json.error, 'Username is taken or email address in use', 'wrong error message!')
+        assertEqual(res.json.error, errors.USERNAME_IS_TAKEN_OR_EMAIL_ADDRESS_IN_USE, 'wrong error message!')
     ]);
 
     res = await post('/login', { username: 'gilad', password: '123456' });
     verifyBatch('Log in - wrong password', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
-        assertEqual(res.json.error, 'Invalid credentials', 'wrong error message!')
+        assertEqual(res.json.error, errors.INVALID_CREDENTIALS, 'wrong error message!')
     ]);
 
     res = await post('/login', { username: 'gilad', password: '' });
     verifyBatch('Log in - wrong password', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
-        assertEqual(res.json.error, 'Please enter your password', 'wrong error message!')
+        assertEqual(res.json.error, errors.PLEASE_ENTER_YOUR_PASSWORD, 'wrong error message!')
     ]);
 
     res = await post('/login', { username: '', password: '12345' });
     verifyBatch('Log in - wrong password', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
-        assertEqual(res.json.error, 'Please enter your username', 'wrong error message!')
+        assertEqual(res.json.error, errors.PLEASE_ENTER_YOUR_USERNAME, 'wrong error message!')
     ]);
 
     res = await post('/login', { username: '', password: '' });
     verifyBatch('Log in - wrong password', [
         assertEqual(res.status, 400, 'status is not 400!'),
         assertEqual(typeof res.json.error, 'string', 'error is not a string!'),
-        assertEqual(res.json.error, 'Please enter your username', 'wrong error message!')
+        assertEqual(res.json.error, errors.PLEASE_ENTER_YOUR_USERNAME, 'wrong error message!')
     ]);
 
     res = await post('/login', { username: 'gilad', password: '12345' });

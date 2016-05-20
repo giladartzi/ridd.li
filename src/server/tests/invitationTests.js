@@ -2,6 +2,7 @@ import { verifyBatch, assertEqual, wait } from './testUtils';
 import { post, get } from '../../common/rest';
 import { WS_INVITATION_RECEIVED, WS_INVITATION_CANCELLED,
     WS_INVITATION_ACCEPTED, WS_INVITATION_REJECTED } from '../../common/consts';
+import * as errors from '../../common/errors';
 
 export default async function invitationTests(tokens, userIds, wss) {
     let res;
@@ -9,13 +10,13 @@ export default async function invitationTests(tokens, userIds, wss) {
     res = await get('/invitation', tokens[0]);
     verifyBatch('Get invitation - non existing', [
         assertEqual(res.status, 400, 'status is not 400!'),
-        assertEqual(res.json.error, 'Invitation not found', 'wrong error message!')
+        assertEqual(res.json.error, errors.INVITATION_NOT_FOUND, 'wrong error message!')
     ]);
     
     res = await post('/invitation/cancel', {}, tokens[0]);
     verifyBatch('Cancel invitation - non existing', [
         assertEqual(res.status, 400, 'status is not 400!'),
-        assertEqual(res.json.error, 'Pending invitation not found', 'wrong error message!')
+        assertEqual(res.json.error, errors.PENDING_INVITATION_NOT_FOUND, 'wrong error message!')
     ]);
 
     res = await post('/invitation/send', { opponentId: userIds[1] }, tokens[0]);
@@ -81,13 +82,13 @@ export default async function invitationTests(tokens, userIds, wss) {
     res = await post('/invitation/send', { opponentId: userIds[1] }, tokens[0]);
     verifyBatch('Send invitation - user is busy', [
         assertEqual(res.status, 400, 'status is not 400!'),
-        assertEqual(res.json.error, 'Opponent is not available', 'wrong error message!')
+        assertEqual(res.json.error, errors.OPPONENT_IS_NOT_AVAILABLE, 'wrong error message!')
     ]);
 
     res = await post('/invitation/cancel', {}, tokens[1]);
     verifyBatch('Cancel invitation - non existing', [
         assertEqual(res.status, 400, 'status is not 400!'),
-        assertEqual(res.json.error, 'Pending invitation not found', 'wrong error message!')
+        assertEqual(res.json.error, errors.PENDING_INVITATION_NOT_FOUND, 'wrong error message!')
     ]);
     
     res = await get('/invitation', tokens[0]);
@@ -135,7 +136,7 @@ export default async function invitationTests(tokens, userIds, wss) {
     res = await post('/invitation/reject', {}, tokens[0]);
     verifyBatch('Reject invitation - by inviter', [
         assertEqual(res.status, 400, 'status is not 400!'),
-        assertEqual(res.json.error, 'Pending invitation not found', 'wrong error message!')
+        assertEqual(res.json.error, errors.PENDING_INVITATION_NOT_FOUND, 'wrong error message!')
     ]);
 
     res = await post('/invitation/reject', {}, tokens[1]);
@@ -160,7 +161,7 @@ export default async function invitationTests(tokens, userIds, wss) {
     res = await get('/invitation', tokens[0]);
     verifyBatch('Get invitation - non existing', [
         assertEqual(res.status, 400, 'status is not 400!'),
-        assertEqual(res.json.error, 'Invitation not found', 'wrong error message!')
+        assertEqual(res.json.error, errors.INVITATION_NOT_FOUND, 'wrong error message!')
     ]);
 
     res = await get('/sync', tokens[0]);
@@ -173,7 +174,7 @@ export default async function invitationTests(tokens, userIds, wss) {
     res = await get('/invitation', tokens[1]);
     verifyBatch('Get invitation - non existing', [
         assertEqual(res.status, 400, 'status is not 400!'),
-        assertEqual(res.json.error, 'Invitation not found', 'wrong error message!')
+        assertEqual(res.json.error, errors.INVITATION_NOT_FOUND, 'wrong error message!')
     ]);
 
     res = await get('/sync', tokens[1]);
@@ -186,7 +187,7 @@ export default async function invitationTests(tokens, userIds, wss) {
     res = await post('/invitation/accept', {}, tokens[1]);
     verifyBatch('Accept invitation - non existing', [
         assertEqual(res.status, 400, 'status is not 400!'),
-        assertEqual(res.json.error, 'Pending invitation not found', 'wrong error message!')
+        assertEqual(res.json.error, errors.PENDING_INVITATION_NOT_FOUND, 'wrong error message!')
     ]);
 
     res = await post('/invitation/send', { opponentId: userIds[1] }, tokens[0]);

@@ -1,0 +1,16 @@
+module.exports.OPPONENT_NOT_FOUND = 'Opponent not found';
+module.exports.OPPONENT_IS_NOT_AVAILABLE = 'Opponent is not available';
+module.exports.GAME_NOT_FOUND = 'Game not found';
+module.exports.PENDING_INVITATION_NOT_FOUND = 'Pending invitation not found';
+module.exports.INVITATION_NOT_FOUND = 'Invitation not found';
+module.exports.USERNAME_IS_TAKEN_OR_EMAIL_ADDRESS_IN_USE = 'Username is taken or email address in use';
+module.exports.PLEASE_FILL_ALL_REQUESTED_FIELDS = 'Please fill all requested fields';
+module.exports.INVALID_EMAIL_ADDRESS = 'Invalid email address';
+module.exports.PLEASE_ENTER_YOUR_USERNAME = 'Please enter your username';
+module.exports.PLEASE_ENTER_YOUR_PASSWORD = 'Please enter your password';
+module.exports.INVALID_CREDENTIALS = 'Invalid credentials';
+module.exports.AT_LEAST_ONE_OF_THE_USERS_IS_BUSY = 'At least one of the users is busy';
+module.exports.ONE_OR_MORE_INVALID_USER_IDS = 'One or more invalid user IDs';
+module.exports.INVALID_QUESTION_INDEX = 'Invalid question index!';
+module.exports.QUESTION_IS_ALREADY_ANSWERED = 'Question is already answered!';
+module.exports.EXPECTED_AN_ARRAY_OF_THREE_STRING_TYPES =  'Expected an array of three string types.';

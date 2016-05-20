@@ -3,6 +3,7 @@ import { post, get } from '../../common/rest';
 import isEqual from 'lodash/isEqual';
 import last from 'lodash/last';
 import { WS_ADVANCE_GAME, NUM_OF_QUESTIONS } from '../../common/consts';
+import * as errors from '../../common/errors';
 
 let globalGameId;
 let globalCurrentQuestion;
@@ -128,7 +129,7 @@ export default async function gameTests(tokens, userIds, wss, gameId, currentQue
     verifyBatch('Stage 1 - First user tries to re-answer the same question twice', [
         assertEqual(httpRes.status, 400, 'status is not 400!'),
         assertEqual(typeof httpRes.json.error, 'string', 'error is not a string!'),
-        assertEqual(httpRes.json.error, 'Question is already answered!', 'wrong error!')
+        assertEqual(httpRes.json.error, errors.QUESTION_IS_ALREADY_ANSWERED, 'wrong error!')
     ]);
 
     httpRes = await post('/answer', {
@@ -139,7 +140,7 @@ export default async function gameTests(tokens, userIds, wss, gameId, currentQue
     verifyBatch('Stage 1 - First user tries to answer a non-existing question', [
         assertEqual(httpRes.status, 400, 'status is not 400!'),
         assertEqual(typeof httpRes.json.error, 'string', 'error is not a string!'),
-        assertEqual(httpRes.json.error, 'Invalid question index!', 'wrong error!')
+        assertEqual(httpRes.json.error, errors.INVALID_QUESTION_INDEX, 'wrong error!')
     ]);
 
     await wholeStage(2, true, false);
@@ -156,7 +157,7 @@ export default async function gameTests(tokens, userIds, wss, gameId, currentQue
     verifyBatch('Game ended - First user perspective', [
         assertEqual(httpRes.status, 400, 'status is not 400!'),
         assertEqual(typeof httpRes.json.error, 'string', 'error is not a string!'),
-        assertEqual(httpRes.json.error, 'Game not found', 'Incorrect error message!')
+        assertEqual(httpRes.json.error, errors.GAME_NOT_FOUND, 'Incorrect error message!')
     ], tokens[0]);
 
     httpRes = await get('/sync', tokens[0]);
@@ -170,7 +171,7 @@ export default async function gameTests(tokens, userIds, wss, gameId, currentQue
     verifyBatch('Game ended - Second user perspective', [
         assertEqual(httpRes.status, 400, 'status is not 400!'),
         assertEqual(typeof httpRes.json.error, 'string', 'error is not a string!'),
-        assertEqual(httpRes.json.error, 'Game not found', 'Incorrect error message!')
+        assertEqual(httpRes.json.error, errors.GAME_NOT_FOUND, 'Incorrect error message!')
     ], tokens[1]);
 
     httpRes = await get('/sync', tokens[1]);

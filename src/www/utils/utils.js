@@ -1,4 +1,5 @@
 import { get, post } from '../../common/rest';
+import { EXPECTED_AN_ARRAY_OF_THREE_STRING_TYPES } from '../../common/errors';
 
 function dispatchSuccess(successType, res, onSuccess, dispatch, getState) {
     if (res.json.error) {
@@ -27,7 +28,7 @@ export function restApiMiddleware({ dispatch, getState }) {
         }
 
         if (!Array.isArray(types) || types.length !== 3 || !types.every(type => typeof type === 'string')) {
-            throw new Error('Expected an array of three string types.')
+            throw new Error(EXPECTED_AN_ARRAY_OF_THREE_STRING_TYPES)
         }
 
         const [ requestType, successType, failureType ] = types;

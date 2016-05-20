@@ -1,5 +1,6 @@
 import * as dataLayer from '../dataLayer';
 import { hash, genSalt, sign, isValidEmail } from '../utils/userUtils';
+import * as errors from '../../common/errors';
 
 function userJson(id, username, token) {
     return { id, username, token };
@@ -12,15 +13,15 @@ export async function signUp(email, username, password) {
     }));
     
     if (exists) {
-        throw new Error('Username is taken or email address in use');
+        throw new Error(errors.USERNAME_IS_TAKEN_OR_EMAIL_ADDRESS_IN_USE);
     }
 
     if (!username || !password || !email) {
-        throw new Error('Please fill all requested fields');
+        throw new Error(errors.PLEASE_FILL_ALL_REQUESTED_FIELDS);
     }
 
     if (!isValidEmail(email)) {
-        throw new Error('Invalid email address');
+        throw new Error(errors.INVALID_EMAIL_ADDRESS);
     }
 
     // encode password
@@ -43,18 +44,18 @@ export async function signUp(email, username, password) {
 
 export async function login(username, password) {
     if (!username) {
-        throw new Error('Please enter your username');
+        throw new Error(errors.PLEASE_ENTER_YOUR_USERNAME);
     }
 
     if (!password) {
-        throw new Error('Please enter your password');
+        throw new Error(errors.PLEASE_ENTER_YOUR_PASSWORD);
     }
 
     let user = await dataLayer.find('users', { query: { username } });
     let hashed = await hash(password, user && user.salt);
 
     if (!user || user.hashed !== hashed) {
-        throw new Error('Invalid credentials');
+        throw new Error(errors.INVALID_CREDENTIALS);
     }
 
     let token = await sign({ id: user._id, username: username });
