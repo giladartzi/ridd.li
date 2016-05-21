@@ -12,6 +12,17 @@ a {
     color: black;
 }
 
+@font-face {
+    font-family: 'Roboto-Regular';
+    src: url('fonts/Roboto-Regular.eot');
+    src: url('fonts/Roboto-Regular.woff2') format('woff2'),
+    url('fonts/Roboto-Regular.woff') format('woff'),
+    url('fonts/Roboto-Regular.ttf') format('truetype'),
+    url('fonts/Roboto-Regular.eot?#iefix') format('embedded-opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0 1000px white inset;
 }

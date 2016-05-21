@@ -16,6 +16,10 @@ if (process.env.NODE_ENV === 'production') {
     plugins.push(new webpack.optimize.UglifyJsPlugin({ compress: { warnings: false } }));
 }
 
+function fontLoader(type) {
+    return 'url?limit=65000000&mimetype=' + type + '&name=public/fonts/[name].[ext]';
+}
+
 module.exports = {
     entry: {
         app: './src/www/index.js',
@@ -45,7 +49,12 @@ module.exports = {
             {
                 test: /\.css$/,
                 loader: "style-loader!css-loader"
-            }
+            },
+            { test: /\.svg$/, loader: fontLoader('image/svg+xml') },
+            { test: /\.woff$/, loader: fontLoader('application/font-woff') },
+            { test: /\.woff2$/, loader: fontLoader('application/font-woff2') },
+            { test: /\.[ot]tf$/, loader: fontLoader('application/octet-stream') },
+            { test: /\.eot$/, loader: fontLoader('application/vnd.ms-fontobject') }
         ]
     },
     plugins: plugins
