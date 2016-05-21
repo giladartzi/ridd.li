@@ -7,7 +7,7 @@ var plugins = [
     new HtmlWebpackPlugin({ template: './src/www/index.ejs', inject: 'body' }),
     new AppCachePlugin(),
     new webpack.DefinePlugin({
-        PORT: process.env.NODE_ENV === 'production' ? 80 : 8080,
+        WS_PORT: process.env.NODE_ENV === 'production' ? 443 : 8080,
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
     })
 ];

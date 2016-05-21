@@ -3,7 +3,7 @@ var reconnectTimeout;
 
 function initWebSocket() {
     let protocol = window.location.protocol === 'http:' ? 'ws' : 'wss';
-    let ws = new WebSocket(`${protocol}://${window.location.hostname}:${PORT}`);
+    let ws = new WebSocket(`${protocol}://${window.location.hostname}:${WS_PORT}`);
     ws.onopen = () => sendInitFrame(ws);
     ws.onclose = reconnect;
     ws.onerror = reconnect;
