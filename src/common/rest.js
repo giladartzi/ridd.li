@@ -1,6 +1,7 @@
 export async function send(method, path, token, body) {
     let port = 8080;
     let hostname = 'localhost';
+    let protocol = 'http:';
 
     if (typeof PORT !== 'undefined') {
         port = PORT === 80 ? '' : PORT
@@ -8,9 +9,10 @@ export async function send(method, path, token, body) {
 
     if (typeof window !== 'undefined') {
         hostname = window.location.hostname;
+        protocol = window.location.protocol;
     }
 
-    let url = `http://${hostname}:${port}` + path;
+    let url = `${protocol}//${hostname}:${port}` + path;
 
     let options = {
         method: method,
