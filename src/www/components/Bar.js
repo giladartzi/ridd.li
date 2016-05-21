@@ -1,14 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import FlatButton from 'material-ui/FlatButton';
 import AppBar from 'material-ui/AppBar';
-import { push } from 'react-router-redux';
 import IconButton from 'material-ui/IconButton';
 import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
-import NavigationClose from 'material-ui/svg-icons/navigation/close';
-import { Link } from 'react-router';
+import Riddli from './Riddli';
 
 let Bar = ({ logout }) => {
     let menu = (
@@ -23,7 +20,7 @@ let Bar = ({ logout }) => {
         </IconMenu>
     );
     
-    return <AppBar title="ridd.li" showMenuIconButton={false} iconElementRight={ menu } />;
+    return <AppBar title={<Riddli scale="0.1" fill="white" />} showMenuIconButton={false} iconElementRight={ menu } />;
 };
 
 let mapStateToProps = (state) => {

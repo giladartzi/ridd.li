@@ -13,7 +13,7 @@ a {
 }
 
 @font-face {
-    font-family: 'Roboto-Regular';
+    font-family: 'Roboto';
     src: url('fonts/Roboto-Regular.eot');
     src: url('fonts/Roboto-Regular.woff2') format('woff2'),
     url('fonts/Roboto-Regular.woff') format('woff'),

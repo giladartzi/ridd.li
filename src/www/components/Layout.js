@@ -1,12 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Bar from './Bar';
+import Riddli from './Riddli';
 
 let Layout = ({children}) => {
     return (
         <div>
             { localStorage.token ? <Bar /> : null }
-            { localStorage.token ? null : <h1 id="mainHeader">ridd.li</h1> }
+            { localStorage.token ? null : <div id="mainHeader"><Riddli scale="0.3" /></div> }
 
             {children}
         </div>
