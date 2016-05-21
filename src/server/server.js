@@ -3,10 +3,14 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import cors from 'cors';
 import http from 'http';
+import https from 'spdy';
 import ws from 'ws';
 import path from 'path';
+import LEX from 'letsencrypt-express';
 import { jwtMiddleware } from './utils/userUtils';
 import { initWebSocket } from './wsManager';
+
+
 
 let app = express();
 
@@ -155,12 +159,35 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 var port = 8080;
+var server;
+
+function redirectHttp() {
+    http.createServer(LEX.createAcmeResponder(lex, function redirectHttps(req, res) {
+        res.setHeader('Location', 'https://' + req.headers.host + req.url);
+        res.statusCode = 302;
+        res.end('<!-- Hello Developer Person! Please use HTTPS instead -->');
+    })).listen(80);
+}
+
+function serveHttps() {
+    server = https.createServer(lex.httpsOptions, LEX.createAcmeResponder(lex, app)).listen(443);
+}
 
 if (process.env.NODE_ENV === 'production') {
     port = 80;
+
+    LEX.create({
+        configDir: require('os').homedir() + '/letsencrypt/etc',
+        approveRegistration: null
+    });
+
+    redirectHttp();
+    serveHttps();
+}
+else {
+    server = http.createServer(app);
+    server.listen(port, function () { console.log('Listening on port', port); });
 }
 
-var server = http.createServer(app);
-server.listen(port, function () { console.log('Listening on port', port); });
-var wsServer = new ws.Server({ server: server });
+let wsServer = new ws.Server({ server: server });
 wsServer.on('connection', initWebSocket);
