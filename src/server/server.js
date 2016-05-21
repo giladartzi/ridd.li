@@ -170,6 +170,7 @@ function redirectHttp(lex) {
 }
 
 function serveHttps(lex) {
+    console.log(lex.httpsOptions);
     server = https.createServer(lex.httpsOptions, LEX.createAcmeResponder(lex, app)).listen(443);
 }
 
@@ -177,7 +178,7 @@ if (process.env.NODE_ENV === 'production') {
     port = 80;
 
     let lex = LEX.create({
-        configDir: require('os').homedir() + '/letsencrypt/etc',
+        configDir: '/etc/letsencrypt',
         approveRegistration: null
     });
 
