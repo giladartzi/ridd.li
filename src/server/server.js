@@ -161,7 +161,7 @@ if (process.env.NODE_ENV === 'production') {
 var port = 8080;
 var server;
 
-function redirectHttp() {
+function redirectHttp(lex) {
     http.createServer(LEX.createAcmeResponder(lex, function redirectHttps(req, res) {
         res.setHeader('Location', 'https://' + req.headers.host + req.url);
         res.statusCode = 302;
@@ -169,20 +169,20 @@ function redirectHttp() {
     })).listen(80);
 }
 
-function serveHttps() {
+function serveHttps(lex) {
     server = https.createServer(lex.httpsOptions, LEX.createAcmeResponder(lex, app)).listen(443);
 }
 
 if (process.env.NODE_ENV === 'production') {
     port = 80;
 
-    LEX.create({
+    let lex = LEX.create({
         configDir: require('os').homedir() + '/letsencrypt/etc',
         approveRegistration: null
     });
 
-    redirectHttp();
-    serveHttps();
+    redirectHttp(lex);
+    serveHttps(lex);
 }
 else {
     server = http.createServer(app);
