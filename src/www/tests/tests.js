@@ -202,6 +202,7 @@ module.exports = {
     'User #2 - Answer question 4': answer(1,  true , false, 2),
     'User #1 - Answer question 5': answer(0,  false, true , 2),
     'User #2 - Answer question 5': answer(1,  true , false, 3),
+    'Sudden refresh!': function (client) { client.refresh().pause(500); },
     'User #1 - Answer question 6': answer(0,  false, true , 1),
     'User #2 - Answer question 6': answer(1,  true , false, 11),
     'User #1 - Answer question 7': answer(0,  false, true , 0.1),
