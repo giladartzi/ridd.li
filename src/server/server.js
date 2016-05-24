@@ -24,7 +24,7 @@ app.use(function(err, req, res, next) {
 
 import * as gameController from './controllers/gameController';
 
-app.get('/game', jwtMiddleware, async (req, res) => {
+app.get('/getGame', jwtMiddleware, async (req, res) => {
     let userId = req.user.id;
     
     try {

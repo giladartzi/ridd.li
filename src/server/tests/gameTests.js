@@ -171,7 +171,7 @@ export default async function gameTests(tokens, userIds, wss, gameId, currentQue
         res.forEach(r => assertRes(r, stageIndex));
     }
 
-    httpRes = await get('/game', tokens[0]);
+    httpRes = await get('/getGame', tokens[0]);
     verifyBatch('Game ended - First user perspective', [
         assertEqual(httpRes.status, 400, 'status is not 400!'),
         assertEqual(typeof httpRes.json.error, 'string', 'error is not a string!'),
@@ -185,7 +185,7 @@ export default async function gameTests(tokens, userIds, wss, gameId, currentQue
         assertEqual(httpRes.json.game, null, 'game is not null!')
     ]);
 
-    httpRes = await get('/game', tokens[1]);
+    httpRes = await get('/getGame', tokens[1]);
     verifyBatch('Game ended - Second user perspective', [
         assertEqual(httpRes.status, 400, 'status is not 400!'),
         assertEqual(typeof httpRes.json.error, 'string', 'error is not a string!'),
