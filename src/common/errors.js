@@ -13,4 +13,5 @@ module.exports.AT_LEAST_ONE_OF_THE_USERS_IS_BUSY = 'At least one of the users is
 module.exports.ONE_OR_MORE_INVALID_USER_IDS = 'One or more invalid user IDs';
 module.exports.INVALID_QUESTION_INDEX = 'Invalid question index!';
 module.exports.QUESTION_IS_ALREADY_ANSWERED = 'Question is already answered!';
-module.exports.EXPECTED_AN_ARRAY_OF_THREE_STRING_TYPES =  'Expected an array of three string types.';
+module.exports.EXPECTED_AN_ARRAY_OF_THREE_STRING_TYPES = 'Expected an array of three string types.';
+module.exports.QUESTION_TIMED_OUT = 'Question timed out.';

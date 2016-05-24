@@ -15,7 +15,6 @@ async function tests() {
         console.log(e, e.stack.split('\n'));
     }
 
-
     process.exit(0);
 }
 

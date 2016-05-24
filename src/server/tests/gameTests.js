@@ -1,163 +1,181 @@
+import stages, { getOpponentMove } from './gameTestsStages';
+import { asyncToPromise } from '../utils/utils';
 import { verifyBatch, assertEqual, getAnswerIndex, wait } from './testUtils';
 import { post, get } from '../../common/rest';
+import find from 'lodash/find';
+import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
-import last from 'lodash/last';
-import { WS_ADVANCE_GAME, NUM_OF_QUESTIONS } from '../../common/consts';
-import * as errors from '../../common/errors';
+import { WS_ADVANCE_GAME } from '../../common/consts';
+import { QUESTION_IS_ALREADY_ANSWERED, INVALID_QUESTION_INDEX, GAME_NOT_FOUND } from '../../common/errors';
 
-let globalGameId;
-let globalCurrentQuestion;
-let globalTokens;
-let globalWss;
+let global = {};
 
-async function wholeStage(stage, isCorrect1, isCorrect2) {
-    let httpRes, wsRes;
-
-    httpRes = await answer(stage - 1, globalCurrentQuestion, isCorrect1, globalTokens[0]);
-    verifyBatch(`Stage ${stage} - User 1, correct ${isCorrect1}`,
-        httpGameAsserts(httpRes, 0, stage, isCorrect1, globalCurrentQuestion));
-
-    httpRes = await answer(stage - 1, globalCurrentQuestion, isCorrect2, globalTokens[1]);
-    verifyBatch(`Stage ${stage} - User 2, correct ${isCorrect2}`,
-        httpGameAsserts(httpRes, 1, stage, isCorrect2, globalCurrentQuestion));
-
-    wsRes = await wsPop(globalWss[0]);
-    verifyBatch(`Stage ${stage} User 1 - Game advance - Push`,
-        wsGameAsserts(wsRes, stage - 1, stage, isCorrect1, globalCurrentQuestion));
-
-    globalCurrentQuestion = httpRes.json.question;
+function otherUserIndex(userIndex) {
+    return (userIndex - 1) * -1;
 }
 
-async function answer(questionIndex, currentQuestion, isCorrect, token) {
-    return await post('/answer', {
-        gameId: globalGameId,
+function getTokenByUserIndex(userIndex) {
+    return global.tokens[userIndex];
+}
+
+export function answer(questionIndex, question, isCorrect, userIndex) {
+    return asyncToPromise(post('/answer', {
+        gameId: global.gameId,
         questionIndex,
-        answerIndex: getAnswerIndex(currentQuestion, isCorrect)
-    }, token);
+        answerIndex: getAnswerIndex(question, isCorrect)
+    }, getTokenByUserIndex(userIndex)));
 }
 
-async function wsPop(ws) {
-    await wait(0.2);
-    return ws.messages.pop();
+function composeMoveResult (httpRes, move) {
+    return {
+        httpRes,
+        move,
+        wsRes: global.wss[otherUserIndex(move.userIndex)].messages.pop()
+    }
 }
 
-function httpGameAsserts(res, userIndex, stage, isCorrect, currentQuestion, answers) {
-    let payload = res.json.game || res.json;
-    let stageEnded = userIndex !== 0;
+function waitAndComposeMoveResult (httpRes, move) {
+    return asyncToPromise(wait(0.2))
+        .then(() => composeMoveResult(httpRes, move));
+}
+
+function runMove(move) {
+    return asyncToPromise(wait(move.wait))
+        .then(() => answer(move.questionIndex, global.currentQuestion, move.isCorrect, move.userIndex))
+        .then(httpRes => waitAndComposeMoveResult(httpRes, move));
+}
+
+function runStage(stage) {
+    return Promise.all(stage.map(move => runMove(move)));
+}
+
+function getNextQuestion(res) {
+    let lastMove = find(res, r => !r.move.isFirstToAnswer);
+    
+    if (lastMove.hasError) {
+        lastMove = find(res, r => !r.move.hasError);
+    }
+    
+    return lastMove.httpRes.json.question;
+}
+
+function clearWss() {
+    global.wss.forEach(ws => {
+        while (ws.messages.length) {
+            ws.messages.pop();
+        }
+    });
+}
+
+function compareProgress(progress, move) {
+    let fields = ['questionIndex', 'isCorrect', 'isTimedOut', 'isAnswered', 'userIndex'];
+    let picked = progress.map(move => pick(move, fields));
+    let answered = picked.filter(p => p.isAnswered);
+    answered.forEach(m => delete m.isAnswered);
+    let moves = stages.map(stage => find(stage, m => m.userIndex === move.userIndex));
+    let validMoves = moves.filter(m => !m.hasError).slice(0, answered.length).map(m => pick(m, fields));
+
+    if (!isEqual(answered, validMoves)) {
+        console.log(answered, validMoves);
+    }
+
+    return isEqual(answered, validMoves);
+}
+
+function assert(move, payload) {
+    let question = move.isFirstToAnswer ? global.previousQuestion : global.currentQuestion;
+    let questionIndex = (move.isFirstToAnswer || move.hasError) ? move.questionIndex : move.questionIndex + 1;
 
     return [
-        assertEqual(res.status, 200, 'status is not 200!'),
-        ...gameAsserts(payload, stage, isCorrect, currentQuestion, answers, stageEnded)
+        assertEqual(payload.error, undefined, 'error!'),
+        assertEqual(payload.gameId, global.gameId, 'wrong gameId'),
+        assertEqual(payload.progress.length, move.expectedProgressLength, 'wrong progressLength'),
+        assertEqual(payload.opponentProgress.length, move.expectedOpponentProgressLength, 'wrong OP progressLength'),
+        assertEqual(isEqual(payload.question, question), true, 'wrong question'),
+        assertEqual(payload.state, move.expectedState, 'wrong state'),
+        assertEqual(payload.questionIndex, move.expectedQuestionIndex, 'wrong questionIndex')
     ];
 }
 
-function wsGameAsserts(res, userIndex, stage, isCorrect, currentQuestion, answers) {
+function assertProgress(move, payload) {
     return [
-        assertEqual(res.type, WS_ADVANCE_GAME, 'ws type is incorrect!'),
-        ...gameAsserts(res.payload, stage, isCorrect, currentQuestion, answers, true)
-    ];
+        assertEqual(compareProgress(payload.progress, move), true, 'wrong progress'),
+        assertEqual(compareProgress(payload.opponentProgress, getOpponentMove(move)), true, 'wrong OP progress'),
+    ]
 }
 
-function gameAsserts(payload, stage, isCorrect, currentQuestion, answers, stageEnded) {
-    let progressLength = answers === 0 ? 1 : stageEnded ? stage + 1 : stage;
-    let questionIndex = answers === 0 ? 0 : stageEnded ? stage : stage - 1;
-    let answeredLength = typeof answers === 'number' ? answers : stage;
-    let state = 'ACTIVE';
+function assertError(move, payload) {
+    let error;
 
-    let answered = payload.progress.filter(p => p.isAnswered);
-    let lastAnswered = last(answered) || {};
-    let currentQuestionEquality = !stageEnded || answers === 0;
+    if (move.badQuestionIndex) {
+        error = INVALID_QUESTION_INDEX;
+    }
+    else if (move.alreadyAnswered) {
+        error = QUESTION_IS_ALREADY_ANSWERED;
+    }
 
-    let questionAsserts;
+    return [assertEqual(payload.error, error, 'wrong error')];
+}
 
-    if (questionIndex === NUM_OF_QUESTIONS) {
-        state = 'INACTIVE';
-        progressLength = NUM_OF_QUESTIONS;
-        questionAsserts = [
-            assertEqual(payload.question, null, 'wrong currentQuestion!')
-        ];
+function assertHttp(res) {
+    let move = res.move;
+    let batch;
+    let status;
+    let progressBatch = [];
+
+    if (move.hasError) {
+        status = 400;
+        batch = assertError(move, res.httpRes.json);
     }
     else {
-        questionAsserts = [
-            assertEqual(typeof payload.question.text, 'string', 'question.text is not a string!'),
-            assertEqual(Array.isArray(payload.question.answers), true, 'question.answers is not an array!'),
-            assertEqual(isEqual(payload.question, currentQuestion), currentQuestionEquality, 'wrong currentQuestion!')
-        ];
+        status = 200;
+        batch = assert(move, res.httpRes.json);
+        progressBatch = assertProgress(move, res.httpRes.json);
     }
 
-    return [
-        assertEqual(payload.state, state, `state is not ${state}!`),
-        assertEqual(typeof payload.gameId, 'string', 'gameId is not a string!'),
-        assertEqual(payload.gameId, globalGameId, 'Incorrect gameId!'),
-        assertEqual(Array.isArray(payload.progress), true, 'progress is not an array!'),
-        assertEqual(payload.progress.length, progressLength, `progress is not in the length of ${progressLength}`),
-        assertEqual(answered.length, answeredLength, 'wrong answered length!'),
-        assertEqual(lastAnswered.isCorrect, isCorrect, 'Answer correctness issue!'),
-        assertEqual(payload.questionIndex, questionIndex, 'questionIndex is not 0'),
-        ...questionAsserts
-    ];
+    return [assertEqual(res.httpRes.status, status, 'wrong status'), ...batch, ...progressBatch];
+}
+
+function assertWs(res) {
+    let batch = assert(res.move, res.wsRes.payload);
+    let progressBatch = assertProgress(getOpponentMove(res.move), res.wsRes.payload);
+    return [assertEqual(res.wsRes.type, WS_ADVANCE_GAME, 'wrong ws type'), ...batch, ...progressBatch];
+}
+
+function assertRes(res, stageIndex) {
+    let title = `Stage ${stageIndex} - user ${res.move.userIndex}`;
+
+    verifyBatch(`${title} - HTTP`, assertHttp(res));
+
+    if (!res.move.hasError) {
+        verifyBatch(`${title} -  WS `, assertWs(res));
+    }
 }
 
 export default async function gameTests(tokens, userIds, wss, gameId, currentQuestion) {
-    let httpRes, wsRes;
+    let httpRes;
+    global.tokens = tokens;
+    global.userIds = userIds;
+    global.wss = wss;
+    global.gameId = gameId;
+    global.currentQuestion = currentQuestion;
+    global.previousQuestion = null;
+    clearWss();
 
-    globalGameId = gameId;
-    globalCurrentQuestion = currentQuestion;
-    globalTokens = tokens;
-    globalWss = wss;
-
-    // Get the game in the first user's perspective
-    httpRes = await get('/game', tokens[0]);
-    verifyBatch('Stage 1 - First user perspective', httpGameAsserts(httpRes, 0, 1, undefined, currentQuestion, 0));
-
-    httpRes = await get('/sync', tokens[0]);
-    verifyBatch('Stage 1 - First user perspective (SYNC)', httpGameAsserts(httpRes, 0, 1, undefined, currentQuestion, 0));
-
-    httpRes = await get('/game', tokens[1]);
-    verifyBatch('Stage 1 - Second user perspective', httpGameAsserts(httpRes, 1, 1, undefined, currentQuestion, 0));
-
-    httpRes = await get('/sync', tokens[1]);
-    verifyBatch('Stage 1 - Second user perspective (SYNC)', httpGameAsserts(httpRes, 1, 1, undefined, currentQuestion, 0));
-
-    await wholeStage(1, true, false);
-
-    httpRes = await post('/answer', {
-        gameId,
-        questionIndex: 0,
-        answerIndex: 0
-    }, tokens[0]);
-    verifyBatch('Stage 1 - First user tries to re-answer the same question twice', [
-        assertEqual(httpRes.status, 400, 'status is not 400!'),
-        assertEqual(typeof httpRes.json.error, 'string', 'error is not a string!'),
-        assertEqual(httpRes.json.error, errors.QUESTION_IS_ALREADY_ANSWERED, 'wrong error!')
-    ]);
-
-    httpRes = await post('/answer', {
-        gameId,
-        questionIndex: 14,
-        answerIndex: 0
-    }, tokens[0]);
-    verifyBatch('Stage 1 - First user tries to answer a non-existing question', [
-        assertEqual(httpRes.status, 400, 'status is not 400!'),
-        assertEqual(typeof httpRes.json.error, 'string', 'error is not a string!'),
-        assertEqual(httpRes.json.error, errors.INVALID_QUESTION_INDEX, 'wrong error!')
-    ]);
-
-    await wholeStage(2, true, false);
-    await wholeStage(3, true, true);
-    await wholeStage(4, false, true);
-    await wholeStage(5, false, false);
-    await wholeStage(6, true, false);
-    await wholeStage(7, false, true);
-    await wholeStage(8, true, false);
-    await wholeStage(9, true, false);
-    await wholeStage(10, true, false);
+    for (let stage of stages) {
+        let res = await runStage(stage);
+        global.previousQuestion = global.currentQuestion;
+        global.currentQuestion = getNextQuestion(res);
+        // console.dir(res, { depth: 10 });
+        let stageIndex = stages.indexOf(stage);
+        res.forEach(r => assertRes(r, stageIndex));
+    }
 
     httpRes = await get('/game', tokens[0]);
     verifyBatch('Game ended - First user perspective', [
         assertEqual(httpRes.status, 400, 'status is not 400!'),
         assertEqual(typeof httpRes.json.error, 'string', 'error is not a string!'),
-        assertEqual(httpRes.json.error, errors.GAME_NOT_FOUND, 'Incorrect error message!')
+        assertEqual(httpRes.json.error, GAME_NOT_FOUND, 'Incorrect error message!')
     ], tokens[0]);
 
     httpRes = await get('/sync', tokens[0]);
@@ -171,7 +189,7 @@ export default async function gameTests(tokens, userIds, wss, gameId, currentQue
     verifyBatch('Game ended - Second user perspective', [
         assertEqual(httpRes.status, 400, 'status is not 400!'),
         assertEqual(typeof httpRes.json.error, 'string', 'error is not a string!'),
-        assertEqual(httpRes.json.error, errors.GAME_NOT_FOUND, 'Incorrect error message!')
+        assertEqual(httpRes.json.error, GAME_NOT_FOUND, 'Incorrect error message!')
     ], tokens[1]);
 
     httpRes = await get('/sync', tokens[1]);

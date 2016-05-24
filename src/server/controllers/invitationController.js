@@ -1,5 +1,6 @@
 import { findById, update, insert, find, objectId, findOneAndUpdate } from '../dataLayer';
-import { createGame, gameJson } from './gameController';
+import { createGame } from './gameController';
+import { gameJson } from '../utils/gameUtils';
 import { wsSend } from '../wsManager';
 import { WS_INVITATION_RECEIVED, WS_INVITATION_CANCELLED,
     WS_INVITATION_ACCEPTED, WS_INVITATION_REJECTED } from '../../common/consts';

@@ -17,6 +17,12 @@ export const toPromise = (func, context) => {
     }
 };
 
+export const asyncToPromise = (func) => {
+    return new Promise(async function (resolve, reject) {
+        resolve(await func);
+    });
+};
+
 export async function safeAwait(promise) {
     let result;
 

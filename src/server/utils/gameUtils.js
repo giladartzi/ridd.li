@@ -1,10 +1,13 @@
 import { find, insert, findById, findOneAndReplace } from '../dataLayer';
 import shuffle from 'lodash/shuffle';
 import first from 'lodash/first';
+import last from 'lodash/last';
 import uniq from 'lodash/uniq';
 import cloneDeep from 'lodash/cloneDeep';
 import mongodb from 'mongodb';
 import * as errors from '../../common/errors';
+import { QUESTION_TIMEOUT, WS_ADVANCE_GAME } from '../../common/consts';
+import { wsSend } from '../wsManager'
 
 export async function getRandomizeQuestions() {
     var questions = await find('questions', { excludeId: true });
@@ -77,10 +80,11 @@ export async function advanceGame(game) {
     
     if (question) {
         game.state = 'ACTIVE';
-        game.gameMetaData.forEach(gmd => {
+        game.gameMetaData.forEach((gmd, userIndex) => {
             gmd.progress.push({
                 questionIndex: game.currentQuestion,
-                questionTiming: Date.now()
+                questionTiming: Date.now(),
+                userIndex
             });
         });
     }
@@ -99,18 +103,24 @@ export async function addMove(game, userId, questionIndex, answerIndex) {
     var gmd = first(game.gameMetaData.filter(gmd => gmd.userId === userId));
     var question = game.questions[questionIndex];
 
-    if (!gmd.progress[questionIndex]) {
+    var move = gmd.progress[questionIndex];
+
+    if (!move) {
         throw new Error(errors.INVALID_QUESTION_INDEX);
     }
 
-    if (gmd.progress[questionIndex].isAnswered) {
+    if (move.isAnswered) {
         throw new Error(errors.QUESTION_IS_ALREADY_ANSWERED);
     }
 
-    gmd.progress[questionIndex].answerTiming = Date.now();
-    gmd.progress[questionIndex].answerIndex = answerIndex;
-    gmd.progress[questionIndex].isCorrect = question.answers[answerIndex].isCorrect;
-    gmd.progress[questionIndex].isAnswered = true;
+    var now = Date.now();
+    var isTimedOut = ((now - move.questionTiming) / 1000) > QUESTION_TIMEOUT;
+
+    move.answerTiming = now;
+    move.answerIndex = answerIndex;
+    move.isCorrect = question.answers[answerIndex].isCorrect;
+    move.isAnswered = true;
+    move.isTimedOut = isTimedOut;
 
     return await findOneAndReplace('games', game._id, game);    
 }
@@ -153,4 +163,38 @@ export function otherUserId(game, userId) {
     }
     
     return result;
+}
+
+export function getOpponentProgress(game, userId) {
+    let opponentIndex = (userId - 1) * -1;
+
+    return game.gameMetaData[opponentIndex].progress.map(move => {
+        return {
+            questionIndex: move.questionIndex,
+            isAnswered: move.isAnswered,
+            isCorrect: move.isCorrect,
+            isTimedOut: move.isTimedOut,
+            userIndex: opponentIndex
+        }
+    });
+}
+
+export async function gameJson(game, userId) {
+    let question = await getCurrentQuestion(game);
+
+    if (question) {
+        question = sanitizeQuestion(question);
+    }
+
+    let gmd = first(game.gameMetaData.filter(gmd => gmd.userId === userId));
+    let userIndex = game.gameMetaData.indexOf(gmd);
+
+    return {
+        gameId: game._id,
+        progress: game.gameMetaData[userIndex].progress,
+        opponentProgress: getOpponentProgress(game, userIndex),
+        question: question,
+        state: game.state,
+        questionIndex: game.currentQuestion
+    };
 }
