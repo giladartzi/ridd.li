@@ -6,7 +6,7 @@ import rootReducer from '../reducers/rootReducer';
 import { routerMiddleware } from 'react-router-redux';
 import { browserHistory } from 'react-router';
 import { get } from '../../common/rest';
-import { INVITATION_GET_SUCCESS, GAME_GET_SUCCESS } from '../../common/consts';
+import { INVITATION_GET_SUCCESS, GAME_GET_SUCCESS, LOG_IN_SUCCESS } from '../../common/consts';
 
 const logger = createLogger();
 const routerMw = routerMiddleware(browserHistory);
@@ -20,6 +20,7 @@ export default async function configureStore() {
     if (initialState) {
         store.dispatch({ type: INVITATION_GET_SUCCESS, payload: initialState.invitation });
         store.dispatch({ type: GAME_GET_SUCCESS, payload: initialState.game });
+        store.dispatch({ type: LOG_IN_SUCCESS, payload: initialState.user });
     }
 
     return store;

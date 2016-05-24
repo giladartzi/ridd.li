@@ -2,7 +2,7 @@ import * as dataLayer from '../dataLayer';
 import { hash, genSalt, sign, isValidEmail } from '../utils/userUtils';
 import * as errors from '../../common/errors';
 
-function userJson(id, username, token) {
+export function userJson(id, username, token) {
     return { id, username, token };
 }
 
