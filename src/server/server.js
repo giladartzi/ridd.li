@@ -47,6 +47,15 @@ app.post('/answer', jwtMiddleware, async (req, res) => {
     }
 });
 
+app.post('/game/leave', jwtMiddleware, async (req, res) => {
+    try {
+        res.json(await gameController.leave(req.user.id));
+    }
+    catch (e) {
+        res.status(400).json({ error: e.message });
+    }
+});
+
 import * as userController from './controllers/userController';
 app.post('/signup', async (req, res) => {
     try {

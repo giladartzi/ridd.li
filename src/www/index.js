@@ -32,6 +32,15 @@ function validateNonToken(nextState, replace) {
     }
 }
 
+function validateGame(getState, nextState, replace) {
+    if (!localStorage.token) {
+        replace('/');
+    }
+    else if (!getState().game.gameId) {
+        replace('/lounge');
+    }
+}
+
 (async function () {
     const store = await configureStore();
     const history = syncHistoryWithStore(browserHistory, store);
@@ -48,7 +57,7 @@ function validateNonToken(nextState, replace) {
                         <IndexRoute component={LogInForm} onEnter={validateNonToken} />
                         <Route path="/signup" component={SingUpForm} onEnter={validateNonToken} />
                         <Route path="/lounge" component={Lounge} onEnter={validateToken} />
-                        <Route path="/game" component={Game} onEnter={validateToken} />
+                        <Route path="/game" component={Game} onEnter={validateGame.bind(null, store.getState)} />
                     </Route>
                 </Router>
             </MuiThemeProvider>

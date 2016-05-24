@@ -1,13 +1,11 @@
-import { find, insert, findById, findOneAndReplace } from '../dataLayer';
+import { find, insert, findById, findOneAndReplace, findOneAndUpdate, update, objectId } from '../dataLayer';
 import shuffle from 'lodash/shuffle';
 import first from 'lodash/first';
-import last from 'lodash/last';
 import uniq from 'lodash/uniq';
 import cloneDeep from 'lodash/cloneDeep';
 import mongodb from 'mongodb';
 import * as errors from '../../common/errors';
-import { QUESTION_TIMEOUT, WS_ADVANCE_GAME } from '../../common/consts';
-import { wsSend } from '../wsManager'
+import { QUESTION_TIMEOUT } from '../../common/consts';
 
 export async function getRandomizeQuestions() {
     var questions = await find('questions', { excludeId: true });
@@ -203,4 +201,10 @@ export async function gameJson(game, userId) {
         state: game.state,
         questionIndex: game.currentQuestion
     };
+}
+
+export async function leaveGame(game) {
+    let usersIds = game.gameMetaData.map(gmd => objectId(gmd.userId));
+    await update('users', { '_id': { $in: usersIds } }, { $set: { state: 'AVAILABLE' } });
+    return await findOneAndUpdate('games', game._id, { $set: { state: 'INACTIVE' } });
 }

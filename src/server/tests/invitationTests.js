@@ -22,6 +22,7 @@ export default async function invitationTests(tokens, userIds, wss) {
     res = await post('/invitation/send', { opponentId: userIds[1] }, tokens[0]);
     verifyBatch('Send invitation', [
         assertEqual(res.status, 200, 'status is not 200!'),
+        assertEqual(res.json.error, undefined, 'error!'),
         assertEqual(typeof res.json.id, 'string', 'id is not a string!'),
         assertEqual(typeof res.json.state, 'string', 'state is not a string!'),
         assertEqual(res.json.state, 'PENDING', 'state is not PENDING!'),
