@@ -10,7 +10,8 @@ let Game = ({ game, answerPending }) => {
     return (
         <div>
             <h1 id="gameHeader">Game</h1>
-            <GameProgress />
+            <GameProgress progress={game.progress} />
+            <GameProgress progress={game.opponentProgress} />
             {game.question ? <Question disabled={disabled} game={game} /> : <div>Game has ended!</div>}
             {disabled ? <div id="waitingForOpponent">Question answered, waiting for opponent</div> : null}
         </div>

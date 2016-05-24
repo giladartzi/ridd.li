@@ -2,13 +2,15 @@ import uniq from 'lodash/uniq';
 import first from 'lodash/first';
 import without from 'lodash/without';
 import sample from 'lodash/sample';
-import questions from './../defaultQuestions';
+import questions from '../../common/defaultQuestions';
 import chalk from 'chalk';
 
 export function getAnswerIndex(question, correct) {
     let filtered = first(questions.filter(q => q.text === question.text));
-    let answer = first(filtered.answers.filter(a => a.isCorrect)).text;
+    let answerText = first(filtered.answers.filter(a => a.isCorrect)).text;
+    let answer = first(question.answers.filter(a => a.text === answerText));
     let correctIndex = question.answers.indexOf(answer);
+
     if (correct) {
         return correctIndex;
     }

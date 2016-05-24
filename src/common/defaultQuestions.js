@@ -100,4 +100,4 @@ questions.push({
     ]
 });
 
-export default questions;
+module.exports = questions;

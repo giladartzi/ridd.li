@@ -7,8 +7,14 @@ import ActionInfo from 'material-ui/svg-icons/action/info';
 
 let Question = ({ disabled, game, sendAnswer }) => {
     let answers = game.question.answers.map((answer, index) => {
+        let cls = 'answer';
+        
+        if (answer.isCorrect) {
+            cls = 'correctAnswer';
+        }
+        
         return (
-            <ListItem id={`answer${index}`} key={index} primaryText={answer} leftIcon={<ActionInfo />}
+            <ListItem className={cls} key={index} primaryText={answer.text} leftIcon={<ActionInfo />}
                       onTouchTap={() => sendAnswer(game.gameId, game.questionIndex, index)} disabled={disabled} />
         );
 

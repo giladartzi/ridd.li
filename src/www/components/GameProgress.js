@@ -19,11 +19,7 @@ let GameProgress = ({progress}) => {
     );
 };
 
-let mapStateToProps = (state) => {
-    return {
-        progress: state.game.progress
-    };
-};
+let mapStateToProps = null;
 
 let mapDispatchToProps = null;
 

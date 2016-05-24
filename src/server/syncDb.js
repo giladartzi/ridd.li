@@ -1,4 +1,4 @@
-import questions from './defaultQuestions';
+import questions from '../common/defaultQuestions';
 import * as dataLayer from './dataLayer';
 
 (async function () {

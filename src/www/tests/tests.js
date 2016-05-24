@@ -1,11 +1,16 @@
 var errors = require('../../common/errors');
+var questions = require('../../common/defaultQuestions');
+var _ = require('lodash');
 
 var windows;
 
-function answer(userIndex, isCorrect, isFirst) {
+function answer(userIndex, isCorrect, isFirst, pause) {
     return function (client) {
         client.switchWindow(windows[userIndex])
-            .click('#answer1')
+            .pause(pause * 1000);
+        
+        client
+            .click(isCorrect ? '.correctAnswer' : '.answer:first-of-type')
             .pause(500);
 
         if (isFirst) {
@@ -187,26 +192,26 @@ module.exports = {
             .pause(500)
             .assert.containsText('#gameHeader', 'Game');
     },
-    'User #1 - Answer question 1': answer(0, false, true),
-    'User #2 - Answer question 1': answer(1, true , false),
-    'User #1 - Answer question 2': answer(0, false, true),
-    'User #2 - Answer question 2': answer(1, true , false),
-    'User #1 - Answer question 3': answer(0, false, true),
-    'User #2 - Answer question 3': answer(1, true , false),
-    'User #1 - Answer question 4': answer(0, false, true),
-    'User #2 - Answer question 4': answer(1, true , false),
-    'User #1 - Answer question 5': answer(0, false, true),
-    'User #2 - Answer question 5': answer(1, true , false),
-    'User #1 - Answer question 6': answer(0, false, true),
-    'User #2 - Answer question 6': answer(1, true , false),
-    'User #1 - Answer question 7': answer(0, false, true),
-    'User #2 - Answer question 7': answer(1, true , false),
-    'User #1 - Answer question 8': answer(0, false, true),
-    'User #2 - Answer question 8': answer(1, true , false),
-    'User #1 - Answer question 9': answer(0, false, true),
-    'User #2 - Answer question 9': answer(1, true , false),
-    'User #1 - Answer question 10': answer(0, true, true),
-    'User #2 - Answer question 10': answer(1, true, false),
+    'User #1 - Answer question 1': answer(0,  false, true , 0.1),
+    'User #2 - Answer question 1': answer(1,  true , false, 0.2),
+    'User #1 - Answer question 2': answer(0,  true, true , 0.2),
+    'User #2 - Answer question 2': answer(1,  false , false, 0.3),
+    'User #1 - Answer question 3': answer(0,  false, true , 0.4),
+    'User #2 - Answer question 3': answer(1,  true , false, 0.5),
+    'User #1 - Answer question 4': answer(0,  false, true , 1),
+    'User #2 - Answer question 4': answer(1,  true , false, 2),
+    'User #1 - Answer question 5': answer(0,  false, true , 2),
+    'User #2 - Answer question 5': answer(1,  true , false, 3),
+    'User #1 - Answer question 6': answer(0,  false, true , 1),
+    'User #2 - Answer question 6': answer(1,  true , false, 11),
+    'User #1 - Answer question 7': answer(0,  false, true , 0.1),
+    'User #2 - Answer question 7': answer(1,  true , false, 0.1),
+    'User #1 - Answer question 8': answer(0,  false, true , 0.1),
+    'User #2 - Answer question 8': answer(1,  true , false, 0.1),
+    'User #1 - Answer question 9': answer(0,  false, true , 0.1),
+    'User #2 - Answer question 9': answer(1,  true , false, 0.1),
+    'User #1 - Answer question 10': answer(0, true , true , 0.1),
+    'User #2 - Answer question 10': answer(1, true , false, 0.1),
     after: function(client) {
         client.pause(1000).end();
     }

@@ -144,7 +144,13 @@ async function isExistingGame(userIds) {
 
 export function sanitizeQuestion(question) {
     var result = cloneDeep(question);
-    result.answers = result.answers.map(answer => answer.text);
+
+    if (process.env.NODE_ENV === 'production') {
+        result.answers.forEach(answer => {
+            delete answer.isCorrect;
+        });
+    }
+
     return result;
 }
 
