@@ -13,7 +13,7 @@ class Lounge extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.game.gameId) {
+        if (nextProps.game.gameId && nextProps.game.state === 'ACTIVE') {
             this.props.dispatch(push('/game'));
         }
     }

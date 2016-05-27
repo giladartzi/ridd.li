@@ -30,8 +30,10 @@ export default async function leaveGameTests(tokens, userIds, wss, gameId) {
     verifyBatch('Leave game - WS - user 2', [
         assertEqual(res.type, WS_GAME_STATE_CHANGE, 'wrong WS type!'),
         assertEqual(res.payload.gameId, gameId, 'wrong gameId!'),
-        assertEqual(res.payload.state, 'INACTIVE', 'wrong state!')
-    ]);    
+        assertEqual(res.payload.state, 'INACTIVE', 'wrong state!'),
+        assertEqual(res.payload.endedBy.userId, userIds[0], 'wrong endedBy.userId!'),
+        assertEqual(res.payload.endedBy.username, 'gilad', 'wrong endedBy.username!')
+    ]);
     
     res = await get('/getGame', tokens[0]);
     verifyBatch('Get game - user 1', [

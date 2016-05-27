@@ -199,9 +199,64 @@ module.exports = {
         client.expect.element('#barMenuLeaveGame').to.be.present;
         client.expect.element('#barMenuLeaveGame').to.be.visible;
         client.expect.element('#barMenuLeaveGame').text.to.contain('Leave game');
+        client.expect.element('#barMenuUsername').to.be.present;
+        client.click('#barMenuUsername');
+
     },
     'User #1 - Answer question 1': answer(0,  false, true , 0.1),
     'User #2 - Answer question 1': answer(1,  true , false, 0.2),
+    'User #1 - Leave game': function (client) {
+        client.switchWindow(windows[0]);
+        client.click('.barMenu');
+        client.pause(200);
+        client.expect.element('#barMenuLeaveGame').to.be.present;
+        client.expect.element('#barMenuLeaveGame').to.be.visible;
+        client.expect.element('#barMenuLeaveGame').text.to.contain('Leave game');
+        client.click('#barMenuLeaveGame');
+        client.pause(1000);
+        client.expect.element('#gameEndedDialogContent').to.be.present;
+        client.expect.element('#gameEndedDialogContent').to.be.visible;
+        client.expect.element('#gameEndedDialogUsername').to.be.present;
+        client.expect.element('#gameEndedDialogUsername').to.be.visible;
+        client.expect.element('#gameEndedDialogUsername').text.to.be.contain('newUser1');
+        client.click('#gameEndedDialogOk');
+        client.pause(1000);
+    },
+    'User #2 - Verify left game': function (client) {
+        client.switchWindow(windows[1]);
+        client.pause(1000)
+        client.expect.element('#gameEndedDialogContent').to.be.present;
+        client.expect.element('#gameEndedDialogContent').to.be.visible;
+        client.expect.element('#gameEndedDialogUsername').to.be.present;
+        client.expect.element('#gameEndedDialogUsername').to.be.visible;
+        client.expect.element('#gameEndedDialogUsername').text.to.be.contain('newUser1');
+        client.click('#gameEndedDialogOk');
+        client.pause(1000);
+    },
+    'Lounge - second user after leaving': function (client) {
+        client
+            .switchWindow(windows[1])
+            .assert.visible('.user div div div')
+            .assert.containsText('.user div div div', 'newUser1')
+    },
+    'Lounge - first user after leaving': function (client) {
+        client
+            .switchWindow(windows[0])
+            .assert.visible('.user div div div')
+            .assert.containsText('.user div div div', 'newUser2')
+            .click('.user div div div')
+            .assert.containsText('#outgoingInvitation', 'Invitation sent to newUser2, waiting for reply.')
+            .pause(500)
+    },
+    'Second user - refresh after leaving': function (client) {
+        client.switchWindow(windows[1])
+            .pause(1000)
+            .assert.containsText('#incomingInvitation', 'Incoming invitation received from newUser1.')
+            .click('#incomingInvitationAccept')
+            .pause(1000);
+    },
+    'User #1 - Answer question 1 after leaving': answer(0,  false, true , 0.1),
+    'User #2 - Answer question 1 after leaving': answer(1,  true , false, 0.2),
     'User #1 - Answer question 2': answer(0,  true, true , 0.2),
     'User #2 - Answer question 2': answer(1,  false , false, 0.3),
     'User #1 - Answer question 3': answer(0,  false, true , 0.4),

@@ -1,6 +1,7 @@
 import { toPromise } from './utils';
 import bcrypt from 'bcrypt-nodejs';
 import jwt from 'jsonwebtoken';
+import { findById } from '../dataLayer';
 
 export async function hash(password, salt) {
     let pHash = toPromise(bcrypt.hash);
@@ -34,4 +35,22 @@ export async function jwtMiddleware(req, res, next) {
 export function isValidEmail(email) {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
+}
+
+let usernameCache = {};
+
+export async function getUsernameByUserId(userId) {
+    if (typeof usernameCache[userId] !== 'undefined') {
+        return usernameCache[userId];
+    }
+    
+    let user = await findById('users', userId);
+    let result = null;
+
+    if (user) {
+        result = user.username;
+    }
+
+    usernameCache[userId] = result;
+    return result;
 }

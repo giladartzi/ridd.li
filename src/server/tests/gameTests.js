@@ -93,7 +93,9 @@ function assert(move, payload) {
         assertEqual(payload.opponentProgress.length, move.expectedOpponentProgressLength, 'wrong OP progressLength'),
         assertEqual(isEqual(payload.question, question), true, 'wrong question'),
         assertEqual(payload.state, move.expectedState, 'wrong state'),
-        assertEqual(payload.questionIndex, move.expectedQuestionIndex, 'wrong questionIndex')
+        assertEqual(payload.questionIndex, move.expectedQuestionIndex, 'wrong questionIndex'),
+        assertEqual(payload.endedBy.userId, null, 'wrong endedBy.userId value'),
+        assertEqual(payload.endedBy.username, null, 'wrong endedBy.username value')
     ];
 }
 

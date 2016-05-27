@@ -6,6 +6,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import mongodb from 'mongodb';
 import * as errors from '../../common/errors';
 import { QUESTION_TIMEOUT } from '../../common/consts';
+import { getUsernameByUserId } from '../utils/userUtils';
 
 export async function getRandomizeQuestions() {
     var questions = await find('questions', { excludeId: true });
@@ -37,7 +38,8 @@ export async function createGame(userIds) {
         questions,
         state: 'PRE_ACTIVE',
         currentQuestion: -1,
-        gameMetaData: {}
+        gameMetaData: {},
+        endedBy: null
     };
 
     game.gameMetaData = userIds.map(userId => {
@@ -199,12 +201,16 @@ export async function gameJson(game, userId) {
         opponentProgress: getOpponentProgress(game, userIndex),
         question: question,
         state: game.state,
-        questionIndex: game.currentQuestion
+        questionIndex: game.currentQuestion,
+        endedBy: {
+            userId: game.endedBy,
+            username: await getUsernameByUserId(game.endedBy)
+        }
     };
 }
 
-export async function leaveGame(game) {
+export async function leaveGame(game, userId) {
     let usersIds = game.gameMetaData.map(gmd => objectId(gmd.userId));
     await update('users', { '_id': { $in: usersIds } }, { $set: { state: 'AVAILABLE' } });
-    return await findOneAndUpdate('games', game._id, { $set: { state: 'INACTIVE' } });
+    return await findOneAndUpdate('games', game._id, { $set: { state: 'INACTIVE', endedBy: userId } });
 }

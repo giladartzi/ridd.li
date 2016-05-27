@@ -6,8 +6,10 @@ import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import Riddli from './Riddli';
+import { createApiAction } from '../utils/utils';
+import { LEAVE_GAME_ACTIONS } from '../../common/consts';
 
-let Bar = ({ logout, gameId }) => {
+let Bar = ({ logout, gameId, leaveGame }) => {
     let menu = (
         <IconMenu
             iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
@@ -16,7 +18,7 @@ let Bar = ({ logout, gameId }) => {
             className="barMenu"
         >
             <MenuItem id="barMenuUsername" primaryText={localStorage.username} />
-            { gameId ? <MenuItem id="barMenuLeaveGame" primaryText="Leave game" /> : null }
+            { gameId ? <MenuItem id="barMenuLeaveGame" primaryText="Leave game" onClick={leaveGame} /> : null }
             <MenuItem id="barMenuLogout" primaryText="Log out" onClick={() => logout()} />
         </IconMenu>
     );
@@ -35,6 +37,9 @@ let mapDispatchToProps = (dispatch) => {
         logout: function () {
             localStorage.clear();
             window.location.href = '/';
+        },
+        leaveGame: function () {
+            dispatch(createApiAction(LEAVE_GAME_ACTIONS, '/game/leave', {}));
         }
     };
 };
