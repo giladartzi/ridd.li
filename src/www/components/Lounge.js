@@ -5,22 +5,27 @@ import { createApiAction } from '../utils/utils';
 import LoungeUserList from './LoungeUserList';
 import OutgoingInvitation from './OutgoingInvitation';
 import IncomingInvitation from './IncomingInvitation';
-import { Link } from 'react-router';
+import { push } from 'react-router-redux';
 
 class Lounge extends React.Component {
     componentWillMount() {
         this.props.dispatch(createApiAction(LOUNGE_ENTER_ACTIONS, '/lounge/enter'));
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.game.gameId) {
+            this.props.dispatch(push('/game'));
+        }
+    }
+
     render() {
-        let { invitation, game } = this.props;
+        let { invitation } = this.props;
 
         return (
             <div id="lounge">
                 <LoungeUserList />
                 <IncomingInvitation invitation={invitation} />
                 <OutgoingInvitation invitation={invitation} />
-                { game.gameId ? <Link id="gameLink" to="/game">Game</Link> : null }
             </div>
         );
     }

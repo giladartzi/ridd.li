@@ -174,8 +174,8 @@ module.exports = {
             .assert.visible('.user div div div')
             .assert.containsText('.user div div div', 'newUser2')
             .click('.user div div div')
-            .pause(500)
             .assert.containsText('#outgoingInvitation', 'Invitation sent to newUser2, waiting for reply.')
+            .pause(500)
     },
     'Second user - refresh': function (client) {
         client.switchWindow(windows[1])
@@ -184,16 +184,12 @@ module.exports = {
             .click('#incomingInvitationAccept')
             .pause(1000);
     },
-    'User #2 - Game link': function (client) {
-        client.assert.containsText('#gameLink', 'Game')
-            .click('#gameLink')
-            .pause(500)
+    'User #2 - Game': function (client) {
+        client.pause(500)
             .assert.containsText('#gameHeader', 'Game');
     },
-    'User #1 - Game link': function (client) {
+    'User #1 - Game': function (client) {
         client.switchWindow(windows[0])
-            .assert.containsText('#gameLink', 'Game')
-            .click('#gameLink')
             .pause(500)
             .assert.containsText('#gameHeader', 'Game');
     },
