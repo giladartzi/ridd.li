@@ -52,6 +52,11 @@ module.exports = {
             .assert.containsText('#barMenuUsername', 'newUser1')
             .click('#barMenuUsername');
     },
+    'Verify leave game element to not exist': function (client) {
+        client.click('.barMenu');
+        client.pause(200);
+        client.expect.element('#barMenuLeaveGame').to.not.be.present;
+    },
     'Empty lounge': function (client) {
         client
             .assert.visible('#emptyLoungeUserList')
@@ -191,6 +196,13 @@ module.exports = {
             .click('#gameLink')
             .pause(500)
             .assert.containsText('#gameHeader', 'Game');
+    },
+    'Verify leave game element': function (client) {
+        client.click('.barMenu');
+        client.pause(200);
+        client.expect.element('#barMenuLeaveGame').to.be.present;
+        client.expect.element('#barMenuLeaveGame').to.be.visible;
+        client.expect.element('#barMenuLeaveGame').text.to.contain('Leave game');
     },
     'User #1 - Answer question 1': answer(0,  false, true , 0.1),
     'User #2 - Answer question 1': answer(1,  true , false, 0.2),

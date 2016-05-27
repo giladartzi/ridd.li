@@ -7,7 +7,7 @@ import MenuItem from 'material-ui/MenuItem';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import Riddli from './Riddli';
 
-let Bar = ({ logout }) => {
+let Bar = ({ logout, gameId }) => {
     let menu = (
         <IconMenu
             iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
@@ -16,6 +16,7 @@ let Bar = ({ logout }) => {
             className="barMenu"
         >
             <MenuItem id="barMenuUsername" primaryText={localStorage.username} />
+            { gameId ? <MenuItem id="barMenuLeaveGame" primaryText="Leave game" /> : null }
             <MenuItem id="barMenuLogout" primaryText="Log out" onClick={() => logout()} />
         </IconMenu>
     );
@@ -25,7 +26,7 @@ let Bar = ({ logout }) => {
 
 let mapStateToProps = (state) => {
     return {
-        pathname: state.routing.locationBeforeTransitions.pathname
+        gameId: state.game.gameId
     };
 };
 
