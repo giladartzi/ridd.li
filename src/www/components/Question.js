@@ -4,38 +4,77 @@ import { List, ListItem} from 'material-ui/List';
 import { createApiAction } from '../utils/utils';
 import { ANSWER_ACTIONS } from '../../common/consts';
 import ActionInfo from 'material-ui/svg-icons/action/info';
+import CircularProgress from 'material-ui/CircularProgress';
+import last from 'lodash/last';
 
-let Question = ({ disabled, game, sendAnswer }) => {
-    let answers = game.question.answers.map((answer, index) => {
-        let cls = 'answer';
+class Question extends React.Component {
+    constructor() {
+        super();
+        this.state = { showQuestion: false, showAnswers: false };
+    }
+
+    newQuestionProcess() {
+        this.setState({ showQuestion: false, showAnswers: false });
+
+        setTimeout(() => {
+            this.setState({ showQuestion: true });
+        }, 1000);
         
-        if (answer.isCorrect) {
-            cls = 'correctAnswer';
+        setTimeout(() => {
+            this.setState({ showAnswers: true });
+        }, 2000);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.game.question.text !== this.props.game.question.text) {
+            this.newQuestionProcess();
         }
-        
+    }
+
+    componentDidMount() {
+        this.newQuestionProcess();
+    }
+
+    render() {
+        let { game, sendAnswer } = this.props;
+
+        let answers = game.question.answers.map((answer, index) => {
+            let cls = 'answer';
+
+            if (answer.isCorrect) {
+                cls = 'correctAnswer';
+            }
+
+            return (
+                <ListItem className={cls} key={index} primaryText={answer.text} leftIcon={<ActionInfo />}
+                          onTouchTap={() => sendAnswer(game.gameId, game.questionIndex, index)} />
+            );
+
+        });
+
         return (
-            <ListItem className={cls} key={index} primaryText={answer.text} leftIcon={<ActionInfo />}
-                      onTouchTap={() => sendAnswer(game.gameId, game.questionIndex, index)} disabled={disabled} />
+            <div>
+                { this.state.showQuestion ?
+                    <div>
+                        <h1 id="question">{ game.question.text }</h1>
+                        { this.state.showAnswers ? <List id="answers">{answers}</List> : <CircularProgress /> }
+                    </div> :
+                    <div id="getReady">Get ready!</div>
+                }
+                
+            </div>
         );
-
-    });
-
-    return (
-        <div>
-            <div id="question">{ game.question.text }</div>
-            <List>
-                {answers}
-            </List>
-        </div>
-    );
-};
+    }
+}
 
 let mapStateToProps = null;
 
-let mapDispatchToProps = (dispatch) => {
+let mapDispatchToProps = (dispatch, ownProps) => {
     return {
         sendAnswer: (gameId, questionIndex, answerIndex) => {
-            dispatch(createApiAction(ANSWER_ACTIONS, '/answer', { gameId, questionIndex, answerIndex }));
+            if (!ownProps.disabled) {
+                dispatch(createApiAction(ANSWER_ACTIONS, '/answer', { gameId, questionIndex, answerIndex }));
+            }
         }
     };
 };

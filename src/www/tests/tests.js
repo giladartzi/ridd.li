@@ -1,12 +1,16 @@
 var errors = require('../../common/errors');
-var questions = require('../../common/defaultQuestions');
-var _ = require('lodash');
 
 var windows;
 
 function answer(userIndex, isCorrect, isFirst, pause) {
     return function (client) {
-        client.switchWindow(windows[userIndex])
+        client.switchWindow(windows[userIndex]);
+
+        client.waitForElementVisible('#question', 1100);
+        client.waitForElementVisible('#answers', 2000);
+
+
+        client
             .pause(pause * 1000);
         
         client
@@ -185,13 +189,11 @@ module.exports = {
             .pause(1000);
     },
     'User #2 - Game': function (client) {
-        client.pause(500)
-            .assert.containsText('#gameHeader', 'Game');
+        client.pause(500);
     },
     'User #1 - Game': function (client) {
         client.switchWindow(windows[0])
-            .pause(500)
-            .assert.containsText('#gameHeader', 'Game');
+            .pause(500);
     },
     'Verify leave game element': function (client) {
         client.click('.barMenu');
@@ -244,7 +246,9 @@ module.exports = {
             .switchWindow(windows[0])
             .assert.visible('.user div div div')
             .assert.containsText('.user div div div', 'newUser2')
+            .pause(1000)
             .click('.user div div div')
+            .pause(500)
             .assert.containsText('#outgoingInvitation', 'Invitation sent to newUser2, waiting for reply.')
             .pause(500)
     },
