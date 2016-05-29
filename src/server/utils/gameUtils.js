@@ -3,6 +3,7 @@ import shuffle from 'lodash/shuffle';
 import first from 'lodash/first';
 import uniq from 'lodash/uniq';
 import cloneDeep from 'lodash/cloneDeep';
+import sortBy from 'lodash/sortBy';
 import mongodb from 'mongodb';
 import * as errors from '../../common/errors';
 import { QUESTION_TIMEOUT } from '../../common/consts';
@@ -194,6 +195,13 @@ export async function gameJson(game, userId) {
 
     let gmd = first(game.gameMetaData.filter(gmd => gmd.userId === userId));
     let userIndex = game.gameMetaData.indexOf(gmd);
+    let winner = { userId: null, username: null };
+
+    if (game.state === 'INACTIVE') {
+        let winnerId = calcWinner(game);
+        winner.userId = winnerId;
+        winner.username = await getUsernameByUserId(winnerId);
+    }
 
     return {
         gameId: game._id,
@@ -205,7 +213,8 @@ export async function gameJson(game, userId) {
         endedBy: {
             userId: game.endedBy,
             username: await getUsernameByUserId(game.endedBy)
-        }
+        },
+        winner: winner
     };
 }
 
@@ -213,4 +222,26 @@ export async function leaveGame(game, userId) {
     let usersIds = game.gameMetaData.map(gmd => objectId(gmd.userId));
     await update('users', { '_id': { $in: usersIds } }, { $set: { state: 'AVAILABLE' } });
     return await findOneAndUpdate('games', game._id, { $set: { state: 'INACTIVE', endedBy: userId } });
+}
+
+export function calcWinner(game) {
+    let gmds = game.gameMetaData.map(gmd => {
+        return  { userId: gmd.userId, score: calcScore(gmd.progress) };
+    });
+
+    return first(sortBy(gmds, gmd => gmd.score * -1)).userId;
+}
+
+function calcScore(progress) {
+    return progress.reduce((score, move) => {
+        if (!move.isAnswered || move.isTimedOut) {
+            return score;
+        }
+        else if (move.isCorrect) {
+            return score + 1;
+        }
+        else {
+            return score - 1;
+        }
+    }, 0);
 }

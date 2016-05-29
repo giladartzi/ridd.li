@@ -4,7 +4,7 @@ import Dialog from 'material-ui/Dialog';
 import { push } from 'react-router-redux';
 import FlatButton from 'material-ui/FlatButton';
 
-let GameEndedDialog = ({ isOpen, endedByUsername, closeDialog }) => {
+let GameEndedDialog = ({ isOpen, endedByUsername, winnerUsername, closeDialog }) => {
     const actions = [
         <FlatButton id="gameEndedDialogOk" label="OK" onClick={closeDialog} />
     ];
@@ -12,7 +12,10 @@ let GameEndedDialog = ({ isOpen, endedByUsername, closeDialog }) => {
     return (
         <Dialog title="Game has ended" actions={actions} modal={true} open={isOpen}>
             <div id="gameEndedDialogContent">
-                Game has ended! The winner is: X.
+                Game has ended!
+                { winnerUsername ? <div>
+                    The winner is: <span id="winner">{winnerUsername}</span>.
+                </div> : null }
                 { endedByUsername ? <div>
                     Ended by: <span id="gameEndedDialogUsername">{endedByUsername}</span>
                 </div> : null }
@@ -24,7 +27,8 @@ let GameEndedDialog = ({ isOpen, endedByUsername, closeDialog }) => {
 let mapStateToProps = (state) => {
     return {
         isOpen: state.game.state === 'INACTIVE',
-        endedByUsername: state.game.endedBy && state.game.endedBy.username
+        endedByUsername: state.game.endedBy && state.game.endedBy.username,
+        winnerUsername: state.game.winner && state.game.winner.username
     };
 };
 

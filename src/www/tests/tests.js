@@ -208,6 +208,7 @@ module.exports = {
     'User #1 - Answer question 1': answer(0,  false, true , 0.1),
     'User #2 - Answer question 1': answer(1,  true , false, 0.2),
     'User #1 - Leave game': function (client) {
+        client.pause(500)
         client.switchWindow(windows[0]);
         client.click('.barMenu');
         client.pause(200);
@@ -280,6 +281,12 @@ module.exports = {
     'User #2 - Answer question 9': answer(1,  true , false, 0.1),
     'User #1 - Answer question 10': answer(0, true , true , 0.1),
     'User #2 - Answer question 10': answer(1, true , false, 0.1),
+    'Game Ended': function (client) {
+        client.pause(1000);
+        client.expect.element('#winner').to.be.present;
+        client.expect.element('#winner').text.to.contain('newUser2');
+        client.pause(1000);
+    },
     after: function(client) {
         client.pause(1000).end();
     }

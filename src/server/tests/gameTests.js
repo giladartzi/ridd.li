@@ -86,6 +86,8 @@ function assert(move, payload) {
     let question = move.isFirstToAnswer ? global.previousQuestion : global.currentQuestion;
     let questionIndex = (move.isFirstToAnswer || move.hasError) ? move.questionIndex : move.questionIndex + 1;
 
+    let winnerUserId = move.expectedState === 'ACTIVE' ? null : global.userIds[0];
+
     return [
         assertEqual(payload.error, undefined, 'error!'),
         assertEqual(payload.gameId, global.gameId, 'wrong gameId'),
@@ -95,7 +97,8 @@ function assert(move, payload) {
         assertEqual(payload.state, move.expectedState, 'wrong state'),
         assertEqual(payload.questionIndex, move.expectedQuestionIndex, 'wrong questionIndex'),
         assertEqual(payload.endedBy.userId, null, 'wrong endedBy.userId value'),
-        assertEqual(payload.endedBy.username, null, 'wrong endedBy.username value')
+        assertEqual(payload.endedBy.username, null, 'wrong endedBy.username value'),
+        assertEqual(payload.winner.userId, winnerUserId, 'wrong winner.userId value')
     ];
 }
 
