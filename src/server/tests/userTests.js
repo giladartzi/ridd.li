@@ -81,14 +81,14 @@ export default async function userTests() {
     res = await post('/login', { username: 'gilad', password: '12345' });
     verifyBatch('Log in - correct process', [
         assertEqual(res.status, 200, 'status is not 200!'),
-        assertEqual(typeof res.json.id, 'string', 'error is not a string!'),
-        assertEqual(typeof res.json.username, 'string', 'username is not a string!'),
-        assertEqual(res.json.username, 'gilad', 'username is gilad!'),
-        assertEqual(typeof res.json.token, 'string', 'token is not a string!')
+        assertEqual(typeof res.json.user.id, 'string', 'error is not a string!'),
+        assertEqual(typeof res.json.user.username, 'string', 'username is not a string!'),
+        assertEqual(res.json.user.username, 'gilad', 'username is gilad!'),
+        assertEqual(typeof res.json.user.token, 'string', 'token is not a string!')
     ]);
 
-    userId1 = res.json.id;
-    token1 = res.json.token;
+    userId1 = res.json.user.id;
+    token1 = res.json.user.token;
     ws1 = wsConnect(token1);
     
     await wait(0.5);
