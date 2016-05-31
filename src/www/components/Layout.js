@@ -3,10 +3,12 @@ import { connect } from 'react-redux';
 import Bar from './Bar';
 import Riddli from './Riddli';
 import LinearProgress from 'material-ui/LinearProgress';
-import { NUM_OF_QUESTIONS } from '../../common/consts';
+import { NUM_OF_QUESTIONS, ACTIVE } from '../../common/consts';
 
 let Layout = ({ children, game, inGame }) => {
-    let progress = (100 * game.progress.length) / NUM_OF_QUESTIONS;
+    if (game.progress) {
+        var progress = (100 * game.progress.length) / NUM_OF_QUESTIONS;
+    }
 
     return (
         <div>
@@ -24,7 +26,7 @@ let Layout = ({ children, game, inGame }) => {
 let mapStateToProps = (state) => {
     return {
         game: state.game,
-        inGame: state.game.gameId && state.game.state === 'ACTIVE'
+        inGame: state.game.gameId && state.game.state === ACTIVE
     };
 };
 

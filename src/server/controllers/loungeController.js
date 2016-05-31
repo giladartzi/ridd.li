@@ -1,6 +1,6 @@
 import * as dataLayer from '../dataLayer';
 import { broadcast } from '../wsManager';
-import { WS_USER_ENTERED_LOUNGE, WS_USER_LEFT_LOUNGE } from '../../common/consts';
+import { WS_USER_ENTERED_LOUNGE, WS_USER_LEFT_LOUNGE, AVAILABLE, OFFLINE } from '../../common/consts';
 
 function userJson(user) {
     return {
@@ -11,7 +11,7 @@ function userJson(user) {
 
 export async function availableUsers(exclude) {
     let users = await dataLayer.find('users', { query: {
-        state: 'AVAILABLE'
+        state: AVAILABLE
     }, list: true });
 
     users = users.filter(user => user._id.toString() !== exclude);
@@ -23,7 +23,7 @@ export async function availableUsers(exclude) {
 
 export async function enter(userId) {
     let user = await dataLayer.findOneAndUpdate('users', userId, {
-        $set: { state: 'AVAILABLE' }
+        $set: { state: AVAILABLE }
     });
 
     if (user) {
@@ -38,7 +38,7 @@ export async function enter(userId) {
 
 export async function offline(userId) {
     let user = await dataLayer.findOneAndUpdate('users', userId, {
-        $set: { state: 'OFFLINE' }
+        $set: { state: OFFLINE }
     });
 
     broadcast({

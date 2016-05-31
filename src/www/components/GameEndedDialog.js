@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import Dialog from 'material-ui/Dialog';
 import { push } from 'react-router-redux';
 import FlatButton from 'material-ui/FlatButton';
+import { INACTIVE } from '../../common/consts';
 
 let GameEndedDialog = ({ isOpen, endedByUsername, winnerUsername, closeDialog }) => {
     const actions = [
@@ -26,7 +27,7 @@ let GameEndedDialog = ({ isOpen, endedByUsername, winnerUsername, closeDialog })
 
 let mapStateToProps = (state) => {
     return {
-        isOpen: state.game.state === 'INACTIVE',
+        isOpen: state.game.state === INACTIVE,
         endedByUsername: state.game.endedBy && state.game.endedBy.username,
         winnerUsername: state.game.winner && state.game.winner.username
     };

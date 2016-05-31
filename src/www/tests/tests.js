@@ -266,7 +266,6 @@ module.exports = {
     'User #2 - Answer question 2': answer(1,  false , false, 0.3),
     'User #1 - Answer question 3': answer(0,  false, true , 0.4),
     'User #2 - Answer question 3': answer(1,  true , false, 0.5),
-    'p': function (client) { client.pause(1000000) },
     'User #1 - Answer question 4': answer(0,  false, true , 1),
     'User #2 - Answer question 4': answer(1,  true , false, 2),
     'User #1 - Answer question 5': answer(0,  false, true , 2),

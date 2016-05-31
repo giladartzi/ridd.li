@@ -8,6 +8,7 @@ import mongodb from 'mongodb';
 import * as errors from '../../common/errors';
 import { QUESTION_TIMEOUT } from '../../common/consts';
 import { getUsernameByUserId } from '../utils/userUtils';
+import { ACTIVE, INACTIVE, AVAILABLE } from '../../common/consts';
 
 export async function getRandomizeQuestions() {
     var questions = await find('questions', { excludeId: true });
@@ -80,7 +81,7 @@ export async function advanceGame(game) {
     let question = await getCurrentQuestion(game);
     
     if (question) {
-        game.state = 'ACTIVE';
+        game.state = ACTIVE;
         game.gameMetaData.forEach((gmd, userIndex) => {
             gmd.progress.push({
                 questionIndex: game.currentQuestion,
@@ -90,7 +91,7 @@ export async function advanceGame(game) {
         });
     }
     else {
-        game.state = 'INACTIVE';
+        game.state = INACTIVE;
     }
 
     return await findOneAndReplace('games', game._id, game);
@@ -127,7 +128,7 @@ export async function addMove(game, userId, questionIndex, answerIndex) {
 }
 
 export async function getGameByUserId(userId) {
-    return await find('games', { query: { 'gameMetaData.userId': userId, state: 'ACTIVE' } });
+    return await find('games', { query: { 'gameMetaData.userId': userId, state: ACTIVE } });
 }
 
 async function isExistingGame(userIds) {
@@ -197,7 +198,7 @@ export async function gameJson(game, userId) {
     let userIndex = game.gameMetaData.indexOf(gmd);
     let winner = { userId: null, username: null };
 
-    if (game.state === 'INACTIVE') {
+    if (game.state === INACTIVE) {
         let winnerId = calcWinner(game);
         winner.userId = winnerId;
         winner.username = await getUsernameByUserId(winnerId);
@@ -220,8 +221,8 @@ export async function gameJson(game, userId) {
 
 export async function leaveGame(game, userId) {
     let usersIds = game.gameMetaData.map(gmd => objectId(gmd.userId));
-    await update('users', { '_id': { $in: usersIds } }, { $set: { state: 'AVAILABLE' } });
-    return await findOneAndUpdate('games', game._id, { $set: { state: 'INACTIVE', endedBy: userId } });
+    await update('users', { '_id': { $in: usersIds } }, { $set: { state: AVAILABLE } });
+    return await findOneAndUpdate('games', game._id, { $set: { state: INACTIVE, endedBy: userId } });
 }
 
 export function calcWinner(game) {

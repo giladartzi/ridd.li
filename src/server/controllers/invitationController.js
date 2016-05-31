@@ -3,7 +3,7 @@ import { createGame } from './gameController';
 import { gameJson } from '../utils/gameUtils';
 import { wsSend } from '../wsManager';
 import { WS_INVITATION_RECEIVED, WS_INVITATION_CANCELLED,
-    WS_INVITATION_ACCEPTED, WS_INVITATION_REJECTED } from '../../common/consts';
+    WS_INVITATION_ACCEPTED, WS_INVITATION_REJECTED, AVAILABLE, IN_GAME, ACCEPTED, REJECTED } from '../../common/consts';
 import * as errors from '../../common/errors';
 
 function invitationJson(invitation) {
@@ -25,7 +25,7 @@ export async function sendInvitation(userId, username, opponentId) {
     }
 
     // And is available
-    if (opponent.state !== 'AVAILABLE') {
+    if (opponent.state !== AVAILABLE) {
         throw new Error(errors.OPPONENT_IS_NOT_AVAILABLE);
     }
     
@@ -65,14 +65,14 @@ export async function acceptInvitation(userId) {
     }
 
     // update invitation status
-    await update('invitations', { _id: objectId(invitation._id) }, { $set: { state: 'ACCEPTED' } });
+    await update('invitations', { _id: objectId(invitation._id) }, { $set: { state: ACCEPTED } });
 
     // update both users state
     let userIds = [
         objectId(invitation.inviter.id),
         objectId(invitation.invitee.id)
     ];
-    let users = await update('users', { _id: { $in: userIds } }, { $set: { state: 'IN_GAME' } });
+    let users = await update('users', { _id: { $in: userIds } }, { $set: { state: IN_GAME } });
     let game = await createGame([invitation.inviter.id, invitation.invitee.id]);
 
     let inviterJson = await gameJson(game, invitation.inviter.id);
@@ -97,7 +97,7 @@ export async function rejectInvitation(userId) {
     }
 
     // update invitation status
-    invitation = await findOneAndUpdate('invitations', invitation._id, { $set: { state: 'REJECTED'} });
+    invitation = await findOneAndUpdate('invitations', invitation._id, { $set: { state: REJECTED } });
 
     // update both users state
     let userIds = [
@@ -105,7 +105,7 @@ export async function rejectInvitation(userId) {
         objectId(invitation.invitee.id)
     ];
 
-    let users = await update('users', { _id: { $in: userIds } }, { $set: { state: 'AVAILABLE' } });
+    let users = await update('users', { _id: { $in: userIds } }, { $set: { state: AVAILABLE } });
     let json = invitationJson(invitation);
 
     wsSend(invitation.inviter.id, {
@@ -135,7 +135,7 @@ export async function cancelInvitation(userId) {
         objectId(invitation.inviter.id),
         objectId(invitation.invitee.id)
     ];
-    let users = await update('users', { _id: { $in: userIds } }, { $set: { state: 'AVAILABLE' } });
+    let users = await update('users', { _id: { $in: userIds } }, { $set: { state: AVAILABLE } });
 
     wsSend(invitation.invitee.id, {
         type: WS_INVITATION_CANCELLED,

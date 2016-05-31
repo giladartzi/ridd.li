@@ -1,4 +1,4 @@
-import { NUM_OF_QUESTIONS, QUESTION_TIMEOUT } from '../../common/consts';
+import { NUM_OF_QUESTIONS, QUESTION_TIMEOUT, ACTIVE, INACTIVE } from '../../common/consts';
 import minBy from 'lodash/minBy';
 import find from 'lodash/find';
 import last from 'lodash/last';
@@ -114,7 +114,7 @@ stages.forEach(moves => {
         move.expectedProgressLength = expectedProgressLength(move, move);
         move.expectedOpponentProgressLength = expectedProgressLength(opponentMove, move);
         move.expectedQuestionIndex = expectedQuestionIndex(move, opponentMove);
-        move.expectedState = moves === last(stages) && !move.isFirstToAnswer ? 'INACTIVE' : 'ACTIVE';
+        move.expectedState = moves === last(stages) && !move.isFirstToAnswer ? INACTIVE : ACTIVE;
     });
 });
 

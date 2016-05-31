@@ -5,7 +5,7 @@ import { post, get } from '../../common/rest';
 import find from 'lodash/find';
 import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
-import { WS_ADVANCE_GAME } from '../../common/consts';
+import { WS_ADVANCE_GAME, ACTIVE } from '../../common/consts';
 import { QUESTION_IS_ALREADY_ANSWERED, INVALID_QUESTION_INDEX, GAME_NOT_FOUND } from '../../common/errors';
 
 let global = {};
@@ -86,7 +86,7 @@ function assert(move, payload) {
     let question = move.isFirstToAnswer ? global.previousQuestion : global.currentQuestion;
     let questionIndex = (move.isFirstToAnswer || move.hasError) ? move.questionIndex : move.questionIndex + 1;
 
-    let winnerUserId = move.expectedState === 'ACTIVE' ? null : global.userIds[0];
+    let winnerUserId = move.expectedState === ACTIVE ? null : global.userIds[0];
 
     return [
         assertEqual(payload.error, undefined, 'error!'),

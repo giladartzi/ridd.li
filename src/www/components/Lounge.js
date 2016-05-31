@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { LOUNGE_ENTER_ACTIONS } from '../../common/consts';
+import { LOUNGE_ENTER_ACTIONS, ACTIVE } from '../../common/consts';
 import { createApiAction } from '../utils/utils';
 import LoungeUserList from './LoungeUserList';
 import OutgoingInvitation from './OutgoingInvitation';
@@ -9,14 +9,14 @@ import { push } from 'react-router-redux';
 
 class Lounge extends React.Component {
     componentWillMount() {
-        if (this.props.game.gameId && this.props.game.state === 'ACTIVE') {
+        if (this.props.game.gameId && this.props.game.state === ACTIVE) {
             this.props.dispatch(push('/game'));
         }
         this.props.dispatch(createApiAction(LOUNGE_ENTER_ACTIONS, '/lounge/enter'));
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.game.gameId && nextProps.game.state === 'ACTIVE') {
+        if (nextProps.game.gameId && nextProps.game.state === ACTIVE) {
             this.props.dispatch(push('/game'));
         }
     }

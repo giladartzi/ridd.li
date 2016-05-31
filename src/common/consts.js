@@ -63,5 +63,13 @@ export const WS_INVITATION_REJECTED = 'WS_INVITATION_REJECTED';
 export const WS_ADVANCE_GAME = 'WS_ADVANCE_GAME';
 export const WS_GAME_STATE_CHANGE = 'WS_GAME_STATE_CHANGE';
 
+export const ACTIVE = 'ACTIVE';
+export const INACTIVE = 'INACTIVE';
+export const AVAILABLE = 'AVAILABLE';
+export const OFFLINE = 'OFFLINE';
+export const IN_GAME = 'IN_GAME';
+export const ACCEPTED = 'ACCEPTED';
+export const REJECTED = 'REJECTED';
+
 export const NUM_OF_QUESTIONS = 10;
 export const QUESTION_TIMEOUT = 10;
