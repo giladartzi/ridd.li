@@ -14,8 +14,12 @@ let GameProgress = ({progress}) => {
         return <GameProgressBadge key={index} isCurrent={index === progress.length-1} index={index+1} {...p} />;
     });
 
+    let style = {
+        textAlign: 'center'
+    };
+
     return (
-        <div>{badges}</div>
+        <div style={style}>{badges}</div>
     );
 };
 

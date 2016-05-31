@@ -10,16 +10,12 @@ import last from 'lodash/last';
 class Question extends React.Component {
     constructor() {
         super();
-        this.state = { showQuestion: false, showAnswers: false };
+        this.state = { showAnswers: false };
     }
 
     newQuestionProcess() {
-        this.setState({ showQuestion: false, showAnswers: false });
+        this.setState({ showAnswers: false });
 
-        setTimeout(() => {
-            this.setState({ showQuestion: true });
-        }, 1000);
-        
         setTimeout(() => {
             this.setState({ showAnswers: true });
         }, 2000);
@@ -52,16 +48,23 @@ class Question extends React.Component {
 
         });
 
+        let style = {
+            margin: '0 auto',
+            display: 'block'
+        };
+
         return (
             <div>
-                { this.state.showQuestion ?
-                    <div>
-                        <h1 id="question">{ game.question.text }</h1>
-                        { this.state.showAnswers ? <List id="answers">{answers}</List> : <CircularProgress /> }
-                    </div> :
-                    <div id="getReady">Get ready!</div>
+                <h1 id="question">{ game.question.text }</h1>
+                {
+                    this.state.showAnswers ?
+                        <List id="answers">
+                            {answers}
+                            { this.props.isAnswered ? <div id="waitingForOpponent">Question answered, waiting for opponent</div> : null}
+                        </List> :
+                        <CircularProgress style={style} />
                 }
-                
+
             </div>
         );
     }
