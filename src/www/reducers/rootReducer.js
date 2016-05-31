@@ -9,12 +9,10 @@ import invitation from './invitationReducer';
 import game from './gameReducer';
 
 const signUp = createApiReducer(consts.SIGN_UP_ACTIONS);
-const logIn = createApiReducer(consts.LOG_IN_ACTIONS);
 const answer = createApiReducer(consts.ANSWER_ACTIONS);
 
 const reducer = combineReducers({
     signUp,
-    logIn,
     lounge,
     invitation,
     user,

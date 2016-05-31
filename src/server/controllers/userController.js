@@ -1,6 +1,7 @@
 import * as dataLayer from '../dataLayer';
 import { hash, genSalt, sign, isValidEmail } from '../utils/userUtils';
 import * as errors from '../../common/errors';
+import { sync } from './syncController';
 
 export function userJson(id, username, token) {
     return { id, username, token };
@@ -39,7 +40,7 @@ export async function signUp(email, username, password) {
     // login
     let loggedIn = await login(username, password);
 
-    return userJson(user._id, user.username, loggedIn.token);
+    return userJson(user._id, user.username, loggedIn.user.token);
 }
 
 export async function login(username, password) {
@@ -60,5 +61,5 @@ export async function login(username, password) {
 
     let token = await sign({ id: user._id, username: username });
 
-    return userJson(user._id, user.username, token);
+    return await sync(user._id.toString(), user.username, token);
 }

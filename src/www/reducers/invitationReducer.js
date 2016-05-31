@@ -1,12 +1,10 @@
 import { createApiReducer, composeReducers } from '../utils/utils';
-import { INVITATION_GET_ACTIONS, INVITATION_SEND_ACTIONS, INVITATION_CANCEL_ACTIONS,
-    INVITATION_REJECT_ACTIONS, WS_INVITATION_ACCEPTED, WS_INVITATION_RECEIVED,
-    WS_INVITATION_CANCELLED, WS_INVITATION_REJECTED, INVITATION_ACCEPT_SUCCESS } from '../../common/consts';
+import * as consts from '../../common/consts';
 
-const invitationGet = createApiReducer(INVITATION_GET_ACTIONS);
-const invitationSend = createApiReducer(INVITATION_SEND_ACTIONS);
-const invitationCancel = createApiReducer(INVITATION_CANCEL_ACTIONS);
-const invitationReject = createApiReducer(INVITATION_REJECT_ACTIONS);
+const invitationGet = createApiReducer(consts.INVITATION_GET_ACTIONS);
+const invitationSend = createApiReducer(consts.INVITATION_SEND_ACTIONS);
+const invitationCancel = createApiReducer(consts.INVITATION_CANCEL_ACTIONS);
+const invitationReject = createApiReducer(consts.INVITATION_REJECT_ACTIONS);
 
 const emptyInvitation = {
     id: null,
@@ -15,13 +13,15 @@ const emptyInvitation = {
 
 const pushHandler = (state = {}, action) => {
     switch (action.type) {
-        case WS_INVITATION_RECEIVED:
-        case WS_INVITATION_CANCELLED:
-        case WS_INVITATION_REJECTED:
+        case consts.WS_INVITATION_RECEIVED:
+        case consts.WS_INVITATION_CANCELLED:
+        case consts.WS_INVITATION_REJECTED:
             return Object.assign({}, state, action.payload);
-        case WS_INVITATION_ACCEPTED:
-        case INVITATION_ACCEPT_SUCCESS:
+        case consts.WS_INVITATION_ACCEPTED:
+        case consts.INVITATION_ACCEPT_SUCCESS:
             return Object.assign({}, state, emptyInvitation);
+        case consts.LOG_IN_SUCCESS:
+            return Object.assign({}, state, action.payload.invitation);
         default:
             return state;
     }

@@ -56,7 +56,7 @@ export function createReducer(initialState, handlers) {
     }
 }
 
-export function createApiReducer(types, initialState = {}) {
+export function createApiReducer(types, initialState = {}, payloadPath) {
     const [ requestType, successType, failureType ] = types;
     const defaultInitialState = {
         error: null,
@@ -68,7 +68,8 @@ export function createApiReducer(types, initialState = {}) {
             return Object.assign({}, state, { pending: true });
         },
         [successType](state, action) {
-            return Object.assign({}, state, { pending: false, error: null }, action.payload);
+            let payload = action.payload[payloadPath] || action.payload;
+            return Object.assign({}, state, { pending: false, error: null }, payload);
         },
         [failureType](state, action) {
             return Object.assign({}, state, { pending: false, error: action.error });

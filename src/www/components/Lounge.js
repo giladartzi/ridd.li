@@ -9,6 +9,9 @@ import { push } from 'react-router-redux';
 
 class Lounge extends React.Component {
     componentWillMount() {
+        if (this.props.game.gameId && this.props.game.state === 'ACTIVE') {
+            this.props.dispatch(push('/game'));
+        }
         this.props.dispatch(createApiAction(LOUNGE_ENTER_ACTIONS, '/lounge/enter'));
     }
 

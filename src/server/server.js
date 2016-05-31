@@ -10,8 +10,6 @@ import LEX from 'letsencrypt-express';
 import { jwtMiddleware } from './utils/userUtils';
 import { initWebSocket } from './wsManager';
 
-
-
 let app = express();
 
 app.use(compression());

@@ -18,9 +18,7 @@ export default async function configureStore() {
     const initialState = localStorage.token ? (await get('/sync')).json : null;
 
     if (initialState) {
-        store.dispatch({ type: INVITATION_GET_SUCCESS, payload: initialState.invitation });
-        store.dispatch({ type: GAME_GET_SUCCESS, payload: initialState.game });
-        store.dispatch({ type: LOG_IN_SUCCESS, payload: initialState.user });
+        store.dispatch({ type: LOG_IN_SUCCESS, payload: initialState });
     }
 
     return store;

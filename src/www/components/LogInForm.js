@@ -24,16 +24,17 @@ let LogInForm = ({onFormSubmit, error}) => {
 
 let mapStateToProps = (state) => {
     return {
-        error: state.logIn.error
+        error: state.user.error
     };
 };
 
 let actionCreator = (payload) => {
     let appendix = {
         onSuccess: (res, dispatch) => {
-            localStorage.token = res.json.token;
-            localStorage.userId = res.json.id;
-            localStorage.username = res.json.username;
+            var payload = res.json.user;
+            localStorage.token = payload.token;
+            localStorage.userId = payload.id;
+            localStorage.username = payload.username;
             dispatch(push('/lounge'));
         }
     };

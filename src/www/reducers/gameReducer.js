@@ -1,18 +1,19 @@
-import { GAME_GET_ACTIONS, INVITATION_ACCEPT_ACTIONS, ANSWER_ACTIONS, LEAVE_GAME_ACTIONS,
-    WS_ADVANCE_GAME, WS_INVITATION_ACCEPTED, WS_GAME_STATE_CHANGE } from '../../common/consts';
+import * as consts from '../../common/consts';
 import { createApiReducer, composeReducers } from '../utils/utils';
 
-const gameGet = createApiReducer(GAME_GET_ACTIONS);
-const invitationAccept = createApiReducer(INVITATION_ACCEPT_ACTIONS);
-const answer = createApiReducer(ANSWER_ACTIONS);
-const leaveGame = createApiReducer(LEAVE_GAME_ACTIONS);
+const gameGet = createApiReducer(consts.GAME_GET_ACTIONS);
+const invitationAccept = createApiReducer(consts.INVITATION_ACCEPT_ACTIONS);
+const answer = createApiReducer(consts.ANSWER_ACTIONS);
+const leaveGame = createApiReducer(consts.LEAVE_GAME_ACTIONS);
 
 const pushHandler = (state = {}, action) => {
     switch (action.type) {
-        case WS_ADVANCE_GAME:
-        case WS_INVITATION_ACCEPTED:
-        case WS_GAME_STATE_CHANGE:
+        case consts.WS_ADVANCE_GAME:
+        case consts.WS_INVITATION_ACCEPTED:
+        case consts.WS_GAME_STATE_CHANGE:
             return Object.assign({}, state, action.payload);
+        case consts.LOG_IN_SUCCESS:
+            return Object.assign({}, state, action.payload.game);
         default:
             return state;
     }
