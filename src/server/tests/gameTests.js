@@ -46,6 +46,8 @@ function runMove(move) {
 }
 
 function runStage(stage) {
+    // Execute both moves in the same time. Promise.all will
+    // resolve when both moves are done.
     return Promise.all(stage.map(move => runMove(move)));
 }
 
@@ -167,10 +169,15 @@ export default async function gameTests(tokens, userIds, wss, gameId, currentQue
     clearWss();
 
     for (let stage of stages) {
+        // Stages are defined in gameTestStages.js and basically describe
+        // a whole game from beginning to end. Each stage is running in its
+        // time, meaning in a sort-of-a-sync manner. In other words, we do
+        // not progress to the next stage until both players answered.
+        // Both players' moves do run in an async manner, see runStage
+        // method for more details.
         let res = await runStage(stage);
         global.previousQuestion = global.currentQuestion;
         global.currentQuestion = getNextQuestion(res);
-        // console.dir(res, { depth: 10 });
         let stageIndex = stages.indexOf(stage);
         res.forEach(r => assertRes(r, stageIndex));
     }

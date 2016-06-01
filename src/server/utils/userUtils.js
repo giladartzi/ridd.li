@@ -35,6 +35,7 @@ export async function jwtMiddleware(req, res, next) {
 }
 
 export function isValidEmail(email) {
+    // Credit: http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
 }
@@ -58,6 +59,7 @@ export async function getDisplayNameByUserId(userId) {
 }
 
 export function guid() {
+    // Credit: http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
     function s4() {
         return Math.floor((1 + Math.random()) * 0x10000)
             .toString(16)

@@ -12,6 +12,10 @@ var wsIdToUserId = {};
 var webSocketId = 0;
 
 function handleIncomingConnection(data, ws) {
+    // When a user connects via WebSocket, adding
+    // a reference to the connection to the maps.
+    // Notice the a user might have more than one
+    // connection at a time, it's perfectly fine.
     var userId = data.id;
     if (!userIdToWebSockets[userId]) {
         userIdToWebSockets[userId] = [];
@@ -63,6 +67,11 @@ async function handleIncomingMessage(ws, message) {
 
     if (json && json.token) {
         try {
+            // When a connection is initiated, client is
+            // required to supply a JWT in order for the
+            // server to have the new connection to a
+            // specific user. Actually handling the connection
+            // only after the token if supplied.
             let user = await jwtVerify(json.token);
             handleIncomingConnection(user, ws);
         }

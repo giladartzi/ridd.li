@@ -3,6 +3,7 @@ export async function send(method, path, token, body) {
     let hostname = 'localhost';
     let protocol = 'http:';
 
+    // PORT is injected via webpack plugin
     if (typeof PORT !== 'undefined') {
         port = PORT === 80 ? '' : PORT
     }
@@ -27,6 +28,7 @@ export async function send(method, path, token, body) {
     }
 
     if (token) {
+        // Append the JWT token to every request
         options.headers.token = token;
     }
 

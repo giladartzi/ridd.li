@@ -1,4 +1,6 @@
 export const toPromise = (func, context) => {
+    // Taking a function the takes a callback, and
+    // wrapping it with a promise.
     return function () {
         var args = arguments;
 
@@ -18,6 +20,7 @@ export const toPromise = (func, context) => {
 };
 
 export const asyncToPromise = (func) => {
+    // Taking an async function and wrapping it with a promise
     return new Promise(async function (resolve, reject) {
         resolve(await func);
     });

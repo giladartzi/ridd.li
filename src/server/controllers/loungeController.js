@@ -14,10 +14,12 @@ function userJson(user) {
 }
 
 export async function availableUsers(exclude) {
+    // Get all available users
     let users = await dataLayer.find('users', { query: {
         state: AVAILABLE
     }, list: true });
 
+    // Except for the user who issued the call
     users = users.filter(user => user._id.toString() !== exclude);
 
     return {
@@ -26,11 +28,13 @@ export async function availableUsers(exclude) {
 }
 
 export async function enter(userId) {
+    // User has entered the lounge and is available
     let user = await dataLayer.findOneAndUpdate('users', userId, {
         $set: { state: AVAILABLE }
     });
 
     if (user) {
+        // Notify every other user about the availability
         broadcast({
             type: WS_USER_ENTERED_LOUNGE,
             payload: userJson(user)

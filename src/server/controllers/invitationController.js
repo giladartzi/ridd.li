@@ -29,22 +29,22 @@ export async function sendInvitation(userId, displayName, opponentId) {
         throw new Error(errors.OPPONENT_IS_NOT_AVAILABLE);
     }
     
-    // update both users state
+    // Update both user's state
     let userIds = [
         objectId(userId),
         objectId(opponentId)
     ];
     let users = await update('users', { _id: { $in: userIds } }, { $set: { state: 'INVITED' } });
 
-    // create new invitation
+    // Create new invitation
     let invitation = await insert('invitations', {
         state: 'PENDING',
         inviter: { id: userId, displayName: displayName },
         invitee: { id: opponentId, displayName: opponent.displayName }
     });
 
+    // Send invitation to opponent
     let json = invitationJson(invitation);
-
     wsSend(opponentId, {
         type: WS_INVITATION_RECEIVED,
         payload: json
@@ -75,8 +75,8 @@ export async function acceptInvitation(userId) {
     let users = await update('users', { _id: { $in: userIds } }, { $set: { state: IN_GAME } });
     let game = await createGame([invitation.inviter.id, invitation.invitee.id]);
 
+    // Notify inviter that invitation is accepted
     let inviterJson = await gameJson(game, invitation.inviter.id);
-
     wsSend(invitation.inviter.id.toString(), {
         type: WS_INVITATION_ACCEPTED,
         payload: inviterJson
@@ -108,6 +108,7 @@ export async function rejectInvitation(userId) {
     let users = await update('users', { _id: { $in: userIds } }, { $set: { state: AVAILABLE } });
     let json = invitationJson(invitation);
 
+    // Notify inviter that invitation is rejected
     wsSend(invitation.inviter.id, {
         type: WS_INVITATION_REJECTED,
         payload: json
@@ -137,6 +138,7 @@ export async function cancelInvitation(userId) {
     ];
     let users = await update('users', { _id: { $in: userIds } }, { $set: { state: AVAILABLE } });
 
+    // Notify inviter that invitation is cancelled
     wsSend(invitation.invitee.id, {
         type: WS_INVITATION_CANCELLED,
         payload: invitation

@@ -1,3 +1,4 @@
+// Not using ES6 syntax in order to support tests
 module.exports.OPPONENT_NOT_FOUND = 'Opponent not found';
 module.exports.OPPONENT_IS_NOT_AVAILABLE = 'Opponent is not available';
 module.exports.GAME_NOT_FOUND = 'Game not found';
