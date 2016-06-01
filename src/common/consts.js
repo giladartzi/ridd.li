@@ -70,6 +70,7 @@ export const OFFLINE = 'OFFLINE';
 export const IN_GAME = 'IN_GAME';
 export const ACCEPTED = 'ACCEPTED';
 export const REJECTED = 'REJECTED';
+export const UNAUTHORIZED = 'UNAUTHORIZED';
 
 export const NUM_OF_QUESTIONS = 10;
 export const QUESTION_TIMEOUT = 10;

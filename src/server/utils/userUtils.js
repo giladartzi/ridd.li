@@ -2,6 +2,8 @@ import { toPromise } from './utils';
 import bcrypt from 'bcrypt-nodejs';
 import jwt from 'jsonwebtoken';
 import { findById } from '../dataLayer';
+import { UNAUTHORIZED } from '../../common/consts';
+import config from '../../../config';
 
 export async function hash(password, salt) {
     let pHash = toPromise(bcrypt.hash);
@@ -14,12 +16,12 @@ export async function genSalt() {
 
 export async function sign(obj) {
     let pSign = toPromise(jwt.sign);
-    return await pSign(obj, 'secret', null);
+    return await pSign(obj, config.secret, null);
 }
 
 export async function jwtVerify(token) {
     let pVerify = toPromise(jwt.verify);
-    return await pVerify(token, 'secret', null);
+    return await pVerify(token, config.secret, null);
 }
 
 export async function jwtMiddleware(req, res, next) {
@@ -28,7 +30,7 @@ export async function jwtMiddleware(req, res, next) {
         next();
     }
     catch (e) {
-        res.status(403).send({error: 'Unauthorized'});
+        res.status(403).send({error: UNAUTHORIZED});
     }
 }
 

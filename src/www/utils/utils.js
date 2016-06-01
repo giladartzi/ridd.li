@@ -1,5 +1,6 @@
 import { get, post } from '../../common/rest';
 import { EXPECTED_AN_ARRAY_OF_THREE_STRING_TYPES } from '../../common/errors';
+import { UNAUTHORIZED } from '../../common/consts';
 
 function dispatchSuccess(successType, res, onSuccess, dispatch, getState) {
     if (res.json.error) {
@@ -15,6 +16,11 @@ function dispatchSuccess(successType, res, onSuccess, dispatch, getState) {
 
 function dispatchFailure(failureType, error, dispatch) {
     dispatch({ type: failureType, error });
+
+    if (error === UNAUTHORIZED) {
+        localStorage.clear();
+        window.location.href = '/';
+    }
 }
 
 // Inspired by http://redux.js.org/docs/recipes/ReducingBoilerplate.html
@@ -38,7 +44,6 @@ export function restApiMiddleware({ dispatch, getState }) {
         try {
             let res = await fetch(dispatch, getState);
             dispatchSuccess(successType, res, onSuccess, dispatch, getState);
-
         }
         catch (e) {
             dispatchFailure(failureType, e.message, dispatch);
