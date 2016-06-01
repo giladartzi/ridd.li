@@ -5,6 +5,9 @@ Riddli is a trivia game, created for learning purposes. I truly believe that the
 ### Technologies
 The technologies used for this project include:  `node`,  `mongoDB`, `webpack`, `babel`, `async` Functions,  `react`, `redux`, `react-router`, `material-ui` and more.
 
+### Tests
+Use `npm test` to run the tests. For UI tests (using `nightwatch.js` over `selenium`) use `npm run testwww`.
+
 ### The game
 The rules are simple. When a user is logging into the system, he enters the "lounge", where the user can see all the other available players and challenge them to a dual of trivia. If an opponent accepts the user's invitation, the game begins and each player is presented a series of ten question, one by one. Each question is revealed in its turn, and when both users have answered, the game proceeds to the next question. For every correct answer, the user get a point, for every wrong one the user loses a point. An unanswered or timed-out question does not add neither subtract and points. At the end of the game, the user with most points, wins.
 
