@@ -15,6 +15,7 @@ export default async function configureStore() {
     const middleware = applyMiddleware(restApiMiddleware, routerMw, thunk, logger);
     const store = createStore(rootReducer, middleware);
 
+    // Make sure store is created with the initial data.
     const initialState = localStorage.token ? (await get('/sync')).json : null;
 
     if (initialState) {

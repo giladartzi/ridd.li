@@ -21,6 +21,8 @@ export function checkFacebookLogInStatus() {
         promiseHandlers.reject = reject;
     });
     
+    // Only loading the FB script on demand, there
+    // is no use to include it by default.
     (function(d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0];
         if (d.getElementById(id)) return;
@@ -36,7 +38,7 @@ export function checkFacebookLogInStatus() {
         window.fbAsyncInit = init.bind(null, promiseHandlers);
     }
 
-    
+    // Returning a promise wrapped function + callback
     return result;
 }
 
