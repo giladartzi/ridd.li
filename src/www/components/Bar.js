@@ -17,7 +17,7 @@ let Bar = ({ logout, gameId, leaveGame }) => {
             anchorOrigin={{horizontal: 'right', vertical: 'top'}}
             className="barMenu"
         >
-            <MenuItem id="barMenuUsername" primaryText={localStorage.username} />
+            <MenuItem id="barMenuDisplayName" primaryText={localStorage.displayName} />
             { gameId ? <MenuItem id="barMenuLeaveGame" primaryText="Leave game" onClick={leaveGame} /> : null }
             <MenuItem id="barMenuLogout" primaryText="Log out" onClick={() => logout()} />
         </IconMenu>

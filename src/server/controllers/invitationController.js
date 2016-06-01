@@ -15,7 +15,7 @@ function invitationJson(invitation) {
     };
 }
 
-export async function sendInvitation(userId, username, opponentId) {
+export async function sendInvitation(userId, displayName, opponentId) {
     // Verify user is available
     var opponent = await findById('users', opponentId);
 
@@ -39,8 +39,8 @@ export async function sendInvitation(userId, username, opponentId) {
     // create new invitation
     let invitation = await insert('invitations', {
         state: 'PENDING',
-        inviter: { id: userId, username: username },
-        invitee: { id: opponentId, username: opponent.username }
+        inviter: { id: userId, displayName: displayName },
+        invitee: { id: opponentId, displayName: opponent.displayName }
     });
 
     let json = invitationJson(invitation);

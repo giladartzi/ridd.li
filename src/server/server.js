@@ -57,7 +57,8 @@ app.post('/game/leave', jwtMiddleware, async (req, res) => {
 import * as userController from './controllers/userController';
 app.post('/signup', async (req, res) => {
     try {
-        let user = await userController.signUp(req.body.email, req.body.username, req.body.password);
+        let user = await userController.signUp(req.body.firstName,
+            req.body.lastName, req.body.email, null, req.body.password);
         res.json(user);
     }
     catch (e) {
@@ -67,8 +68,17 @@ app.post('/signup', async (req, res) => {
 
 app.post('/login', async (req, res) => {
     try {
-        let user = await userController.login(req.body.username, req.body.password);
+        let user = await userController.login(req.body.email, req.body.password);
         res.json(user);
+    }
+    catch (e) {
+        res.status(400).json({ error: e.message });
+    }
+});
+
+app.post('/fbLogin', async (req, res) => {
+    try {
+        res.json(await userController.fbLogin(req.body.fbUserId, req.body.fbAccessToken));
     }
     catch (e) {
         res.status(400).json({ error: e.message });
@@ -100,7 +110,7 @@ import * as invitationController from './controllers/invitationController';
 app.post('/invitation/send', jwtMiddleware, async (req, res) => {
     try {
         let invitation = await invitationController.sendInvitation(req.user.id,
-            req.user.username, req.body.opponentId);
+            req.user.displayName, req.body.opponentId);
         res.json(invitation);
     }
     catch (e) {
@@ -151,7 +161,7 @@ app.get('/invitation', jwtMiddleware, async (req, res) => {
 import * as syncController from './controllers/syncController';
 app.get('/sync', jwtMiddleware, async (req, res) => {
     try {
-        res.json(await syncController.sync(req.user.id, req.user.username, req.headers.token));
+        res.json(await syncController.sync(req.user.id, req.user.displayName, req.user.email, req.headers.token));
     }
     catch (e) {
         res.status(400).json({ error: e.message });

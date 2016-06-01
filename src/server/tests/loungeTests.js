@@ -18,7 +18,8 @@ export default async function loungeTests(tokens, userIds, wss) {
     verifyBatch('Lounge - available users by push (user 2)', [
         assertEqual(res.type, WS_USER_ENTERED_LOUNGE, 'incorrect type!'),
         assertEqual(res.payload.id, userIds[0], 'wrong userId!'),
-        assertEqual(res.payload.username, 'gilad', 'wrong username!')
+        assertEqual(res.payload.firstName, 'Gilad', 'wrong firstName!'),
+        assertEqual(res.payload.lastName, 'Artzi', 'wrong lastName!')
     ]);
 
     res = await post('/lounge/enter', {}, tokens[1]);
@@ -27,7 +28,8 @@ export default async function loungeTests(tokens, userIds, wss) {
         assertEqual(Array.isArray(res.json.users), true, 'res.json is not an array!'),
         assertEqual(res.json.users.length, 1, 'res.json is not in length of 1!'),
         assertEqual(res.json.users[0].id, userIds[0], 'wrong userId!'),
-        assertEqual(res.json.users[0].username, 'gilad', 'wrong username!')
+        assertEqual(res.json.users[0].firstName, 'Gilad', 'wrong firstName!'),
+        assertEqual(res.json.users[0].lastName, 'Artzi', 'wrong lastName!')
     ]);
 
     await wait(0.5);
@@ -35,7 +37,8 @@ export default async function loungeTests(tokens, userIds, wss) {
     verifyBatch('Lounge - available users by push (user 1)', [
         assertEqual(res.type, WS_USER_ENTERED_LOUNGE, 'incorrect type!'),
         assertEqual(res.payload.id, userIds[1], 'wrong userId!'),
-        assertEqual(res.payload.username, 'gilad2', 'wrong username!')
+        assertEqual(res.payload.firstName, 'Gilad2', 'wrong firstName!'),
+        assertEqual(res.payload.lastName, 'Artzi', 'wrong lastName!')
     ]);
 
     res = await post('/lounge/availableUsers', {}, tokens[0]);
@@ -44,6 +47,7 @@ export default async function loungeTests(tokens, userIds, wss) {
         assertEqual(Array.isArray(res.json.users), true, 'res.json is not an array!'),
         assertEqual(res.json.users.length, 1, 'res.json is not in length of 1!'),
         assertEqual(res.json.users[0].id, userIds[1], 'wrong userId!'),
-        assertEqual(res.json.users[0].username, 'gilad2', 'wrong username!')
+        assertEqual(res.json.users[0].firstName, 'Gilad2', 'wrong firstName!'),
+        assertEqual(res.json.users[0].lastName, 'Artzi', 'wrong lastName!')
     ]);
 }

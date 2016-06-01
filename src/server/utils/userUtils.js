@@ -39,20 +39,31 @@ export function isValidEmail(email) {
     return re.test(email);
 }
 
-let usernameCache = {};
+let displayNameCache = {};
 
-export async function getUsernameByUserId(userId) {
-    if (typeof usernameCache[userId] !== 'undefined') {
-        return usernameCache[userId];
+export async function getDisplayNameByUserId(userId) {
+    if (typeof displayNameCache[userId] !== 'undefined') {
+        return displayNameCache[userId];
     }
     
     let user = await findById('users', userId);
     let result = null;
 
     if (user) {
-        result = user.username;
+        result = user.firstName + ' ' + user.lastName;
     }
 
-    usernameCache[userId] = result;
+    displayNameCache[userId] = result;
     return result;
+}
+
+export function guid() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();
 }

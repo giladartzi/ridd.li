@@ -6,7 +6,7 @@ import rootReducer from '../reducers/rootReducer';
 import { routerMiddleware } from 'react-router-redux';
 import { browserHistory } from 'react-router';
 import { get } from '../../common/rest';
-import { INVITATION_GET_SUCCESS, GAME_GET_SUCCESS, LOG_IN_SUCCESS } from '../../common/consts';
+import { LOG_IN_SUCCESS } from '../../common/consts';
 
 const logger = createLogger();
 const routerMw = routerMiddleware(browserHistory);

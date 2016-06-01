@@ -97,7 +97,6 @@ function assert(move, payload) {
         assertEqual(payload.state, move.expectedState, 'wrong state'),
         assertEqual(payload.questionIndex, move.expectedQuestionIndex, 'wrong questionIndex'),
         assertEqual(payload.endedBy.userId, null, 'wrong endedBy.userId value'),
-        assertEqual(payload.endedBy.username, null, 'wrong endedBy.username value'),
         assertEqual(payload.winner.userId, winnerUserId, 'wrong winner.userId value')
     ];
 }

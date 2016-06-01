@@ -1,14 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import GenericForm from './GenericForm';
-import { createApiAction } from '../utils/utils';
+import { createApiAction, logInAppendix } from '../utils/utils';
 import { LOG_IN_ACTIONS } from '../../common/consts';
-import { push } from 'react-router-redux';
 import { Link } from 'react-router';
 
 let LogInForm = ({onFormSubmit, error}) => {
     const fields = [
-        { type: 'text', name: 'username' },
+        { type: 'text', name: 'email' },
         { type: 'password', name: 'password' }
     ];
     
@@ -17,7 +16,9 @@ let LogInForm = ({onFormSubmit, error}) => {
     );
 
     return (
-        <GenericForm header="Login" fields={fields} onFormSubmit={onFormSubmit} error={error} appendix={appendix} />
+        <div>
+            <GenericForm header="Login" fields={fields} onFormSubmit={onFormSubmit} error={error} appendix={appendix} />
+        </div>
 
     );
 };
@@ -28,24 +29,10 @@ let mapStateToProps = (state) => {
     };
 };
 
-let actionCreator = (payload) => {
-    let appendix = {
-        onSuccess: (res, dispatch) => {
-            var payload = res.json.user;
-            localStorage.token = payload.token;
-            localStorage.userId = payload.id;
-            localStorage.username = payload.username;
-            dispatch(push('/lounge'));
-        }
-    };
-
-    return createApiAction(LOG_IN_ACTIONS, '/login', payload, appendix);
-};
-
 let mapDispatchToProps = (dispatch) => {
     return {
         onFormSubmit: (payload) => {
-            dispatch(actionCreator(payload));
+            dispatch(createApiAction(LOG_IN_ACTIONS, '/login', payload, logInAppendix('user')));
         }
     };
 };

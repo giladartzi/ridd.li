@@ -28,8 +28,8 @@ let GameEndedDialog = ({ isOpen, endedByUsername, winnerUsername, closeDialog })
 let mapStateToProps = (state) => {
     return {
         isOpen: state.game.state === INACTIVE,
-        endedByUsername: state.game.endedBy && state.game.endedBy.username,
-        winnerUsername: state.game.winner && state.game.winner.username
+        endedByUsername: state.game.endedBy && state.game.endedBy.displayName,
+        winnerUsername: state.game.winner && state.game.winner.displayName
     };
 };
 

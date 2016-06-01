@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import GenericForm from './GenericForm';
-import { createApiAction } from '../utils/utils';
+import { createApiAction, logInAppendix } from '../utils/utils';
 import { SIGN_UP_ACTIONS } from '../../common/consts';
 import { push } from 'react-router-redux';
 import { Link } from 'react-router';
@@ -9,7 +9,8 @@ import { Link } from 'react-router';
 let SignUpForm = ({onFormSubmit, error}) => {
     const fields = [
         { type: 'email', name: 'email' },
-        { type: 'text', name: 'username' },
+        { type: 'text', name: 'firstName', placeholder: 'First Name' },
+        { type: 'text', name: 'lastName', placeholder: 'Last Name' },
         { type: 'password', name: 'password' }
     ];
 
@@ -30,16 +31,7 @@ let mapStateToProps = (state) => {
 };
 
 let actionCreator = (payload) => {
-    let appendix = {
-        onSuccess: (res, dispatch) => {
-            localStorage.token = res.json.token;
-            localStorage.userId = res.json.id;
-            localStorage.username = res.json.username;
-            dispatch(push('/lounge'));
-        }
-    };
-
-    return createApiAction(SIGN_UP_ACTIONS, '/signup', payload, appendix);
+    return createApiAction(SIGN_UP_ACTIONS, '/signup', payload, logInAppendix());
 };
 
 let mapDispatchToProps = (dispatch) => {

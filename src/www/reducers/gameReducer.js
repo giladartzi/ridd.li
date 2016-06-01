@@ -13,6 +13,7 @@ const pushHandler = (state = {}, action) => {
         case consts.WS_GAME_STATE_CHANGE:
             return Object.assign({}, state, action.payload);
         case consts.LOG_IN_SUCCESS:
+        case consts.FB_LOG_IN_SUCCESS:
             return Object.assign({}, state, action.payload.game);
         default:
             return state;

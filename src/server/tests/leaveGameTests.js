@@ -32,7 +32,7 @@ export default async function leaveGameTests(tokens, userIds, wss, gameId) {
         assertEqual(res.payload.gameId, gameId, 'wrong gameId!'),
         assertEqual(res.payload.state, INACTIVE, 'wrong state!'),
         assertEqual(res.payload.endedBy.userId, userIds[0], 'wrong endedBy.userId!'),
-        assertEqual(res.payload.endedBy.username, 'gilad', 'wrong endedBy.username!')
+        assertEqual(res.payload.endedBy.displayName, 'Gilad Artzi', 'wrong endedBy.displayName!')
     ]);
     
     res = await get('/getGame', tokens[0]);

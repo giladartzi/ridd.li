@@ -1,6 +1,7 @@
 import { get, post } from '../../common/rest';
 import { EXPECTED_AN_ARRAY_OF_THREE_STRING_TYPES } from '../../common/errors';
 import { UNAUTHORIZED } from '../../common/consts';
+import { push } from 'react-router-redux';
 
 function dispatchSuccess(successType, res, onSuccess, dispatch, getState) {
     if (res.json.error) {
@@ -108,4 +109,18 @@ export function composeReducers(...reducers) {
         });
         return result;
     }
+}
+
+export function logInAppendix(path) {
+    return {
+        onSuccess: (res, dispatch) => {
+            let payload = res.json[path] || res.json;
+            localStorage.token = payload.token;
+            localStorage.userId = payload.id;
+            localStorage.displayName = payload.displayName;
+            localStorage.email = payload.email;
+            localStorage.picture = payload.picture;
+            dispatch(push('/lounge'));
+        }
+    };
 }

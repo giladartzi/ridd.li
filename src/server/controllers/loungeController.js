@@ -5,7 +5,11 @@ import { WS_USER_ENTERED_LOUNGE, WS_USER_LEFT_LOUNGE, AVAILABLE, OFFLINE } from 
 function userJson(user) {
     return {
         id: user._id,
-        username: user.username
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        displayName: user.displayName,
+        picture: user.picture
     }
 }
 

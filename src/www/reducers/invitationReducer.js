@@ -21,6 +21,7 @@ const pushHandler = (state = {}, action) => {
         case consts.INVITATION_ACCEPT_SUCCESS:
             return Object.assign({}, state, emptyInvitation);
         case consts.LOG_IN_SUCCESS:
+        case consts.FB_LOG_IN_SUCCESS:
             return Object.assign({}, state, action.payload.invitation);
         default:
             return state;

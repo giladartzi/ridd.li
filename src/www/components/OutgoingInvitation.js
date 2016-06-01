@@ -7,7 +7,7 @@ import { INVITATION_CANCEL_ACTIONS } from '../../common/consts';
 
 let OutgoingInvitation = ({invitation, cancel}) => {
     let isOutgoing = invitation.id && invitation.state === 'PENDING' && invitation.inviter.id === localStorage.userId;
-    let invitee = isOutgoing && invitation.invitee.username;
+    let invitee = isOutgoing && invitation.invitee.displayName;
 
     const actions = [
         <FlatButton id="outgoingInvitationCancel" label="Cancel" onClick={cancel} />

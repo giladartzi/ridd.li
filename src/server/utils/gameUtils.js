@@ -7,7 +7,7 @@ import sortBy from 'lodash/sortBy';
 import mongodb from 'mongodb';
 import * as errors from '../../common/errors';
 import { QUESTION_TIMEOUT } from '../../common/consts';
-import { getUsernameByUserId } from '../utils/userUtils';
+import { getDisplayNameByUserId } from '../utils/userUtils';
 import { ACTIVE, INACTIVE, AVAILABLE } from '../../common/consts';
 
 export async function getRandomizeQuestions() {
@@ -196,12 +196,12 @@ export async function gameJson(game, userId) {
 
     let gmd = first(game.gameMetaData.filter(gmd => gmd.userId === userId));
     let userIndex = game.gameMetaData.indexOf(gmd);
-    let winner = { userId: null, username: null };
+    let winner = { userId: null, displayName: null };
 
     if (game.state === INACTIVE) {
         let winnerId = calcWinner(game);
         winner.userId = winnerId;
-        winner.username = await getUsernameByUserId(winnerId);
+        winner.displayName = await getDisplayNameByUserId(winnerId);
     }
 
     return {
@@ -213,7 +213,7 @@ export async function gameJson(game, userId) {
         questionIndex: game.currentQuestion,
         endedBy: {
             userId: game.endedBy,
-            username: await getUsernameByUserId(game.endedBy)
+            displayName: await getDisplayNameByUserId(game.endedBy)
         },
         winner: winner
     };

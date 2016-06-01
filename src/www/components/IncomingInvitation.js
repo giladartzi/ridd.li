@@ -7,7 +7,7 @@ import { createApiAction } from '../utils/utils';
 
 let IncomingInvitation = ({invitation, acceptInvitation, rejectInvitation}) => {
     let isIncoming = invitation.id && invitation.state === 'PENDING' && invitation.invitee.id === localStorage.userId;
-    let inviter = isIncoming && invitation.inviter.username;
+    let inviter = isIncoming && invitation.inviter.displayName;
 
     const actions = [
         <FlatButton id="incomingInvitationReject" label="Reject" onClick={rejectInvitation} />,
