@@ -15,7 +15,10 @@ function invitationJson(invitation) {
     };
 }
 
-export async function sendInvitation(userId, displayName, opponentId) {
+export async function sendInvitation(userId, params, userData) {
+    let { displayName } = userData;
+    let { opponentId } = params;
+    
     // Verify user is available
     var opponent = await findById('users', opponentId);
 

@@ -16,7 +16,9 @@ function userSignJson(user) {
     };
 }
 
-export async function signUp(firstName, lastName, email, fbUserId, password, picture) {
+export async function signUp(params) {
+    let { firstName, lastName, email, fbUserId, password, picture } = params;
+    
     // check that email is available
     let exists = !!(await dataLayer.find('users', { query: { email } }));
     
@@ -58,12 +60,14 @@ export async function signUp(firstName, lastName, email, fbUserId, password, pic
     
     // When a user signs up, we'd like for him to jump straight
     // to the application. Immediately initiating login process.
-    let loggedIn = await login(email, password);
+    let loggedIn = await login({ email, password });
 
     return userJson(user._id, user.displayName, email, user.picture, loggedIn.user.token);
 }
 
-export async function login(email, password) {
+export async function login(params) {
+    let { email, password } = params;
+    
     if (!email) {
         throw new Error(errors.PLEASE_ENTER_YOUR_EMAIL);
     }
@@ -92,7 +96,9 @@ export async function login(email, password) {
     return await sync(user._id.toString(), user.displayName, email, user.picture, token);
 }
 
-export async function fbLogin(fbUserId, fbAccessToken) {
+export async function fbLogin(params) {
+    let { fbUserId, fbAccessToken } = params;
+    
     // With the Facebook authentication progress, signing up
     // and logging in, at least from the user's perspective is the
     // same thing. User is simply required to click a button.
@@ -129,8 +135,13 @@ export async function fbLogin(fbUserId, fbAccessToken) {
         // retrieved from the API instead of the sign up form. This way
         // we are not dependent on FB's OAuth sessions, and can simply
         // use JWT generically like every other part of the system.
-        await signUp(fbUserDetails.first_name, fbUserDetails.last_name, fbUserDetails.email,
-            fbUserDetails.id, null, fbUserDetails.picture.data.url);
+        await signUp({
+            firstName: fbUserDetails.first_name,
+            lastName: fbUserDetails.last_name,
+            email: fbUserDetails.email,
+            fbUserId: fbUserDetails.id,
+            picture: fbUserDetails.picture.data.url
+        });
         user = await dataLayer.find('users', { query: { fbUserId } });
     }
 

@@ -38,3 +38,20 @@ export async function safeAwait(promise) {
 
     return result;
 }
+
+export function requestHandlerWrapper(handler) {
+    return async (req, res) => {
+        let argArr = [req.body];
+        
+        if (req.user) {
+            argArr = [req.user.id, req.body, req.user, req.headers.token];
+        }
+        
+        try {
+            res.json(await handler.apply(null, argArr));
+        }
+        catch (e) {
+            res.status(400).json({ error: e.message });
+        }
+    }
+}

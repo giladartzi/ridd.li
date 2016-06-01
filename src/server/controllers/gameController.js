@@ -19,9 +19,9 @@ export async function game(userId) {
     }
 }
 
-export async function answer(gameId, userId, questionIndex, answerIndex) {
+export async function answer(userId, params) {
     // First, add the answer to the game records
-    let game = await gameUtils.addMove(gameId, userId, questionIndex, answerIndex);
+    let game = await gameUtils.addMove(params.gameId, userId, params.questionIndex, params.answerIndex);
     
     // Then, progress game, if both users answered
     game = await gameUtils.advanceGame(game);

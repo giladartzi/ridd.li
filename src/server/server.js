@@ -9,9 +9,16 @@ import path from 'path';
 import LEX from 'letsencrypt-express';
 import { jwtMiddleware } from './utils/userUtils';
 import { initWebSocket } from './wsManager';
+import { requestHandlerWrapper } from './utils/utils';
+import { game, answer, leave } from './controllers/gameController';
+import { fbLogin, login, signUp } from './controllers/userController';
+import { availableUsers, enter } from './controllers/loungeController';
+import { acceptInvitation, cancelInvitation, getInvitation,
+    rejectInvitation, sendInvitation } from './controllers/invitationController';
+import { getSync } from './controllers/syncController';
 
+// Express simplistic configuration
 let app = express();
-
 app.use(compression());
 app.use(bodyParser.json());
 app.use(cors());
@@ -20,154 +27,34 @@ app.use(function(err, req, res, next) {
     res.status(500).send('Something broke!');
 });
 
-import * as gameController from './controllers/gameController';
+// gameController routs
+app.get('/getGame', jwtMiddleware, requestHandlerWrapper(game));
+app.post('/answer', jwtMiddleware, requestHandlerWrapper(answer));
+app.post('/game/leave', jwtMiddleware, requestHandlerWrapper(leave));
 
-app.get('/getGame', jwtMiddleware, async (req, res) => {
-    let userId = req.user.id;
-    
-    try {
-        res.json(await gameController.game(userId));
-    }
-    catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
+// userController routes
+app.post('/signup', requestHandlerWrapper(signUp));
+app.post('/login', requestHandlerWrapper(login));
+app.post('/fbLogin', requestHandlerWrapper(fbLogin));
 
-app.post('/answer', jwtMiddleware, async (req, res) => {
-    try {
-        let json = await gameController.answer(req.body.gameId, req.user.id,
-            req.body.questionIndex, req.body.answerIndex);
+// loungeController routes
+app.post('/lounge/availableUsers', jwtMiddleware, requestHandlerWrapper(availableUsers));
+app.post('/lounge/enter', jwtMiddleware, requestHandlerWrapper(enter));
 
-        res.json(json);
-    }
-    catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
+// invitationController routes
+app.post('/invitation/send', jwtMiddleware, requestHandlerWrapper(sendInvitation));
+app.post('/invitation/accept', jwtMiddleware, requestHandlerWrapper(acceptInvitation));
+app.post('/invitation/reject', jwtMiddleware, requestHandlerWrapper(rejectInvitation));
+app.post('/invitation/cancel', jwtMiddleware, requestHandlerWrapper(cancelInvitation));
+app.get('/invitation', jwtMiddleware, requestHandlerWrapper(getInvitation));
 
-app.post('/game/leave', jwtMiddleware, async (req, res) => {
-    try {
-        res.json(await gameController.leave(req.user.id));
-    }
-    catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
+// syncController routes
+app.get('/sync', jwtMiddleware, requestHandlerWrapper(getSync));
 
-import * as userController from './controllers/userController';
-app.post('/signup', async (req, res) => {
-    try {
-        let user = await userController.signUp(req.body.firstName,
-            req.body.lastName, req.body.email, null, req.body.password);
-        res.json(user);
-    }
-    catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
-
-app.post('/login', async (req, res) => {
-    try {
-        let user = await userController.login(req.body.email, req.body.password);
-        res.json(user);
-    }
-    catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
-
-app.post('/fbLogin', async (req, res) => {
-    try {
-        res.json(await userController.fbLogin(req.body.fbUserId, req.body.fbAccessToken));
-    }
-    catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
-
-import * as loungeController from './controllers/loungeController';
-app.post('/lounge/availableUsers', jwtMiddleware, async (req, res) => {
-    try {
-        let users = await loungeController.availableUsers(req.user.id);
-        res.json(users);
-    }
-    catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
-
-app.post('/lounge/enter', jwtMiddleware, async (req, res) => {
-    try {
-        let result = await loungeController.enter(req.user.id);
-        res.json(result);
-    }
-    catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
-
-import * as invitationController from './controllers/invitationController';
-app.post('/invitation/send', jwtMiddleware, async (req, res) => {
-    try {
-        let invitation = await invitationController.sendInvitation(req.user.id,
-            req.user.displayName, req.body.opponentId);
-        res.json(invitation);
-    }
-    catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
-
-app.post('/invitation/accept', jwtMiddleware, async (req, res) => {
-    try {
-        let invitation = await invitationController.acceptInvitation(req.user.id);
-        res.json(invitation);
-    }
-    catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
-
-app.post('/invitation/reject', jwtMiddleware, async (req, res) => {
-    try {
-        let invitation = await invitationController.rejectInvitation(req.user.id);
-        res.json(invitation);
-    }
-    catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
-
-app.post('/invitation/cancel', jwtMiddleware, async (req, res) => {
-    try {
-        let invitation = await invitationController.cancelInvitation(req.user.id);
-        res.json(invitation);
-    }
-    catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
-
-app.get('/invitation', jwtMiddleware, async (req, res) => {
-    try {
-        let invitation = await invitationController.getInvitation(req.user.id);
-        res.json(invitation);
-    }
-    catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
-
-import * as syncController from './controllers/syncController';
-app.get('/sync', jwtMiddleware, async (req, res) => {
-    try {
-        res.json(await syncController.sync(req.user.id, req.user.displayName, req.user.email, req.headers.token));
-    }
-    catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
-
+// If environment is production, statically server the public directory.
+// In case of 404, still server the public directory's index.html file.
+// This way, we can use the react-router's browserHistory object and have nicer URL's
+// In development mode, the files will be served by webpack-dev-server.
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static('public'));
     app.get('*', function (req, res) {
@@ -192,6 +79,8 @@ function serveHttps(lex) {
 }
 
 if (process.env.NODE_ENV === 'production') {
+    // letsencrypt-express configuration. Is not needed in development
+    // environment as we don't use HTTPS in that case.
     port = 80;
 
     let lex = LEX.create({
