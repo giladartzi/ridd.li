@@ -31,6 +31,9 @@ export default class UserPasswordForm extends React.Component {
     }
 
     render() {
+        // Not-so-Generic form, but flexible enough to be used by
+        // sign up and login forms. Takes a list of fields as a prop,
+        // and dynamically generating and collecting elements and data.
         let inputs = this.props.fields.map(field => {
             return this.generateInput(field)
         });

@@ -9,6 +9,7 @@ import { push } from 'react-router-redux';
 
 class Lounge extends React.Component {
     componentWillMount() {
+        // In case that a game is in progress, forward the user to '/game' path.
         if (this.props.game.gameId && this.props.game.state === ACTIVE) {
             this.props.dispatch(push('/game'));
         }
@@ -16,6 +17,7 @@ class Lounge extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        // In case that a game is in progress, forward the user to '/game' path.
         if (nextProps.game.gameId && nextProps.game.state === ACTIVE) {
             this.props.dispatch(push('/game'));
         }

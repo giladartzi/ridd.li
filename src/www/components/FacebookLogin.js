@@ -8,20 +8,27 @@ import SvgIcon from 'material-ui/SvgIcon';
 
 class FacebookLogin extends React.Component {
     async onClick() {
+        // Checking user status against Facebook's API
         let fbResponse = await checkFacebookLogInStatus();
 
         if (fbResponse.status !== 'connected') {
+            // If user is not authenticated, display
+            // login popup and await and await response.
             fbResponse = await logInToFacebook();
         }
 
+        // At this point user is defiantly authenticated to FB,
+        // calling the fbLogin which will dispatch a FB_LOG_IN_ACTIONS action.
         let authResponse = fbResponse.authResponse;
         this.props.fbLogin(authResponse.userID, authResponse.accessToken);
     }
 
     render() {
-        let icon = <SvgIcon viewBox="0 1 24 24">
+        let icon = (
+            <SvgIcon viewBox="0 1 24 24">
                 <path d="M19,4V7H17A1,1 0 0,0 16,8V10H19V13H16V20H13V13H11V10H13V7.5C13,5.56 14.57,4 16.5,4M20,2H4A2,2 0 0,0 2,4V20A2,2 0 0,0 4,22H20A2,2 0 0,0 22,20V4C22,2.89 21.1,2 20,2Z" />
-        </SvgIcon>;
+            </SvgIcon>
+        );
 
         return (
             <RaisedButton id="fbLogIn" icon={icon} label="Login with Facebook" onClick={this.onClick.bind(this)} primary={true} />
