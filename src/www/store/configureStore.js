@@ -15,11 +15,13 @@ export default async function configureStore() {
     const middleware = applyMiddleware(restApiMiddleware, routerMw, thunk, logger);
     const store = createStore(rootReducer, middleware);
 
-    // Make sure store is created with the initial data.
-    const initialState = localStorage.token ? (await get('/sync')).json : null;
+    if (typeof localStorage !== 'undefined') {
+        // Make sure store is created with the initial data.
+        let initialState = window.__INITIAL_STATE__;
 
-    if (initialState) {
-        store.dispatch({ type: LOG_IN_SUCCESS, payload: initialState });
+        if (initialState) {
+            store.dispatch({ type: LOG_IN_SUCCESS, payload: initialState });
+        }
     }
 
     return store;

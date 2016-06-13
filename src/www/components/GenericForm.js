@@ -16,10 +16,11 @@ export default class UserPasswordForm extends React.Component {
     generateInput({ type, name, placeholder }) {
         const onChange = (e) => this.setState({ [name]: e.currentTarget.value });
         placeholder = placeholder || capitalize(name);
+        let id = `generic-form-input-${name}`;
 
         return (
             <div key={name} className={name}>
-                <TextField fullWidth={true} type={type} onChange={onChange} hintText={placeholder} />
+                <TextField id={id} fullWidth={true} type={type} onChange={onChange} hintText={placeholder} />
             </div>
         );
     }

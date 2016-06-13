@@ -10,10 +10,12 @@ let Layout = ({ children, game, inGame }) => {
         var progress = (100 * game.progress.length) / NUM_OF_QUESTIONS;
     }
 
+    // { localStorage.token ? <Bar /> : null }
+    // { localStorage.token ? null : <div id="mainHeader"><Riddli scale="0.3" /></div> }
+
     return (
         <div>
-            { localStorage.token ? <Bar /> : null }
-            { localStorage.token ? null : <div id="mainHeader"><Riddli scale="0.3" /></div> }
+
             { inGame ? <LinearProgress mode="determinate" value={progress} /> : null }
 
             <div id="layoutWrapper">

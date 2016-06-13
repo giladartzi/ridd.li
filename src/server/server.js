@@ -1,13 +1,14 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import http from 'http';
 import https from 'spdy';
 import ws from 'ws';
-import path from 'path';
+import fs from 'fs';
 import LEX from 'letsencrypt-express';
-import { jwtMiddleware } from './utils/userUtils';
+import { jwtMiddleware, jwtLooseMiddleware } from './utils/userUtils';
 import { initWebSocket } from './wsManager';
 import { requestHandlerWrapper } from './utils/utils';
 import { game, answer, leave } from './controllers/gameController';
@@ -16,12 +17,23 @@ import { availableUsers, enter } from './controllers/loungeController';
 import { acceptInvitation, cancelInvitation, getInvitation,
     rejectInvitation, sendInvitation } from './controllers/invitationController';
 import { getSync } from './controllers/syncController';
+import { renderToString } from 'react-dom/server';
+import { match, RouterContext } from 'react-router';
+import routes from '../www/utils/routes';
+import React from 'react';
+import { Provider } from 'react-redux';
+import configureStore from '../www/store/configureStore';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+
+let htmlTemplate = getIndexTemplate();
 
 // Express simplistic configuration
 let app = express();
 app.use(compression());
 app.use(bodyParser.json());
 app.use(cors());
+app.use(cookieParser());
 app.use(function(err, req, res, next) {
     console.error(err.stack);
     res.status(500).send('Something broke!');
@@ -51,16 +63,46 @@ app.get('/invitation', jwtMiddleware, requestHandlerWrapper(getInvitation));
 // syncController routes
 app.get('/sync', jwtMiddleware, requestHandlerWrapper(getSync));
 
-// If environment is production, statically server the public directory.
-// In case of 404, still server the public directory's index.html file.
-// This way, we can use the react-router's browserHistory object and have nicer URL's
-// In development mode, the files will be served by webpack-dev-server.
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static('public'));
-    app.get('*', function (req, res) {
-        res.sendFile(path.resolve(__dirname, '../../public/index.html'));
+// Not serving a favicon.
+app.get('/favicon.ico', (req, res) => { res.sendStatus(404); });
+
+// On GET request, try to serve public assets (JS files, manifest);
+app.use(express.static('public'));
+
+// If request is not a static file, then it's probably a route
+app.get('*', jwtLooseMiddleware, (req, res) => {
+    match({ routes: routes, location: req.url }, async (err, redirect, props) => {
+        try {
+            let store = await configureStore();
+            const muiTheme = getMuiTheme(null, { userAgent: req.headers['user-agent'] });
+            
+            let sync;
+
+            if (req.user) {
+                sync = await getSync(req.user.id, null, req.user, req.cookies.token);
+            }
+
+            const appHtml = renderToString((
+                <Provider store={store}>
+                    <MuiThemeProvider muiTheme={muiTheme}>
+                        <RouterContext {...props}/>
+                    </MuiThemeProvider>
+                </Provider>));
+
+            if (process.env.NODE_ENV !== 'production') {
+                // Refresh the htmlTemplate global, as it may
+                // have a new webpack hash
+                htmlTemplate = getIndexTemplate();
+            }
+
+            res.send(renderPage(htmlTemplate, appHtml, sync));
+        }
+        catch (e) {
+            console.error('*', e.message, e.stack);
+        }
+
     })
-}
+});
 
 var port = 8080;
 var server;
@@ -98,3 +140,28 @@ else {
 
 let wsServer = new ws.Server({ server: server });
 wsServer.on('connection', initWebSocket);
+
+
+
+
+
+
+
+function renderPage(htmlTemplate, appHtml, initialState) {
+    var result =  htmlTemplate.replace('<div id="riddliApp"></div>',
+        `<div id="riddliApp">${appHtml}</div>`);
+
+    let xx = `<script>window.__INITIAL_STATE__ = ${JSON.stringify(initialState)}</script>`;
+    result = result.replace('<script></script>', xx);
+
+
+    console.log(xx);
+    console.log(result);
+    console.log(result.indexOf('<script></script>'));
+
+    return result;
+}
+
+function getIndexTemplate() {
+    return fs.readFileSync('public/index.html', 'utf-8');
+}

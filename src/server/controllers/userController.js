@@ -16,7 +16,7 @@ function userSignJson(user) {
     };
 }
 
-export async function signUp(params) {
+export async function signUp(params, res) {
     let { firstName, lastName, email, fbUserId, password, picture } = params;
     
     // check that email is available
@@ -60,12 +60,12 @@ export async function signUp(params) {
     
     // When a user signs up, we'd like for him to jump straight
     // to the application. Immediately initiating login process.
-    let loggedIn = await login({ email, password });
+    let loggedIn = await login({ email, password }, res);
 
     return userJson(user._id, user.displayName, email, user.picture, loggedIn.user.token);
 }
 
-export async function login(params) {
+export async function login(params, res) {
     let { email, password } = params;
     
     if (!email) {
@@ -87,7 +87,9 @@ export async function login(params) {
     }
 
     // User has successfully authenticated. Creating a JWT token.
+    // Saving the token to the user's cookie too.
     let token = await sign(userSignJson(user));
+    res.cookie('token', token, { domain: 'ridd.li', httpOnly: true });
 
     // When the user has successfully logged in, we'd like him to
     // be completely synchronized about his data from previous sessions

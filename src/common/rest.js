@@ -1,6 +1,6 @@
 export async function send(method, path, token, body) {
     let port = 8080;
-    let hostname = 'localhost';
+    let hostname = 'local.ridd.li';
     let protocol = 'http:';
 
     // PORT is injected via webpack plugin
@@ -17,6 +17,8 @@ export async function send(method, path, token, body) {
 
     let options = {
         method: method,
+        mode: 'cors',
+        credentials: 'include',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'

@@ -26,12 +26,23 @@ export async function jwtVerify(token) {
 
 export async function jwtMiddleware(req, res, next) {
     try {
-        req.user = await jwtVerify(req.headers.token);
+        req.user = await jwtVerify(req.cookies.token || req.headers.token);
         next();
     }
     catch (e) {
         res.status(403).send({error: UNAUTHORIZED});
     }
+}
+
+export async function jwtLooseMiddleware(req, res, next) {
+    try {
+        req.user = await jwtVerify(req.cookies.token || req.headers.token);
+    }
+    catch (e) {
+        req.user = {};
+    }
+
+    next();
 }
 
 export function isValidEmail(email) {

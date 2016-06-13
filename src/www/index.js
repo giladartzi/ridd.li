@@ -2,43 +2,38 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import babelPolyfill from 'babel-polyfill';
 import { Provider } from 'react-redux';
-import { Router, Route, IndexRoute, browserHistory } from 'react-router';
+import { Router, browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import configureStore from './store/configureStore';
 import * as ws from './utils/ws';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import routes from './utils/routes';
 
 import fetch from 'isomorphic-fetch';
-
-import Layout from './components/Layout';
-import SingUpForm from './components/SingUpForm';
-import LogInForm from './components/LogInForm';
-import Lounge from './components/Lounge';
-import Game from './components/Game';
 
 require('./style.css');
 
 function validateToken(nextState, replace) {
-    if (!localStorage.token) {
-        replace('/');
-    }
+    // if (!localStorage.token) {
+    //     replace('/');
+    // }
 }
 
 function validateNonToken(nextState, replace) {
-    if (localStorage.token) {
-        replace('/lounge');
-    }
+    // if (localStorage.token) {
+    //     replace('/lounge');
+    // }
 }
 
 function validateGame(getState, nextState, replace) {
-    if (!localStorage.token) {
-        replace('/');
-    }
-    else if (!getState().game.gameId) {
-        replace('/lounge');
-    }
+    // if (!localStorage.token) {
+    //     replace('/');
+    // }
+    // else if (!getState().game.gameId) {
+    //     replace('/lounge');
+    // }
 }
 
 (async function () {
@@ -52,14 +47,7 @@ function validateGame(getState, nextState, replace) {
     const node = (
         <Provider store={store}>
             <MuiThemeProvider muiTheme={muiTheme}>
-                <Router history={history}>
-                    <Route path="/" component={Layout}>
-                        <IndexRoute component={LogInForm} onEnter={validateNonToken} />
-                        <Route path="/signup" component={SingUpForm} onEnter={validateNonToken} />
-                        <Route path="/lounge" component={Lounge} onEnter={validateToken} />
-                        <Route path="/game" component={Game} onEnter={validateGame.bind(null, store.getState)} />
-                    </Route>
-                </Router>
+                <Router routes={routes} history={history} />
             </MuiThemeProvider>
         </Provider>
     );

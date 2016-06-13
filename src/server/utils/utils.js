@@ -41,10 +41,10 @@ export async function safeAwait(promise) {
 
 export function requestHandlerWrapper(handler) {
     return async (req, res) => {
-        let argArr = [req.body];
+        let argArr = [req.body, res];
         
         if (req.user) {
-            argArr = [req.user.id, req.body, req.user, req.headers.token];
+            argArr = [req.user.id, req.body, req.user, req.headers.token, res];
         }
         
         try {
